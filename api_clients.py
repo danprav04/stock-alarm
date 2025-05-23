@@ -284,7 +284,7 @@ class GeminiAPIClient:
                 "contents": [{"parts": [{"text": prompt}]}],
                 "generationConfig": {  # Sensible defaults
                     "temperature": 0.7,
-                    "maxOutputTokens": 2048,  # Increased for potentially longer analyses
+                    "maxOutputTokens": 65536,  # Increased for potentially longer analyses
                 },
                 "safetySettings": [  # Default safety settings
                     {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
