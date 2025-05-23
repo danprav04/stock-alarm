@@ -35,3 +35,55 @@
 2025-05-23 21:46:57,001 - root - WARNING - Gemini candidate finished with reason: MAX_TOKENS. Prompt: 'Synthesize the following financial metrics and qualitative analysis for Apple Inc. (AAPL) into an in...'
 2025-05-23 21:46:57,465 - root - INFO - Successfully analyzed and saved stock: AAPL (Analysis ID: 1)
 2025-05-23 21:46:57,551 - root - INFO - --- Script execution finished. ---
+2025-05-23 22:08:06,352 - root - INFO - ===================================================================
+2025-05-23 22:08:06,352 - root - INFO - Starting Financial Analysis Script at 2025-05-23 22:08:06.352019
+2025-05-23 22:08:06,352 - root - INFO - ===================================================================
+2025-05-23 22:08:06,354 - root - INFO - --- Starting Individual Stock Analysis for: ['GOOG'] ---
+2025-05-23 22:08:08,005 - root - INFO - Stock GOOG not found in DB, creating new entry.
+2025-05-23 22:08:09,411 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/GOOG?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
+2025-05-23 22:08:09,668 - root - INFO - Starting analysis for GOOG...
+2025-05-23 22:08:09,669 - root - INFO - Fetching financial data for GOOG...
+2025-05-23 22:08:09,840 - root - INFO - Cache hit for: GET:https://financialmodelingprep.com/api/v3/profile/GOOG?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
+2025-05-23 22:08:09,936 - root - ERROR - Outer exception in analyze() for GOOG: Instance <Stock at 0x18eafd44e00> is not bound to a Session; attribute refresh operation cannot proceed (Background on this error at: https://sqlalche.me/e/14/bhk3)
+Traceback (most recent call last):
+  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 402, in analyze
+    raw_data = self._fetch_financial_data()  # This might commit company name changes
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 83, in _fetch_financial_data
+    not self.stock_db_entry.company_name or self.stock_db_entry.company_name == self.ticker):
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\orm\attributes.py", line 487, in __get__
+    return self.impl.get(state, dict_)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\orm\attributes.py", line 959, in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\orm\attributes.py", line 990, in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\orm\state.py", line 712, in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\orm\loading.py", line 1369, in load_scalar_attributes
+    raise orm_exc.DetachedInstanceError(
+sqlalchemy.orm.exc.DetachedInstanceError: Instance <Stock at 0x18eafd44e00> is not bound to a Session; attribute refresh operation cannot proceed (Background on this error at: https://sqlalche.me/e/14/bhk3)
+2025-05-23 22:08:09,946 - root - INFO - --- Script execution finished. ---
+2025-05-23 22:12:39,281 - root - INFO - ===================================================================
+2025-05-23 22:12:39,281 - root - INFO - Starting Financial Analysis Script at 2025-05-23 22:12:39.281725
+2025-05-23 22:12:39,282 - root - INFO - ===================================================================
+2025-05-23 22:12:39,283 - root - INFO - --- Starting Individual Stock Analysis for: ['GOOG'] ---
+2025-05-23 22:12:40,900 - root - INFO - Found existing stock entry for GOOG (ID: 2). Current DB Company Name: Alphabet Inc.
+2025-05-23 22:12:40,901 - root - INFO - Starting analysis for GOOG...
+2025-05-23 22:12:40,901 - root - INFO - Fetching financial data for GOOG...
+2025-05-23 22:12:40,993 - root - INFO - Cache hit for: GET:https://financialmodelingprep.com/api/v3/profile/GOOG?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
+2025-05-23 22:12:42,737 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/income-statement/GOOG?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
+2025-05-23 22:12:44,176 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/GOOG?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
+2025-05-23 22:12:45,644 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/GOOG?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
+2025-05-23 22:12:47,186 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/GOOG?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
+2025-05-23 22:12:48,454 - root - INFO - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=GOOG&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390
+2025-05-23 22:12:48,456 - root - INFO - Calculating metrics for GOOG...
+2025-05-23 22:12:48,457 - root - INFO - Calculated metrics for GOOG: {'pe_ratio': 23.292381989252682, 'pb_ratio': 7.173489621144074, 'dividend_yield': 0.0031573936506584708, 'debt_to_equity': 0.07832129541903016, 'net_profit_margin': None, 'roe': 0.30797578472025694, 'eps': 7.5203, 'revenue_growth': '13.87%', 'interest_coverage_ratio': 505.2014925373134, 'current_ratio': 1.8369313974102914, 'retained_earnings_trend': 'Growing', 'free_cash_flow_trend': 'Growing'}
+2025-05-23 22:12:48,459 - root - INFO - Analyzing qualitative factors for GOOG using Gemini...
+2025-05-23 22:13:07,453 - root - INFO - Qualitative analysis for GOOG complete.
+2025-05-23 22:13:07,454 - root - INFO - Determining investment strategy for GOOG...
+2025-05-23 22:13:15,283 - root - INFO - Successfully analyzed and saved stock: GOOG (Analysis ID: 2)
+2025-05-23 22:13:15,371 - root - INFO - --- Script execution finished. ---
