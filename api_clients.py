@@ -34,16 +34,26 @@ class APIClient:
     def _get_cached_response(self, request_url_or_params_str):
         session = SessionLocal()
         try:
+            # Ensure timezone aware comparison if database stores timezone-aware datetimes
+            # For simplicity, assuming database stores naive UTC or comparison handles it.
+            # If CachedAPIData.expires_at is timezone-aware, datetime.now() needs to be too.
+            # Example: datetime.now(timezone.utc) if expires_at is tz-aware UTC.
+            # For now, assuming direct comparison works or DB handles timezone conversion implicitly.
+
+            # A more robust way for timezone-aware comparison if expires_at column type has timezone:
+            # current_time = datetime.now(CachedAPIData.expires_at.expression.type.timezone_awareness)
+            # However, if it's just a standard DateTime field that's naive UTC:
+            current_time = datetime.utcnow()  # If storing naive UTC timestamps
+
             cache_entry = session.query(CachedAPIData).filter(
                 CachedAPIData.request_url_or_params == request_url_or_params_str,
-                CachedAPIData.expires_at > datetime.now(CachedAPIData.expires_at.expression.type.timezone)
-                # Ensure timezone aware comparison
+                CachedAPIData.expires_at > current_time  # Use consistent datetime object for comparison
             ).first()
             if cache_entry:
                 logger.info(f"Cache hit for: {request_url_or_params_str}")
                 return cache_entry.response_data
         except Exception as e:
-            logger.error(f"Error reading from cache: {e}", exc_info=True)
+            logger.error(f"Error reading from cache for '{request_url_or_params_str}': {e}", exc_info=True)
         finally:
             session.close()
         return None
@@ -51,21 +61,25 @@ class APIClient:
     def _cache_response(self, request_url_or_params_str, response_data, api_source):
         session = SessionLocal()
         try:
-            expires_at = datetime.now() + timedelta(seconds=CACHE_EXPIRY_SECONDS)
-            # For timezone-aware datetime, if your DB expects it
-            # from sqlalchemy.sql import func; expires_at = func.now() + timedelta(seconds=CACHE_EXPIRY_SECONDS)
+            # If storing naive UTC
+            expires_at_utc = datetime.utcnow() + timedelta(seconds=CACHE_EXPIRY_SECONDS)
+
+            # Delete any existing cache for this key to avoid unique constraint violations if we re-cache
+            session.query(CachedAPIData).filter(
+                CachedAPIData.request_url_or_params == request_url_or_params_str).delete()
+            session.commit()  # Commit delete before adding new one
 
             cache_entry = CachedAPIData(
                 api_source=api_source,
                 request_url_or_params=request_url_or_params_str,
                 response_data=response_data,
-                expires_at=expires_at
+                expires_at=expires_at_utc  # Use naive UTC
             )
             session.add(cache_entry)
             session.commit()
             logger.info(f"Cached response for: {request_url_or_params_str}")
         except Exception as e:
-            logger.error(f"Error writing to cache: {e}", exc_info=True)
+            logger.error(f"Error writing to cache for '{request_url_or_params_str}': {e}", exc_info=True)
             session.rollback()
         finally:
             session.close()
@@ -80,10 +94,13 @@ class APIClient:
         # Create a unique string for caching based on URL and params
         # Sort params for consistent key generation
         sorted_params = sorted(full_params.items()) if full_params else []
-        cache_key_str = f"{method.upper()}:{url}?{json.dumps(sorted_params)}"
+        # Using json.dumps for params part of cache key to handle complex structures if any, though usually simple dicts.
+        param_string = "&".join([f"{k}={v}" for k, v in sorted_params])  # More standard query string like for cache key
+        cache_key_str = f"{method.upper()}:{url}?{param_string}"
 
         if use_cache:
-            cached_data = self_get_cached_response(cache_key_str)
+            # CORRECTED LINE HERE:
+            cached_data = self._get_cached_response(cache_key_str)
             if cached_data:
                 return cached_data
 
@@ -102,23 +119,24 @@ class APIClient:
 
             except requests.exceptions.HTTPError as e:
                 logger.warning(
-                    f"HTTP error on attempt {attempt + 1}/{API_RETRY_ATTEMPTS} for {url}: {e.response.status_code} - {e.response.text}")
+                    f"HTTP error on attempt {attempt + 1}/{API_RETRY_ATTEMPTS} for {url} (Params: {full_params}): {e.response.status_code} - {e.response.text}")
                 if e.response.status_code == 429:  # Rate limit
                     logger.info(f"Rate limit hit. Waiting for {API_RETRY_DELAY * (attempt + 1)} seconds.")
                     time.sleep(API_RETRY_DELAY * (attempt + 1))  # Exponential backoff can be better
                 elif 500 <= e.response.status_code < 600:  # Server-side error
                     logger.info(f"Server error. Waiting for {API_RETRY_DELAY * (attempt + 1)} seconds.")
                     time.sleep(API_RETRY_DELAY * (attempt + 1))
-                else:  # Other client errors (4xx) usually don't benefit from retries
-                    logger.error(f"Client error for {url}: {e}", exc_info=True)
+                else:  # Other client errors (4xx) usually don't benefit from retries if not rate limit
+                    logger.error(f"Non-retryable client error for {url}: {e}",
+                                 exc_info=False)  # No need for full exc_info for typical 400/401/403/404
                     return None  # Or raise custom error
-            except requests.exceptions.RequestException as e:
+            except requests.exceptions.RequestException as e:  # Covers DNS, ConnectionTimeout, etc.
                 logger.warning(f"Request error on attempt {attempt + 1}/{API_RETRY_ATTEMPTS} for {url}: {e}")
 
             if attempt < API_RETRY_ATTEMPTS - 1:
                 time.sleep(API_RETRY_DELAY)
             else:
-                logger.error(f"All {API_RETRY_ATTEMPTS} attempts failed for {url}.")
+                logger.error(f"All {API_RETRY_ATTEMPTS} attempts failed for {url}. Params: {full_params}")
                 return None  # Or raise custom error
         return None
 
@@ -159,6 +177,7 @@ class FinancialModelingPrepClient(APIClient):
         params = {}
         if from_date: params["from"] = from_date
         if to_date: params["to"] = to_date
+        # FMP IPO calendar can return empty list if no IPOs, which is valid JSON.
         return self.request("GET", "/ipo_calendar", params=params, api_source_name="fmp")
 
     def get_financial_statements(self, ticker, statement_type="income-statement", period="quarter", limit=20):
@@ -181,68 +200,41 @@ class FinancialModelingPrepClient(APIClient):
 class EODHDClient(APIClient):
     def __init__(self):
         # EODHD often needs 'fmt=json' and api_token in query params
+        # The base_url does not include the final / so endpoints should start with /
         super().__init__("https://eodhistoricaldata.com/api", api_key_name="api_token", api_key_value=EODHD_API_KEY)
-        self.base_params = {"fmt": "json", "api_token": EODHD_API_KEY}  # Add token to base_params for EODHD
+        # EODHD requires token and fmt to be part of every request's parameters.
+        # We'll ensure the parent class's params handling correctly uses self.params which holds the api_token.
+        # And we'll add 'fmt':'json' to specific calls if not globally applied, or ensure it's in self.params.
+        self.params["fmt"] = "json"  # Add fmt=json globally for this client
 
     def request(self, method, endpoint, params=None, data=None, json_data=None, use_cache=True,
-                api_source_name="eodhd"):  # Override to merge base_params
-        url = f"{self.base_url}{endpoint}"
-        request_specific_params = params.copy() if params else {}
+                api_source_name="eodhd"):
+        # EODHD's ticker often forms part of the path, e.g., /fundamentals/AAPL.US
+        # The common params like api_token and fmt are already in self.params from __init__
+        # So, the generic self.request method should work fine.
+        # No need to override usually, unless EODHD has very specific parameter merging logic not covered by parent.
+        # For EODHD, the ticker is usually part of the endpoint string itself.
+        # Example: endpoint = f"/fundamentals/{ticker_symbol_with_exchange}"
 
-        # ticker is usually part of endpoint path for EODHD, not a param for the base call
-        # e.g. /fundamentals/{ticker_symbol.US}
-        # Ensure token and fmt are always there
-        final_params = self.base_params.copy()
-        final_params.update(request_specific_params)
+        # Rebuild cache key for EODHD to ensure 'fmt=json' and 'api_token' are consistently ordered if params were dynamic
+        # However, self.params ensures they are always present in full_params which is used for cache_key_str.
+        # The parent's cache_key_str should be fine.
 
-        # Rebuild cache key for EODHD since its param structure is a bit different
-        sorted_params = sorted(final_params.items()) if final_params else []
-        cache_key_str = f"{method.upper()}:{url}?{json.dumps(sorted_params)}"
-
-        if use_cache:
-            cached_data = self._get_cached_response(cache_key_str)
-            if cached_data:
-                return cached_data
-
-        # Actual request logic (copied and adapted from parent to ensure correct param usage)
-        for attempt in range(API_RETRY_ATTEMPTS):
-            try:
-                response = requests.request(
-                    method, url, params=final_params, data=data, json=json_data,
-                    headers=self.headers, timeout=API_REQUEST_TIMEOUT
-                )
-                response.raise_for_status()
-                response_json = response.json()
-                if use_cache:
-                    self._cache_response(cache_key_str, response_json, api_source_name)
-                return response_json
-            except requests.exceptions.HTTPError as e:
-                # (Same error handling as parent)
-                logger.warning(
-                    f"HTTP error on attempt {attempt + 1}/{API_RETRY_ATTEMPTS} for {url} with params {final_params}: {e.response.status_code} - {e.response.text}")
-                if e.response.status_code == 429 or 500 <= e.response.status_code < 600:
-                    time.sleep(API_RETRY_DELAY * (attempt + 1))
-                else:
-                    logger.error(f"Client error for {url}: {e}", exc_info=True)
-                    return None
-            except requests.exceptions.RequestException as e:
-                logger.warning(f"Request error on attempt {attempt + 1}/{API_RETRY_ATTEMPTS} for {url}: {e}")
-
-            if attempt < API_RETRY_ATTEMPTS - 1:
-                time.sleep(API_RETRY_DELAY)
-            else:
-                logger.error(f"All {API_RETRY_ATTEMPTS} attempts failed for {url}.")
-                return None
-        return None
+        # Let's simplify by calling parent's request directly.
+        # If specific EODHD behavior for params or cache key is needed, this is where it would go.
+        return super().request(method, endpoint, params=params, data=data, json_data=json_data, use_cache=use_cache,
+                               api_source_name=api_source_name)
 
     def get_fundamental_data(self, ticker_with_exchange):  # e.g., "AAPL.US"
         # Contains financial statements, ratios, company info
-        return self.request("GET", f"/fundamentals/{ticker_with_exchange}", api_source_name="eodhd")
+        return self.request("GET", f"/fundamentals/{ticker_with_exchange}.US",
+                            api_source_name="eodhd")  # Added .US suffix for common case, adjust if needed
 
     def get_ipo_calendar(self, from_date=None, to_date=None):  # Dates YYYY-MM-DD
-        params = {}
+        params = {}  # api_token and fmt will be added by parent class
         if from_date: params["from"] = from_date
         if to_date: params["to"] = to_date
+        # Note: EODHD /calendar/ipos might require subscription beyond free tier.
         return self.request("GET", "/calendar/ipos", params=params, api_source_name="eodhd")
 
     # Add more EODHD endpoints
@@ -254,13 +246,14 @@ class RapidAPIUpcomingIPOCalendarClient(APIClient):
             "X-RapidAPI-Key": RAPIDAPI_UPCOMING_IPO_KEY,
             "X-RapidAPI-Host": "upcoming-ipo-calendar.p.rapidapi.com"  # Verify host from RapidAPI docs
         }
+        # For RapidAPI, the key is in headers, not params. So api_key_name/value are None for base class.
         super().__init__("https://upcoming-ipo-calendar.p.rapidapi.com", headers=headers)
 
     def get_ipo_calendar(self):  # Endpoint details may vary
         # RapidAPI endpoints are often specific, e.g., /ipocalendar
         # Check RapidAPI documentation for the exact endpoint path and params
-        # For example, if it's just the base URL that gives the calendar:
-        return self.request("GET", "/", api_source_name="rapidapi_ipo")  # Assuming base URL gives calendar
+        # Assuming base URL or a specific path like "/list" gives the calendar:
+        return self.request("GET", "/", api_source_name="rapidapi_ipo")  # Adjust endpoint as needed
 
     # Add more specific methods if the API has more features
 
@@ -272,72 +265,104 @@ class GeminiAPIClient:
         self.current_key_index = 0
 
     def _get_next_api_key(self):
+        # This simple rotation doesn't track which keys specifically failed, just cycles.
+        # A more robust solution might involve removing known bad/over-limit keys from rotation temporarily.
         key = GOOGLE_API_KEYS[self.current_key_index]
         self.current_key_index = (self.current_key_index + 1) % len(GOOGLE_API_KEYS)
+        logger.debug(f"Using Google API Key index: {self.current_key_index} (Key ending: ...{key[-4:]})")
         return key
 
-    def generate_text(self, prompt, model="gemini-pro"):  # or gemini-1.5-flash, etc.
-        api_key = self._get_next_api_key()
-        url = f"{self.base_url}/{model}:generateContent?key={api_key}"
+    def generate_text(self, prompt, model="gemini-2.5-flash-preview-05-20"):  # or gemini-1.5-flash, etc.
 
-        # Gemini API has a specific request structure
-        payload = {
-            "contents": [{
-                "parts": [{"text": prompt}]
-            }],
-            # Optional: Add generationConfig, safetySettings here
-            # "generationConfig": {
-            #   "temperature": 0.7,
-            #   "maxOutputTokens": 1024,
-            # },
-            # "safetySettings": [ ... ]
-        }
+        initial_key_index = self.current_key_index  # To detect if all keys have been tried
 
-        for attempt in range(API_RETRY_ATTEMPTS):  # Simplified retry for Gemini
+        for attempt in range(len(GOOGLE_API_KEYS) * API_RETRY_ATTEMPTS):  # Max attempts across all keys
+            api_key = self._get_next_api_key()  # Rotate key first
+            url = f"{self.base_url}/{model}:generateContent?key={api_key}"
+
+            payload = {
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {  # Sensible defaults
+                    "temperature": 0.7,
+                    "maxOutputTokens": 2048,  # Increased for potentially longer analyses
+                },
+                "safetySettings": [  # Default safety settings
+                    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                ]
+            }
+
             try:
                 response = requests.post(url, json=payload,
-                                         timeout=API_REQUEST_TIMEOUT + 20)  # Longer timeout for generative models
-                response.raise_for_status()
+                                         timeout=API_REQUEST_TIMEOUT + 30)  # Longer timeout for generative models
+                response.raise_for_status()  # Check for HTTP errors first
 
-                # Check for content and candidates
                 response_json = response.json()
+
+                if "promptFeedback" in response_json and response_json["promptFeedback"].get("blockReason"):
+                    block_reason = response_json["promptFeedback"]["blockReason"]
+                    block_details = response_json["promptFeedback"].get("safetyRatings", "")
+                    logger.error(
+                        f"Gemini prompt blocked for key ...{api_key[-4:]}. Reason: {block_reason}. Details: {block_details}. Prompt snippet: '{prompt[:100]}...'")
+                    # If blocked for safety, retrying with same prompt and different key might not help.
+                    # Consider if this should immediately fail or try other keys. For now, it will try other keys.
+                    # If it's a specific key issue (e.g. permissions), other keys might work.
+                    if attempt % API_RETRY_ATTEMPTS == API_RETRY_ATTEMPTS - 1 and self.current_key_index == initial_key_index:  # All keys tried for this prompt with retries
+                        return f"Error: Prompt blocked by Gemini for all keys ({block_reason})."
+                    time.sleep(API_RETRY_DELAY)  # Wait before trying next key or retry
+                    continue  # Try next key or retry current key
+
                 if "candidates" in response_json and response_json["candidates"]:
-                    content_part = response_json["candidates"][0].get("content", {}).get("parts", [{}])[0]
+                    candidate = response_json["candidates"][0]
+                    if candidate.get("finishReason") not in [None, "STOP"]:  # Check for abnormal finish reasons
+                        logger.warning(
+                            f"Gemini candidate finished with reason: {candidate.get('finishReason')}. Prompt: '{prompt[:100]}...'")
+                        # If finishReason is MAX_TOKENS, the response might be truncated.
+                        # If SAFETY, it's similar to promptFeedback block.
+                        # For now, we'll try to extract text if available.
+
+                    content_part = candidate.get("content", {}).get("parts", [{}])[0]
                     if "text" in content_part:
                         return content_part["text"]
                     else:
-                        logger.error(f"Gemini response missing text in content part: {response_json}")
-                        return f"Error: No text found in Gemini response. Full response: {response_json}"
-                elif "promptFeedback" in response_json and response_json["promptFeedback"].get("blockReason"):
-                    block_reason = response_json["promptFeedback"]["blockReason"]
+                        logger.error(
+                            f"Gemini response missing text in content part for key ...{api_key[-4:]}: {response_json}")
+                else:  # No candidates or malformed
                     logger.error(
-                        f"Gemini prompt blocked: {block_reason}. Details: {response_json.get('promptFeedback')}")
-                    return f"Error: Prompt blocked by Gemini ({block_reason})."
-                else:
-                    logger.error(f"Gemini response malformed or missing candidates: {response_json}")
-                    return f"Error: Malformed response from Gemini. Full response: {response_json}"
+                        f"Gemini response malformed or missing candidates for key ...{api_key[-4:]}: {response_json}")
 
             except requests.exceptions.HTTPError as e:
                 logger.warning(
-                    f"Gemini API HTTP error on attempt {attempt + 1}: {e.response.status_code} - {e.response.text}")
-                # Specific Gemini error handling if needed, e.g. quota exceeded, key invalid
-                if e.response.status_code == 429:  # Quota or rate limit
-                    logger.info(f"Gemini API rate limit/quota. Trying next key or waiting.")
-                    api_key = self._get_next_api_key()  # Try next key immediately on rate limit
-                    url = f"{self.base_url}/{model}:generateContent?key={api_key}"
-                elif e.response.status_code == 400:  # Bad request, likely prompt issue
+                    f"Gemini API HTTP error for key ...{api_key[-4:]} on attempt {(attempt % API_RETRY_ATTEMPTS) + 1}/{API_RETRY_ATTEMPTS}: {e.response.status_code} - {e.response.text}. Prompt: '{prompt[:100]}...'")
+                # 400 Bad Request (e.g. invalid model, malformed payload) - often not recoverable by retry with same params
+                # 429 Resource Exhausted (quota) - good candidate for key rotation / backoff
+                if e.response.status_code == 400:
                     logger.error(
-                        f"Gemini API bad request (400). Prompt: '{prompt[:200]}...'. Response: {e.response.text}")
-                    return f"Error: Gemini API bad request. {e.response.text}"
-                # Other errors might also benefit from key rotation or just retrying
-                time.sleep(API_RETRY_DELAY * (attempt + 1))
+                        f"Gemini API Bad Request (400). Check model name and payload structure. Response: {e.response.text}")
+                    # This is likely a persistent issue with the request itself, not the key.
+                    # Stop trying for this prompt to avoid burning through all keys for a bad request.
+                    return f"Error: Gemini API bad request (400). {e.response.text}"
+                # For other errors (like 429, 500s), the loop will continue to retry/rotate keys.
 
-            except requests.exceptions.RequestException as e:
-                logger.warning(f"Gemini API request error on attempt {attempt + 1}: {e}")
-                time.sleep(API_RETRY_DELAY)
+            except requests.exceptions.RequestException as e:  # Timeout, ConnectionError
+                logger.warning(
+                    f"Gemini API request error for key ...{api_key[-4:]} on attempt {(attempt % API_RETRY_ATTEMPTS) + 1}/{API_RETRY_ATTEMPTS}: {e}. Prompt: '{prompt[:100]}...'")
+
+            # If all retries for current key are exhausted, or if all keys tried once and back to start
+            if (attempt % API_RETRY_ATTEMPTS) == API_RETRY_ATTEMPTS - 1:  # Exhausted retries for current key
+                logger.info(f"Exhausted retries for key ...{api_key[-4:]}. Moving to next key if available.")
+
+            if self.current_key_index == initial_key_index and (attempt % API_RETRY_ATTEMPTS) == API_RETRY_ATTEMPTS - 1:
+                logger.error(
+                    f"All Google API keys have been tried {API_RETRY_ATTEMPTS} times for this prompt and failed. Prompt: '{prompt[:100]}...'")
+                return f"Error: Could not get response from Gemini API after trying all keys with {API_RETRY_ATTEMPTS} retries each."
+
+            time.sleep(API_RETRY_DELAY)  # Wait before next attempt (either retry on same key or next key)
 
         logger.error(f"All attempts to call Gemini API failed for prompt: {prompt[:100]}...")
-        return "Error: Could not get response from Gemini API after multiple attempts."
+        return "Error: Could not get response from Gemini API after multiple attempts across all keys."
 
     def summarize_text(self, text_to_summarize, context=""):
         prompt = f"Please summarize the following text. {context}\n\nText:\n\"\"\"\n{text_to_summarize}\n\"\"\"\n\nSummary:"
@@ -352,40 +377,19 @@ class GeminiAPIClient:
         return self.generate_text(prompt)
 
     def interpret_financial_data(self, data_description, data_points, context_prompt):
-        """
-        Asks Gemini to interpret financial data.
-        data_description: e.g., "P/E ratio trend for AAPL"
-        data_points: e.g., "2020: 25, 2021: 28, 2022: 22. Industry average P/E: 20."
-        context_prompt: e.g., "Is this P/E trend generally favorable or unfavorable for a growth-oriented tech company?"
-        """
         prompt = f"Interpret the following financial data:\nDescription: {data_description}\nData: {data_points}\nContext/Question: {context_prompt}\n\nInterpretation:"
         return self.generate_text(prompt)
 
 
-# Instantiate clients for use in other modules
-# These can be singletons if managed carefully or instantiated as needed.
-# For simplicity here, other modules will import and instantiate them.
-# Example:
-# finnhub_client = FinnhubClient()
-# fmp_client = FinancialModelingPrepClient()
-# eodhd_client = EODHDClient()
-# rapidapi_ipo_client = RapidAPIUpcomingIPOCalendarClient()
-# gemini_client = GeminiAPIClient()
-
 # --- AlphaVantage and TickerTick ---
-# As per prompt, these don't require keys. If they do, similar classes would be built.
-# For now, if direct access is needed without a class structure:
 def get_alphavantage_data(params):
-    # Example: https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=IBM&interval=5min&apikey=YOUR_KEY
-    # Since no key is "needed", their free tier might be very limited or require 'demo' key
-    # This function would need to be fleshed out if used.
-    # For now, let's assume if data is needed from here, it's via a more generic search or user provides URL.
-    logger.info("AlphaVantage: Assuming no API key needed, but free tier may be limited. Not fully implemented here.")
+    logger.info("AlphaVantage: Not fully implemented. Assumed no API key or using 'demo'. Free tier is limited.")
+    # Example base: url = "https://www.alphavantage.co/query"
+    # full_params = {"apikey": "demo", **params} # Add 'demo' or your key
+    # response = requests.get(url, params=full_params)
     return None
 
 
 def get_tickertick_data(params):
-    # GitHub indicates it's a local API, so usage would depend on local setup.
-    # Not directly callable as a public web API in the same way as others.
     logger.info("TickerTick-API appears to be a local setup. Not implemented as a cloud API client.")
     return None
