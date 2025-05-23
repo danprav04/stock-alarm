@@ -8,15 +8,31 @@ from error_handler import logger
 from models import StockAnalysis, IPOAnalysis, NewsEventAnalysis
 from datetime import datetime
 import json
+from markdown2 import Markdown  # Import the markdown library
 
 
 class EmailGenerator:
     def __init__(self):
-        pass
+        self.markdowner = Markdown()  # Create a Markdown converter instance
+
+    def _md_to_html(self, md_text):
+        """Converts a markdown string to HTML. Handles None input."""
+        if md_text is None:
+            return "<p>N/A</p>"  # Or an empty string, or some other placeholder
+        # Basic check to see if it's already HTML (e.g. if AI starts returning HTML directly)
+        if md_text.strip().startswith("<") and md_text.strip().endswith(">"):
+            return md_text
+        return self.markdowner.convert(md_text)
 
     def _format_stock_analysis_html(self, analysis: StockAnalysis):
         if not analysis: return ""
         stock = analysis.stock
+        # Apply markdown conversion to fields that might contain markdown from Gemini
+        reasoning_html = self._md_to_html(analysis.reasoning)
+        economic_moat_html = self._md_to_html(analysis.economic_moat_summary)
+        industry_trends_html = self._md_to_html(analysis.industry_trends_summary)
+        management_assessment_html = self._md_to_html(analysis.management_assessment_summary)
+
         html = f"""
         <div class="analysis-block">
             <h2>Stock Analysis: {stock.company_name} ({stock.ticker})</h2>
@@ -26,7 +42,7 @@ class EmailGenerator:
 
             <details>
                 <summary><strong>Reasoning & AI Synthesis (Click to expand)</strong></summary>
-                <pre style="white-space: pre-wrap; word-wrap: break-word;">{analysis.reasoning}</pre>
+                <div class="markdown-content">{reasoning_html}</div>
             </details>
 
             <details>
@@ -52,11 +68,11 @@ class EmailGenerator:
             <details>
                 <summary><strong>Qualitative Analysis (Click to expand)</strong></summary>
                 <p><strong>Economic Moat:</strong></p>
-                <pre style="white-space: pre-wrap; word-wrap: break-word;">{analysis.economic_moat_summary}</pre>
+                <div class="markdown-content">{economic_moat_html}</div>
                 <p><strong>Industry Trends:</strong></p>
-                <pre style="white-space: pre-wrap; word-wrap: break-word;">{analysis.industry_trends_summary}</pre>
+                <div class="markdown-content">{industry_trends_html}</div>
                 <p><strong>Management Assessment (General Factors):</strong></p>
-                <pre style="white-space: pre-wrap; word-wrap: break-word;">{analysis.management_assessment_summary}</pre>
+                <div class="markdown-content">{management_assessment_html}</div>
                 <p><em>Context for qualitative prompts:</em></p>
                 <pre>{json.dumps(analysis.qualitative_sources, indent=2) if analysis.qualitative_sources else 'N/A'}</pre>
             </details>
@@ -67,6 +83,17 @@ class EmailGenerator:
     def _format_ipo_analysis_html(self, analysis: IPOAnalysis):
         if not analysis: return ""
         ipo = analysis.ipo
+        # Apply markdown conversion
+        reasoning_html = self._md_to_html(analysis.reasoning)
+        business_model_html = self._md_to_html(analysis.business_model_summary)
+        competitive_landscape_html = self._md_to_html(analysis.competitive_landscape_summary)
+        industry_health_html = self._md_to_html(analysis.industry_health_summary)
+        use_of_proceeds_html = self._md_to_html(analysis.use_of_proceeds_summary)
+        risk_factors_html = self._md_to_html(analysis.risk_factors_summary)
+        pre_ipo_financials_html = self._md_to_html(analysis.pre_ipo_financials_summary)
+        # valuation_comparison_summary is likely also markdown
+        valuation_comparison_html = self._md_to_html(analysis.valuation_comparison_summary)
+
         html = f"""
         <div class="analysis-block">
             <h2>IPO Analysis: {ipo.company_name}</h2>
@@ -77,18 +104,18 @@ class EmailGenerator:
 
             <details>
                 <summary><strong>AI Synthesized Reasoning & Key Verification Points (Click to expand)</strong></summary>
-                <pre style="white-space: pre-wrap; word-wrap: break-word;">{analysis.reasoning}</pre>
+                <div class="markdown-content">{reasoning_html}</div>
             </details>
 
             <details>
                 <summary><strong>IPO Details & Summaries (Click to expand)</strong></summary>
-                <p><strong>Business Model:</strong> {analysis.business_model_summary}</p>
-                <p><strong>Competitive Landscape:</strong> {analysis.competitive_landscape_summary}</p>
-                <p><strong>Industry Health:</strong> {analysis.industry_health_summary}</p>
-                <p><strong>Use of Proceeds (General):</strong> {analysis.use_of_proceeds_summary}</p>
-                <p><strong>Risk Factors (General):</strong> {analysis.risk_factors_summary}</p>
-                <p><strong>Pre-IPO Financials (Guidance):</strong> {analysis.pre_ipo_financials_summary}</p>
-                <p><strong>Valuation Comparison (Guidance):</strong> {analysis.valuation_comparison_summary}</p>
+                <p><strong>Business Model:</strong></p><div class="markdown-content">{business_model_html}</div>
+                <p><strong>Competitive Landscape:</strong></p><div class="markdown-content">{competitive_landscape_html}</div>
+                <p><strong>Industry Health:</strong></p><div class="markdown-content">{industry_health_html}</div>
+                <p><strong>Use of Proceeds (General):</strong></p><div class="markdown-content">{use_of_proceeds_html}</div>
+                <p><strong>Risk Factors (General):</strong></p><div class="markdown-content">{risk_factors_html}</div>
+                <p><strong>Pre-IPO Financials (Guidance):</strong></p><div class="markdown-content">{pre_ipo_financials_html}</div>
+                <p><strong>Valuation Comparison (Guidance):</strong></p><div class="markdown-content">{valuation_comparison_html}</div>
                 <p><strong>Underwriter Quality:</strong> {analysis.underwriter_quality}</p>
                 <p><strong>Fresh Issue vs OFS:</strong> {analysis.fresh_issue_vs_ofs}</p>
                 <p><strong>Lock-up Periods:</strong> {analysis.lock_up_periods_info}</p>
@@ -103,28 +130,45 @@ class EmailGenerator:
     def _format_news_event_analysis_html(self, analysis: NewsEventAnalysis):
         if not analysis: return ""
         news_event = analysis.news_event
+        # Apply markdown conversion
+        summary_email_html = self._md_to_html(analysis.summary_for_email)
+        scope_relevance_html = self._md_to_html(analysis.scope_relevance)
+        # affected_stocks_sectors is JSON, handle its 'text_analysis' part if it contains markdown
+        affected_stocks_text_analysis = analysis.affected_stocks_sectors.get('text_analysis',
+                                                                             'N/A') if analysis.affected_stocks_sectors else 'N/A'
+        affected_stocks_html = self._md_to_html(affected_stocks_text_analysis)
+        mechanism_of_impact_html = self._md_to_html(analysis.mechanism_of_impact)
+        estimated_timing_html = self._md_to_html(analysis.estimated_timing)
+        estimated_magnitude_direction_html = self._md_to_html(analysis.estimated_magnitude_direction)
+        countervailing_factors_html = self._md_to_html(analysis.countervailing_factors)
+
         html = f"""
         <div class="analysis-block">
             <h2>News/Event Analysis: {news_event.event_title}</h2>
             <p><strong>Event Date:</strong> {news_event.event_date.strftime('%Y-%m-%d %H:%M') if news_event.event_date else 'N/A'}</p>
             <p><strong>Source:</strong> <a href="{news_event.source_url}">{news_event.source_url}</a></p>
             <p><strong>Analysis Date:</strong> {analysis.analysis_date.strftime('%Y-%m-%d %H:%M')}</p>
-            <p><strong>Investor Summary:</strong> {analysis.summary_for_email}</p>
+            <p><strong>Investor Summary:</strong></p>
+            <div class="markdown-content">{summary_email_html}</div>
 
             <details>
                 <summary><strong>Detailed Analysis (Click to expand)</strong></summary>
                 <p><strong>Scope & Relevance:</strong></p>
-                <pre style="white-space: pre-wrap; word-wrap: break-word;">{analysis.scope_relevance}</pre>
+                <div class="markdown-content">{scope_relevance_html}</div>
                 <p><strong>Affected Stocks/Sectors (AI Analysis & API):</strong></p>
-                <pre style="white-space: pre-wrap; word-wrap: break-word;">API Related: {analysis.affected_stocks_sectors.get('api_related', 'N/A') if analysis.affected_stocks_sectors else 'N/A'}\nAI Analysis: {analysis.affected_stocks_sectors.get('text_analysis', 'N/A') if analysis.affected_stocks_sectors else 'N/A'}</pre>
+                <div class="markdown-content">
+                    <p><em>API Related:</em> {analysis.affected_stocks_sectors.get('api_related', 'N/A') if analysis.affected_stocks_sectors else 'N/A'}</p>
+                    <p><em>AI Analysis:</em></p>
+                    {affected_stocks_html}
+                </div>
                 <p><strong>Mechanism of Impact:</strong></p>
-                <pre style="white-space: pre-wrap; word-wrap: break-word;">{analysis.mechanism_of_impact}</pre>
+                <div class="markdown-content">{mechanism_of_impact_html}</div>
                 <p><strong>Estimated Timing & Duration:</strong></p>
-                <pre style="white-space: pre-wrap; word-wrap: break-word;">{analysis.estimated_timing}</pre>
+                <div class="markdown-content">{estimated_timing_html}</div>
                 <p><strong>Estimated Magnitude & Direction:</strong></p>
-                <pre style="white-space: pre-wrap; word-wrap: break-word;">{analysis.estimated_magnitude_direction}</pre>
+                <div class="markdown-content">{estimated_magnitude_direction_html}</div>
                 <p><strong>Countervailing Factors:</strong></p>
-                <pre style="white-space: pre-wrap; word-wrap: break-word;">{analysis.countervailing_factors}</pre>
+                <div class="markdown-content">{countervailing_factors_html}</div>
                 <p><em>Key snippets used for analysis:</em></p>
                 <pre>{json.dumps(analysis.key_news_snippets, indent=2) if analysis.key_news_snippets else 'N/A'}</pre>
             </details>
@@ -140,18 +184,26 @@ class EmailGenerator:
         subject_date = datetime.now().strftime("%Y-%m-%d")
         subject = f"Financial Analysis Summary - {subject_date}"
 
+        # Added .markdown-content style
         html_body = """
         <html>
             <head>
                 <style>
-                    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; }
+                    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; line-height: 1.6; }
                     .container { background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
                     .analysis-block { border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 5px; background-color: #f9f9f9; }
                     h1 { color: #333; }
                     h2 { color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px;}
-                    details > summary { cursor: pointer; font-weight: bold; margin-bottom: 5px; }
-                    pre { background-color: #eee; padding: 10px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; word-wrap: break-word; }
+                    details > summary { cursor: pointer; font-weight: bold; margin-bottom: 10px; color: #0056b3; }
+                    pre { background-color: #eee; padding: 10px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; word-wrap: break-word; font-size: 0.9em; }
                     ul { list-style-type: disc; margin-left: 20px; }
+                    li { margin-bottom: 5px; }
+                    .markdown-content { padding: 5px 0; }
+                    .markdown-content p { margin: 0.5em 0; } /* Add some margin to paragraphs generated from markdown */
+                    .markdown-content ul, .markdown-content ol { margin-left: 20px; }
+                    .markdown-content strong { font-weight: bold; }
+                    .markdown-content em { font-style: italic; }
+                    .markdown-content h1, .markdown-content h2, .markdown-content h3 { margin-top: 1em; margin-bottom: 0.5em; color: #444; }
                 </style>
             </head>
             <body>
@@ -206,14 +258,11 @@ class EmailGenerator:
             return False
 
 
-# Example Usage:
+# Example Usage (remains the same, but output HTML will be richer):
 if __name__ == '__main__':
-    # This part is for testing and won't run when imported.
-    # It requires mock data or fetching real data from DB.
     logger.info("Starting email generator test...")
 
 
-    # Mock data (replace with actual data fetched from DB for a real test)
     class MockStock:
         def __init__(self, ticker, company_name):
             self.ticker = ticker
@@ -226,7 +275,7 @@ if __name__ == '__main__':
             self.analysis_date = datetime.now()
             self.investment_decision = "Hold"
             self.strategy_type = "Value"
-            self.reasoning = "The stock appears fairly valued with moderate growth prospects. AI suggests monitoring."
+            self.reasoning = "The stock appears **fairly valued** with *moderate* growth prospects. AI suggests `monitoring`."
             self.pe_ratio = 15.5;
             self.pb_ratio = 1.2;
             self.eps = 2.5;
@@ -240,9 +289,9 @@ if __name__ == '__main__':
             self.retained_earnings_trend = "Growing";
             self.free_cash_flow_trend = "Stable"
             self.key_metrics_snapshot = {"price": 100, "marketCap": 1000000000}
-            self.economic_moat_summary = "Moderate moat due to brand recognition but increasing competition."
-            self.industry_trends_summary = "Industry is mature with slow growth. Shift towards new tech is a key trend."
-            self.management_assessment_summary = "Management team seems stable. Need to check insider activity."
+            self.economic_moat_summary = "Moderate moat due to **brand recognition** but *increasing competition*."
+            self.industry_trends_summary = "Industry is mature with `slow growth`. Shift towards **new tech** is a key trend."
+            self.management_assessment_summary = "Management team seems **stable**. Need to check *insider activity*."
             self.qualitative_sources = {"description_snippet": "A leading company in its sector..."}
 
 
@@ -253,12 +302,9 @@ if __name__ == '__main__':
 
     if email_message:
         logger.info("Email message created. To actually send, uncomment send_email and configure SMTP in config.py")
-        # success = email_gen.send_email(email_message)
-        # logger.info(f"Test email send status: {success}")
 
-        # For testing, save HTML to a file:
-        with open("test_email_summary.html", "w", encoding="utf-8") as f:
-            f.write(email_message.get_payload(0).get_payload(decode=True).decode())  # type: ignore
-        logger.info("Test email HTML saved to test_email_summary.html")
+        with open("test_email_summary_markdown_rendered.html", "w", encoding="utf-8") as f:
+            f.write(email_message.get_payload(0).get_payload(decode=True).decode())
+        logger.info("Test email HTML saved to test_email_summary_markdown_rendered.html")
     else:
         logger.error("Failed to create email message.")

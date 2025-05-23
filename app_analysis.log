@@ -95,3 +95,54 @@ sqlalchemy.orm.exc.DetachedInstanceError: Instance <Stock at 0x18eafd44e00> is n
 2025-05-23 22:16:34,042 - root - INFO - Email summary created. Sending is commented out in main.py for safety.
 2025-05-23 22:16:34,045 - root - INFO - Email HTML saved to a file.
 2025-05-23 22:16:34,129 - root - INFO - --- Script execution finished. ---
+2025-05-23 22:19:46,990 - root - INFO - ===================================================================
+2025-05-23 22:19:46,991 - root - INFO - Starting Financial Analysis Script at 2025-05-23 22:19:46.991001
+2025-05-23 22:19:46,991 - root - INFO - ===================================================================
+2025-05-23 22:19:46,993 - root - INFO - --- Starting News Analysis Pipeline (Category: general, Count: 3) ---
+2025-05-23 22:19:46,993 - root - INFO - Fetching latest market news for category: general (max 6)...
+2025-05-23 22:19:49,706 - root - INFO - Cached response for: GET:https://finnhub.io/api/v1/news?category=general&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390
+2025-05-23 22:19:49,708 - root - INFO - Fetched 100 news items from Finnhub.
+2025-05-23 22:19:49,902 - root - INFO - News event 'Why off-price retailer TJX is a buy after falling 3% on a rival's weak guidance' is new. Storing and analyzing.
+2025-05-23 22:19:50,329 - root - INFO - Stored new news event: Why off-price retailer TJX is a buy after falling 3% on a rival's weak guidance
+2025-05-23 22:19:50,330 - root - INFO - Analyzing news: Why off-price retailer TJX is a buy after falling 3% on a rival's weak guidance
+2025-05-23 22:20:54,653 - root - INFO - Successfully analyzed and saved news: Why off-price retailer TJX is a buy after falling 3% on a rival's weak guidance
+2025-05-23 22:20:56,826 - root - INFO - News event 'Jim Cramer says this is the real winner from Trump's tariff threat on Apple' is new. Storing and analyzing.
+2025-05-23 22:20:57,245 - root - INFO - Stored new news event: Jim Cramer says this is the real winner from Trump's tariff threat on Apple
+2025-05-23 22:20:57,246 - root - INFO - Analyzing news: Jim Cramer says this is the real winner from Trump's tariff threat on Apple
+2025-05-23 22:22:06,277 - root - INFO - Successfully analyzed and saved news: Jim Cramer says this is the real winner from Trump's tariff threat on Apple
+2025-05-23 22:22:08,447 - root - INFO - News event 'Nvidia’s stock is losing steam, and next week’s earnings could underscore the risks' is new. Storing and analyzing.
+2025-05-23 22:22:08,863 - root - INFO - Stored new news event: Nvidia’s stock is losing steam, and next week’s earnings could underscore the risks
+2025-05-23 22:22:08,864 - root - INFO - Analyzing news: Nvidia’s stock is losing steam, and next week’s earnings could underscore the risks
+2025-05-23 22:23:15,299 - root - INFO - Successfully analyzed and saved news: Nvidia’s stock is losing steam, and next week’s earnings could underscore the risks
+2025-05-23 22:23:17,301 - root - INFO - News analysis pipeline completed. Newly analyzed 3 items.
+2025-05-23 22:23:17,302 - root - INFO - --- Script execution finished. ---
+2025-05-23 22:23:25,926 - root - INFO - ===================================================================
+2025-05-23 22:23:25,927 - root - INFO - Starting Financial Analysis Script at 2025-05-23 22:23:25.927198
+2025-05-23 22:23:25,927 - root - INFO - ===================================================================
+2025-05-23 22:23:25,929 - root - INFO - --- Generating Today's Email Summary ---
+2025-05-23 22:23:27,800 - root - INFO - Found 2 stock analyses, 0 IPO analyses, 3 news analyses for today's email.
+2025-05-23 22:23:28,243 - root - INFO - Email summary created. Sending is commented out in main.py for safety.
+2025-05-23 22:23:28,249 - root - INFO - Email HTML saved to a file.
+2025-05-23 22:23:28,332 - root - INFO - --- Script execution finished. ---
+2025-05-23 22:26:51,672 - root - INFO - ===================================================================
+2025-05-23 22:26:51,673 - root - INFO - Starting Financial Analysis Script at 2025-05-23 22:26:51.673955
+2025-05-23 22:26:51,673 - root - INFO - ===================================================================
+2025-05-23 22:26:51,675 - root - INFO - --- Generating Today's Email Summary ---
+2025-05-23 22:26:53,513 - root - INFO - Found 2 stock analyses, 0 IPO analyses, 3 news analyses for today's email.
+2025-05-23 22:26:54,044 - root - INFO - Email summary created. Sending is commented out in main.py for safety.
+2025-05-23 22:26:54,048 - root - INFO - Email HTML saved to a file.
+2025-05-23 22:26:54,132 - root - INFO - --- Script execution finished. ---
+2025-05-23 23:47:36,494 - root - INFO - ===================================================================
+2025-05-23 23:47:36,497 - root - INFO - Starting Financial Analysis Script at 2025-05-23 23:47:36.497820
+2025-05-23 23:47:36,497 - root - INFO - ===================================================================
+2025-05-23 23:47:36,498 - root - INFO - --- Starting IPO Analysis Pipeline ---
+2025-05-23 23:47:36,499 - root - INFO - Fetching upcoming IPOs...
+2025-05-23 23:47:38,963 - root - WARNING - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/ipo_calendar (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVzfz61uB'}): 403 - {
+  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://site.financialmodelingprep.com/developer/docs/pricing"
+}
+2025-05-23 23:47:38,964 - root - ERROR - Non-retryable client error for https://financialmodelingprep.com/api/v3/ipo_calendar: 403 Client Error: Forbidden for url: https://financialmodelingprep.com/api/v3/ipo_calendar?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
+2025-05-23 23:47:40,175 - root - WARNING - HTTP error on attempt 1/3 for https://eodhistoricaldata.com/api/calendar/ipos (Params: {'api_token': '683079df749c42.21476005', 'fmt': 'json'}): 403 - Only EOD data allowed for free users. Please, contact our support team: support@eodhistoricaldata.com
+2025-05-23 23:47:40,178 - root - ERROR - Non-retryable client error for https://eodhistoricaldata.com/api/calendar/ipos: 403 Client Error: Forbidden for url: https://eodhistoricaldata.com/api/calendar/ipos?api_token=683079df749c42.21476005&fmt=json
+2025-05-23 23:47:40,179 - root - INFO - Total unique IPOs fetched: 0
+2025-05-23 23:47:40,180 - root - INFO - No upcoming IPOs found to analyze.
+2025-05-23 23:47:40,180 - root - INFO - --- Script execution finished. ---
