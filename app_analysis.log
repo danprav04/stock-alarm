@@ -87,3 +87,11 @@ sqlalchemy.orm.exc.DetachedInstanceError: Instance <Stock at 0x18eafd44e00> is n
 2025-05-23 22:13:07,454 - root - INFO - Determining investment strategy for GOOG...
 2025-05-23 22:13:15,283 - root - INFO - Successfully analyzed and saved stock: GOOG (Analysis ID: 2)
 2025-05-23 22:13:15,371 - root - INFO - --- Script execution finished. ---
+2025-05-23 22:16:32,077 - root - INFO - ===================================================================
+2025-05-23 22:16:32,077 - root - INFO - Starting Financial Analysis Script at 2025-05-23 22:16:32.077652
+2025-05-23 22:16:32,078 - root - INFO - ===================================================================
+2025-05-23 22:16:32,080 - root - INFO - --- Generating Today's Email Summary ---
+2025-05-23 22:16:33,863 - root - INFO - Found 2 stock analyses, 0 IPO analyses, 0 news analyses for today's email.
+2025-05-23 22:16:34,042 - root - INFO - Email summary created. Sending is commented out in main.py for safety.
+2025-05-23 22:16:34,045 - root - INFO - Email HTML saved to a file.
+2025-05-23 22:16:34,129 - root - INFO - --- Script execution finished. ---
