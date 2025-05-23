@@ -3,3 +3,187 @@
 2025-05-23 21:10:47,054 - root - INFO - ===================================================================
 2025-05-23 21:10:47,058 - root - INFO - No action specified. Use --help for options.
 2025-05-23 21:10:47,063 - root - INFO - --- Script execution finished. ---
+2025-05-23 21:28:09,433 - root - INFO - ===================================================================
+2025-05-23 21:28:09,434 - root - INFO - Starting Financial Analysis Script at 2025-05-23 21:28:09.434335
+2025-05-23 21:28:09,434 - root - INFO - ===================================================================
+2025-05-23 21:28:09,435 - root - INFO - No action specified. Use --help for options.
+2025-05-23 21:28:09,436 - root - INFO - --- Script execution finished. ---
+2025-05-23 21:29:44,293 - root - INFO - ===================================================================
+2025-05-23 21:29:44,293 - root - INFO - Starting Financial Analysis Script at 2025-05-23 21:29:44.293746
+2025-05-23 21:29:44,294 - root - INFO - ===================================================================
+2025-05-23 21:29:44,296 - root - INFO - --- Starting Individual Stock Analysis for: ['AAPL'] ---
+2025-05-23 21:29:45,870 - root - ERROR - Error analyzing stock AAPL: (psycopg2.errors.UndefinedTable) relation "stocks" does not exist
+LINE 2: FROM stocks 
+             ^
+
+[SQL: SELECT stocks.id AS stocks_id, stocks.ticker AS stocks_ticker, stocks.company_name AS stocks_company_name, stocks.last_analysis_date AS stocks_last_analysis_date 
+FROM stocks 
+WHERE stocks.ticker = %(ticker_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'ticker_1': 'AAPL', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/14/f405)
+Traceback (most recent call last):
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1910, in _execute_context
+    self.dialect.do_execute(
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 736, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedTable: relation "stocks" does not exist
+LINE 2: FROM stocks 
+             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\GitHub\stock-alarm\main.py", line 22, in run_stock_analysis
+    analyzer = StockAnalyzer(ticker=ticker)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 21, in __init__
+    self._get_or_create_stock_entry()
+  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 24, in _get_or_create_stock_entry
+    self.stock_db_entry = self.db_session.query(Stock).filter_by(ticker=self.ticker).first()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\orm\query.py", line 2824, in first
+    return self.limit(1)._iter().first()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\orm\query.py", line 2916, in _iter
+    result = self.session.execute(
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 1717, in execute
+    result = conn._execute_20(statement, params or {}, execution_options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1710, in _execute_20
+    return meth(self, args_10style, kwargs_10style, execution_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 334, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1577, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1953, in _execute_context
+    self._handle_dbapi_exception(
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2134, in _handle_dbapi_exception
+    util.raise_(
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\util\compat.py", line 211, in raise_
+    raise exception
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1910, in _execute_context
+    self.dialect.do_execute(
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 736, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) relation "stocks" does not exist
+LINE 2: FROM stocks 
+             ^
+
+[SQL: SELECT stocks.id AS stocks_id, stocks.ticker AS stocks_ticker, stocks.company_name AS stocks_company_name, stocks.last_analysis_date AS stocks_last_analysis_date 
+FROM stocks 
+WHERE stocks.ticker = %(ticker_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'ticker_1': 'AAPL', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/14/f405)
+2025-05-23 21:29:45,886 - root - INFO - --- Script execution finished. ---
+2025-05-23 21:32:43,897 - root - INFO - ===================================================================
+2025-05-23 21:32:43,897 - root - INFO - Starting Financial Analysis Script at 2025-05-23 21:32:43.897464
+2025-05-23 21:32:43,898 - root - INFO - ===================================================================
+2025-05-23 21:32:43,899 - root - INFO - --- Starting Individual Stock Analysis for: ['AAPL'] ---
+2025-05-23 21:32:45,471 - root - ERROR - Error analyzing stock AAPL: (psycopg2.errors.UndefinedTable) relation "stocks" does not exist
+LINE 2: FROM stocks 
+             ^
+
+[SQL: SELECT stocks.id AS stocks_id, stocks.ticker AS stocks_ticker, stocks.company_name AS stocks_company_name, stocks.last_analysis_date AS stocks_last_analysis_date 
+FROM stocks 
+WHERE stocks.ticker = %(ticker_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'ticker_1': 'AAPL', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/14/f405)
+Traceback (most recent call last):
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1910, in _execute_context
+    self.dialect.do_execute(
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 736, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedTable: relation "stocks" does not exist
+LINE 2: FROM stocks 
+             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\GitHub\stock-alarm\main.py", line 22, in run_stock_analysis
+    analyzer = StockAnalyzer(ticker=ticker)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 21, in __init__
+    self._get_or_create_stock_entry()
+  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 24, in _get_or_create_stock_entry
+    self.stock_db_entry = self.db_session.query(Stock).filter_by(ticker=self.ticker).first()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\orm\query.py", line 2824, in first
+    return self.limit(1)._iter().first()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\orm\query.py", line 2916, in _iter
+    result = self.session.execute(
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 1717, in execute
+    result = conn._execute_20(statement, params or {}, execution_options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1710, in _execute_20
+    return meth(self, args_10style, kwargs_10style, execution_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 334, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1577, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1953, in _execute_context
+    self._handle_dbapi_exception(
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2134, in _handle_dbapi_exception
+    util.raise_(
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\util\compat.py", line 211, in raise_
+    raise exception
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1910, in _execute_context
+    self.dialect.do_execute(
+  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 736, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) relation "stocks" does not exist
+LINE 2: FROM stocks 
+             ^
+
+[SQL: SELECT stocks.id AS stocks_id, stocks.ticker AS stocks_ticker, stocks.company_name AS stocks_company_name, stocks.last_analysis_date AS stocks_last_analysis_date 
+FROM stocks 
+WHERE stocks.ticker = %(ticker_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'ticker_1': 'AAPL', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/14/f405)
+2025-05-23 21:32:45,510 - root - INFO - --- Script execution finished. ---
+2025-05-23 21:35:06,541 - root - INFO - ===================================================================
+2025-05-23 21:35:06,542 - root - INFO - Starting Financial Analysis Script at 2025-05-23 21:35:06.542959
+2025-05-23 21:35:06,542 - root - INFO - ===================================================================
+2025-05-23 21:35:06,544 - root - INFO - Initializing database as per command line argument...
+2025-05-23 21:35:06,544 - root - INFO - Initializing database and creating tables...
+2025-05-23 21:35:10,245 - root - INFO - Database tables created successfully (if they didn't exist).
+2025-05-23 21:35:10,245 - root - INFO - Database initialization complete.
+2025-05-23 21:35:10,246 - root - INFO - --- Script execution finished. ---
+2025-05-23 21:35:20,575 - root - INFO - ===================================================================
+2025-05-23 21:35:20,576 - root - INFO - Starting Financial Analysis Script at 2025-05-23 21:35:20.576046
+2025-05-23 21:35:20,576 - root - INFO - ===================================================================
+2025-05-23 21:35:20,578 - root - INFO - --- Starting Individual Stock Analysis for: ['AAPL'] ---
+2025-05-23 21:35:22,176 - root - INFO - Stock AAPL not found in DB, creating new entry.
+2025-05-23 21:35:22,177 - root - ERROR - Error analyzing stock AAPL: name 'self_get_cached_response' is not defined
+Traceback (most recent call last):
+  File "C:\GitHub\stock-alarm\main.py", line 22, in run_stock_analysis
+    analyzer = StockAnalyzer(ticker=ticker)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 21, in __init__
+    self._get_or_create_stock_entry()
+  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 28, in _get_or_create_stock_entry
+    profile_fmp = self.fmp.get_company_profile(self.ticker)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\api_clients.py", line 176, in get_company_profile
+    return self.request("GET", f"/profile/{ticker}", params={}, api_source_name="fmp")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\api_clients.py", line 86, in request
+    cached_data = self_get_cached_response(cache_key_str)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'self_get_cached_response' is not defined
+2025-05-23 21:35:22,185 - root - INFO - --- Script execution finished. ---

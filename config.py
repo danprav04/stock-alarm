@@ -18,16 +18,16 @@ RAPIDAPI_UPCOMING_IPO_KEY = "0bd9b5144cmsh50c0e6d95c0b662p1cbdefjsn2d1cb0104cde"
 
 # Database Configuration
 # Changed "postgres://" to "postgresql://"
-DATABASE_URL = "postgresql://avnadmin:AVNS_IeMYS-rv46Au9xqkza2@pg-4d810ff-daxiake-7258.d.aivencloud.com:26922/defaultdb?sslmode=require"
+DATABASE_URL = "postgresql://avnadmin:AVNS_IeMYS-rv46Au9xqkza2@pg-4d810ff-daxiake-7258.d.aivencloud.com:26922/stock-alarm?sslmode=require"
 
 # Email Configuration (Placeholder - replace with actual SMTP details or email service API)
-EMAIL_HOST = "smtp.example.com"
+EMAIL_HOST = "smtp-relay.brevo.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "your_email@example.com"
-EMAIL_HOST_PASSWORD = "your_email_password"
-EMAIL_SENDER = "your_email@example.com"
-EMAIL_RECIPIENT = "user_email@example.com" # The user who receives the summary
+EMAIL_HOST_USER = "8dca1d001@smtp-brevo.com"
+EMAIL_HOST_PASSWORD = "VrNUkDdcR5G9AL8P"
+EMAIL_SENDER = "testypesty54@gmail.com"
+EMAIL_RECIPIENT = "daniprav@gmail.com"  # The user who receives the summary
 
 # Logging Configuration
 LOG_FILE_PATH = "app_analysis.log"
