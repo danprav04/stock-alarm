@@ -2,7 +2,7 @@
 import argparse
 from datetime import datetime, timezone
 from sqlalchemy.orm import joinedload # Ensured import
-from database import init_db, get_db_session
+from database import init_db, get_db_session, SessionLocal
 from error_handler import logger
 import time
 

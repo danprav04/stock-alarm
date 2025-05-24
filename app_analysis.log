@@ -1,0 +1,96 @@
+2025-05-25 01:07:18,750 - root - INFO - main:167 - ===================================================================
+2025-05-25 01:07:18,750 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-24 22:07:18 UTC
+2025-05-25 01:07:18,750 - root - INFO - main:169 - ===================================================================
+2025-05-25 01:07:18,753 - root - INFO - main:18 - --- Starting Individual Stock Analysis for: ['AAPL'] ---
+2025-05-25 01:07:20,498 - root - INFO - api_clients:42 - Cache hit for: GET:https://financialmodelingprep.com/api/v3/profile/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-25 01:07:21,584 - root - INFO - stock_analyzer:139 - Fetched profile from FMP for AAPL.
+2025-05-25 01:07:21,584 - root - INFO - stock_analyzer:195 - Stock entry for AAPL (ID: 1, CIK: 0000320193) ready.
+2025-05-25 01:07:21,584 - root - INFO - stock_analyzer:687 - Full analysis pipeline started for AAPL...
+2025-05-25 01:07:21,584 - root - WARNING - stock_analyzer:764 - Stock AAPL (ID: 1) DETACHED/DIFFERENT session. Session expected: 2086965833184, actual: None. Merging.
+2025-05-25 01:07:21,843 - root - INFO - stock_analyzer:199 - Fetching financial statements for AAPL...
+2025-05-25 01:07:21,931 - root - INFO - api_clients:42 - Cache hit for: GET:https://financialmodelingprep.com/api/v3/income-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVz...
+2025-05-25 01:07:23,772 - root - INFO - api_clients:42 - Cache hit for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxR...
+2025-05-25 01:07:25,616 - root - INFO - api_clients:42 - Cache hit for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91...
+2025-05-25 01:07:27,200 - root - INFO - stock_analyzer:221 - FMP Annuals: Income(5), Balance(5), Cashflow(5).
+2025-05-25 01:07:27,897 - root - INFO - api_clients:42 - Cache hit for: GET:https://finnhub.io/api/v1/stock/financials-reported?freq=quarterly&symbol=AAPL&token=d0o7hphr01q...
+2025-05-25 01:07:29,481 - root - INFO - stock_analyzer:228 - Fetched 46 quarterly reports from Finnhub.
+2025-05-25 01:07:29,906 - root - INFO - api_clients:42 - Cache hit for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=INCOME_STATEMENT&symbol=AAPL...
+2025-05-25 01:07:44,991 - root - INFO - stock_analyzer:234 - Fetched 81 quarterly income reports from Alpha Vantage.
+2025-05-25 01:07:45,493 - root - INFO - api_clients:42 - Cache hit for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=BALANCE_SHEET&symbol=AAPL...
+2025-05-25 01:08:00,578 - root - INFO - stock_analyzer:241 - Fetched 81 quarterly balance reports from Alpha Vantage.
+2025-05-25 01:08:01,082 - root - INFO - api_clients:42 - Cache hit for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=CASH_FLOW&symbol=AAPL...
+2025-05-25 01:08:16,165 - root - INFO - stock_analyzer:248 - Fetched 81 quarterly cash flow reports from Alpha Vantage.
+2025-05-25 01:08:16,166 - root - INFO - stock_analyzer:256 - Fetching key metrics and profile for AAPL.
+2025-05-25 01:08:16,426 - root - INFO - api_clients:42 - Cache hit for: GET:https://financialmodelingprep.com/api/v3/key-metrics/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61u...
+2025-05-25 01:08:19,046 - root - WARNING - api_clients:122 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/key-metrics/AAPL (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVz******', 'period': 'quarterly', 'limit': 8}, Headers: Default): 403 - {
+  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
+2025-05-25 01:08:19,047 - root - ERROR - api_clients:143 - Non-retryable client error for https://financialmodelingprep.com/api/v3/key-metrics/AAPL: 403 Forbidden
+2025-05-25 01:08:20,548 - root - WARNING - stock_analyzer:262 - FMP quarterly key metrics failed for AAPL.
+2025-05-25 01:08:21,143 - root - INFO - api_clients:42 - Cache hit for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=AAPL&token=d0o7hphr01qqr9alj38gd0o7hphr...
+2025-05-25 01:08:22,729 - root - INFO - stock_analyzer:272 - FMP KM Annual: 5, FMP KM Quarterly: 0. Finnhub Basic Financials: OK.
+2025-05-25 01:08:22,729 - root - INFO - stock_analyzer:276 - Calculating derived metrics for AAPL...
+2025-05-25 01:08:22,730 - root - INFO - stock_analyzer:452 - Calculated metrics for AAPL: {'pe_ratio': 37.287278415656736, 'pb_ratio': 61.37243774486391, 'ps_ratio': 7.3029, 'ev_to_sales': None, 'ev_to_ebitda': None, 'dividend_yield': 0.0043585983369965175, 'eps': 6.11, 'net_profit_margin': None, 'gross_profit_margin': None, 'operating_profit_margin': 0.3151022287, 'roe': 1.6459350307287095, 'roa': 0.25682503150857583, 'debt_to_equity': 1.872326602282704, 'current_ratio': 0.8673125765340832, 'quick_ratio': 0.7450111116150392, 'debt_to_ebitda': 0.791832824648562, 'revenue_growth_yoy': 0.020219940775141214, 'eps_growth_yoy': -0.008116883116883088, 'revenue_growth_cagr_3yr': -0.004184211808589633, 'eps_growth_cagr_3yr': -0.0032573376445905744, 'revenue_growth_cagr_5yr': 0.09247721446491397, 'eps_growth_cagr_5yr': 0.16561010585382685, 'revenue_growth_qoq': -0.07869318181818181, 'free_cash_flow_per_share': 7.284979713172378, 'free_cash_flow_yield': 0.03730721418124842, 'free_cash_flow_trend': 'Mixed/Stable', 'retained_earnings_trend': 'Mixed/Stable', 'roic': 0.6998997671891681}
+2025-05-25 01:08:22,731 - root - INFO - stock_analyzer:457 - Performing simplified DCF analysis for AAPL...
+2025-05-25 01:08:22,731 - root - INFO - stock_analyzer:519 - DCF for AAPL: Intrinsic Value/Share: 124.1281093830387, Upside: -0.3643257572436181
+2025-05-25 01:08:22,731 - root - INFO - stock_analyzer:525 - Fetching and attempting to summarize latest 10-K for AAPL
+2025-05-25 01:08:23,245 - root - INFO - api_clients:42 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0000320193.json?...
+2025-05-25 01:08:23,837 - root - INFO - api_clients:368 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/320193/000032019324000123/aapl-20240928.htm
+2025-05-25 01:08:24,534 - root - INFO - api_clients:42 - Cache hit for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/320193/000032019324000123/aapl-20240928.htm...
+2025-05-25 01:08:24,621 - root - INFO - stock_analyzer:539 - Fetched 10-K text (length: 1503780) for AAPL. Extracting sections.
+2025-05-25 01:08:56,555 - root - INFO - stock_analyzer:605 - 10-K qualitative summaries generated for AAPL.
+2025-05-25 01:08:56,555 - root - INFO - stock_analyzer:610 - Synthesizing investment thesis for AAPL...
+2025-05-25 01:09:04,174 - root - INFO - stock_analyzer:683 - Generated thesis for AAPL. Decision: Review AI Output
+2025-05-25 01:09:04,920 - root - INFO - stock_analyzer:719 - Successfully analyzed and saved stock: AAPL (Analysis ID: 2)
+2025-05-25 01:09:10,005 - root - INFO - main:157 - --- Main script execution finished. ---
+2025-05-25 01:09:10,006 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-24 22:09:10 UTC
+2025-05-25 01:09:10,006 - root - INFO - main:175 - Total execution time: 0:01:51.255857
+2025-05-25 01:09:10,006 - root - INFO - main:176 - ===================================================================
+2025-05-25 01:09:27,494 - root - INFO - main:167 - ===================================================================
+2025-05-25 01:09:27,494 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-24 22:09:27 UTC
+2025-05-25 01:09:27,495 - root - INFO - main:169 - ===================================================================
+2025-05-25 01:09:27,496 - root - INFO - main:59 - --- Generating Today's Email Summary ---
+2025-05-25 01:09:38,855 - root - INFO - main:167 - ===================================================================
+2025-05-25 01:09:38,855 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-24 22:09:38 UTC
+2025-05-25 01:09:38,856 - root - INFO - main:169 - ===================================================================
+2025-05-25 01:09:38,858 - root - INFO - main:59 - --- Generating Today's Email Summary ---
+2025-05-25 01:09:40,807 - root - INFO - main:72 - Found 2 stock analyses, 0 IPO analyses, 0 news analyses since 2025-05-24 00:00:00 UTC for email.
+2025-05-25 01:09:40,860 - root - ERROR - main:94 - Error generating or sending email summary: name 'math' is not defined
+Traceback (most recent call last):
+  File "C:\GitHub\stock-alarm\main.py", line 82, in generate_and_send_todays_email_summary
+    email_message = email_gen.create_summary_email(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\email_generator.py", line 298, in create_summary_email
+    html_body += self._format_stock_analysis_html(sa)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\email_generator.py", line 72, in _format_stock_analysis_html
+    <li>P/E Ratio: {fmt_num(analysis.pe_ratio)}</li>
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\email_generator.py", line 37, in fmt_num
+    if val is None or (isinstance(val, float) and (math.isnan(val) or math.isinf(val))): return na_val
+                                                   ^^^^
+NameError: name 'math' is not defined. Did you forget to import 'math'
+2025-05-25 01:09:40,951 - root - INFO - main:157 - --- Main script execution finished. ---
+2025-05-25 01:09:40,952 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-24 22:09:40 UTC
+2025-05-25 01:09:40,953 - root - INFO - main:175 - Total execution time: 0:00:02.096646
+2025-05-25 01:09:40,954 - root - INFO - main:176 - ===================================================================
+2025-05-25 01:10:20,033 - root - INFO - main:167 - ===================================================================
+2025-05-25 01:10:20,034 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-24 22:10:20 UTC
+2025-05-25 01:10:20,034 - root - INFO - main:169 - ===================================================================
+2025-05-25 01:10:20,036 - root - INFO - main:59 - --- Generating Today's Email Summary ---
+2025-05-25 01:10:21,944 - root - INFO - main:72 - Found 2 stock analyses, 0 IPO analyses, 0 news analyses since 2025-05-24 00:00:00 UTC for email.
+2025-05-25 01:10:24,422 - root - INFO - email_generator:340 - Email sent successfully to daniprav@gmail.com
+2025-05-25 01:10:24,509 - root - INFO - main:157 - --- Main script execution finished. ---
+2025-05-25 01:10:24,510 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-24 22:10:24 UTC
+2025-05-25 01:10:24,511 - root - INFO - main:175 - Total execution time: 0:00:04.476988
+2025-05-25 01:10:24,512 - root - INFO - main:176 - ===================================================================
+2025-05-25 01:14:23,123 - root - INFO - main:167 - ===================================================================
+2025-05-25 01:14:23,123 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-24 22:14:23 UTC
+2025-05-25 01:14:23,123 - root - INFO - main:169 - ===================================================================
+2025-05-25 01:14:23,125 - root - INFO - main:118 - Initializing database as per command line argument...
+2025-05-25 01:14:23,125 - root - INFO - database:21 - Initializing database and creating tables...
+2025-05-25 01:14:27,540 - root - INFO - database:26 - Database tables created successfully (if they didn't exist).
+2025-05-25 01:14:27,541 - root - INFO - main:121 - Database initialization complete.
+2025-05-25 01:14:27,542 - root - INFO - main:157 - --- Main script execution finished. ---
+2025-05-25 01:14:27,543 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-24 22:14:27 UTC
+2025-05-25 01:14:27,544 - root - INFO - main:175 - Total execution time: 0:00:04.420167
+2025-05-25 01:14:27,545 - root - INFO - main:176 - ===================================================================

@@ -11,6 +11,7 @@ from models import StockAnalysis, IPOAnalysis, NewsEventAnalysis  # Ensure these
 from datetime import datetime, timezone  # Added timezone
 import json
 from markdown2 import Markdown
+import math
 
 
 class EmailGenerator:
@@ -347,7 +348,6 @@ class EmailGenerator:
 
 
 if __name__ == '__main__':
-    import math  # For mock data with potential NaN/inf
 
     logger.info("Starting email generator test with new model fields...")
 
