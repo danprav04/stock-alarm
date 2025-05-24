@@ -94,3 +94,58 @@ NameError: name 'math' is not defined. Did you forget to import 'math'
 2025-05-25 01:14:27,543 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-24 22:14:27 UTC
 2025-05-25 01:14:27,544 - root - INFO - main:175 - Total execution time: 0:00:04.420167
 2025-05-25 01:14:27,545 - root - INFO - main:176 - ===================================================================
+2025-05-25 01:14:44,623 - root - INFO - main:167 - ===================================================================
+2025-05-25 01:14:44,623 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-24 22:14:44 UTC
+2025-05-25 01:14:44,624 - root - INFO - main:169 - ===================================================================
+2025-05-25 01:14:44,626 - root - INFO - main:48 - --- Starting News Analysis Pipeline (Category: general, Max to Analyze: 5) ---
+2025-05-25 01:14:44,626 - root - INFO - news_analyzer:33 - Fetching latest market news for category: general (max 10 from API)...
+2025-05-25 01:14:47,267 - root - INFO - api_clients:68 - Cached response for: GET:https://finnhub.io/api/v1/news?category=general&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390...
+2025-05-25 01:14:47,269 - root - INFO - news_analyzer:40 - Fetched 100 news items from Finnhub.
+2025-05-25 01:14:47,528 - root - INFO - news_analyzer:59 - Attempting to scrape full article for: https://www.cnbc.com/2025/05/24/tripadvisor-top-global-summer-destinations-us-travelers.html
+2025-05-25 01:14:48,343 - root - INFO - api_clients:535 - Successfully scraped ~35231 chars from https://www.cnbc.com/2025/05/24/tripadvisor-top-global-summer-destinations-us-travelers.html
+2025-05-25 01:14:49,344 - root - INFO - news_analyzer:63 - Scraped ~35231 chars for https://www.cnbc.com/2025/05/24/tripadvisor-top-global-summer-destinations-us-travelers.html
+2025-05-25 01:14:49,861 - root - INFO - news_analyzer:101 - Stored new news event: U.S. travelers say these are the 10 most popular summer destinations a... (ID: 1)
+2025-05-25 01:14:49,957 - root - INFO - news_analyzer:351 - News 'U.S. travelers say these are the 10 most popular s...' (ID: 1) requires new analysis (never analyzed).
+2025-05-25 01:14:49,958 - root - INFO - news_analyzer:138 - Analyzing news: 'U.S. travelers say these are the 10 most popular summer destinations a...' (using full article)
+2025-05-25 01:14:49,959 - root - WARNING - api_clients:409 - Gemini prompt length 35618 very long. Truncating to 30000 chars.
+2025-05-25 01:14:54,065 - root - WARNING - api_clients:409 - Gemini prompt length 36746 very long. Truncating to 30000 chars.
+2025-05-25 01:14:59,858 - root - INFO - news_analyzer:240 - Successfully analyzed and saved news: 'U.S. travelers say these are the 10 most popular summer destinations a...' (Analysis ID: 1)
+2025-05-25 01:15:02,944 - root - INFO - news_analyzer:59 - Attempting to scrape full article for: https://www.marketwatch.com/story/my-wife-and-i-are-73-and-retired-can-we-afford-a-1-2-million-home-5ac8de41
+2025-05-25 01:15:03,188 - root - ERROR - api_clients:538 - Request error scraping https://www.marketwatch.com/story/my-wife-and-i-are-73-and-retired-can-we-afford-a-1-2-million-home-5ac8de41: 401 Client Error: HTTP Forbidden for url: https://www.marketwatch.com/story/my-wife-and-i-are-73-and-retired-can-we-afford-a-1-2-million-home-5ac8de41
+2025-05-25 01:15:04,189 - root - WARNING - news_analyzer:65 - Failed to scrape full article for https://www.marketwatch.com/story/my-wife-and-i-are-73-and-retired-can-we-afford-a-1-2-million-home-5ac8de41. Analysis will use summary if available.
+2025-05-25 01:15:04,607 - root - INFO - news_analyzer:101 - Stored new news event: My wife and I are 73 and retired. Can we afford a $1.2 million home?... (ID: 2)
+2025-05-25 01:15:04,693 - root - INFO - news_analyzer:351 - News 'My wife and I are 73 and retired. Can we afford a ...' (ID: 2) requires new analysis (never analyzed).
+2025-05-25 01:15:04,695 - root - WARNING - news_analyzer:128 - No full article text for 'My wife and I are 73 and retired. Can we afford a $1.2 million home?'. Analyzing based on headline only.
+2025-05-25 01:15:04,696 - root - INFO - news_analyzer:138 - Analyzing news: 'My wife and I are 73 and retired. Can we afford a $1.2 million home?...' (using headline only)
+2025-05-25 01:15:13,998 - root - INFO - news_analyzer:240 - Successfully analyzed and saved news: 'My wife and I are 73 and retired. Can we afford a $1.2 million home?...' (Analysis ID: 2)
+2025-05-25 01:15:17,083 - root - INFO - news_analyzer:59 - Attempting to scrape full article for: https://www.cnbc.com/2025/05/24/i-published-my-first-novel-at-38-heres-exactly-how-i-changed-careers-to-make-it-happen.html
+2025-05-25 01:15:17,846 - root - INFO - api_clients:535 - Successfully scraped ~68525 chars from https://www.cnbc.com/2025/05/24/i-published-my-first-novel-at-38-heres-exactly-how-i-changed-careers-to-make-it-happen.html
+2025-05-25 01:15:18,848 - root - INFO - news_analyzer:63 - Scraped ~68525 chars for https://www.cnbc.com/2025/05/24/i-published-my-first-novel-at-38-heres-exactly-how-i-changed-careers-to-make-it-happen.html
+2025-05-25 01:15:19,529 - root - INFO - news_analyzer:101 - Stored new news event: I published my first book at 38—here's exactly how I changed careers t... (ID: 3)
+2025-05-25 01:15:19,618 - root - INFO - news_analyzer:351 - News 'I published my first book at 38—here's exactly how...' (ID: 3) requires new analysis (never analyzed).
+2025-05-25 01:15:19,619 - root - INFO - news_analyzer:138 - Analyzing news: 'I published my first book at 38—here's exactly how I changed careers t...' (using full article)
+2025-05-25 01:15:19,619 - root - WARNING - api_clients:409 - Gemini prompt length 68880 very long. Truncating to 30000 chars.
+2025-05-25 01:15:23,636 - root - WARNING - api_clients:409 - Gemini prompt length 70008 very long. Truncating to 30000 chars.
+2025-05-25 01:15:30,296 - root - INFO - news_analyzer:240 - Successfully analyzed and saved news: 'I published my first book at 38—here's exactly how I changed careers t...' (Analysis ID: 3)
+2025-05-25 01:15:33,383 - root - INFO - news_analyzer:59 - Attempting to scrape full article for: https://www.marketwatch.com/story/rising-bond-yields-give-stock-market-investors-the-yips-watch-these-levels-d8e99584
+2025-05-25 01:15:33,554 - root - ERROR - api_clients:538 - Request error scraping https://www.marketwatch.com/story/rising-bond-yields-give-stock-market-investors-the-yips-watch-these-levels-d8e99584: 401 Client Error: HTTP Forbidden for url: https://www.marketwatch.com/story/rising-bond-yields-give-stock-market-investors-the-yips-watch-these-levels-d8e99584
+2025-05-25 01:15:34,557 - root - WARNING - news_analyzer:65 - Failed to scrape full article for https://www.marketwatch.com/story/rising-bond-yields-give-stock-market-investors-the-yips-watch-these-levels-d8e99584. Analysis will use summary if available.
+2025-05-25 01:15:34,976 - root - INFO - news_analyzer:101 - Stored new news event: Rising bond yields give stock-market investors the yips. Watch these l... (ID: 4)
+2025-05-25 01:15:35,064 - root - INFO - news_analyzer:351 - News 'Rising bond yields give stock-market investors the...' (ID: 4) requires new analysis (never analyzed).
+2025-05-25 01:15:35,064 - root - WARNING - news_analyzer:128 - No full article text for 'Rising bond yields give stock-market investors the yips. Watch these levels.'. Analyzing based on headline only.
+2025-05-25 01:15:35,065 - root - INFO - news_analyzer:138 - Analyzing news: 'Rising bond yields give stock-market investors the yips. Watch these l...' (using headline only)
+2025-05-25 01:15:44,887 - root - INFO - news_analyzer:240 - Successfully analyzed and saved news: 'Rising bond yields give stock-market investors the yips. Watch these l...' (Analysis ID: 4)
+2025-05-25 01:15:47,973 - root - INFO - news_analyzer:59 - Attempting to scrape full article for: https://www.marketwatch.com/story/apple-has-been-the-worst-big-tech-stock-lately-heres-why-investors-are-missing-the-big-picture-3fdfa582
+2025-05-25 01:15:48,133 - root - ERROR - api_clients:538 - Request error scraping https://www.marketwatch.com/story/apple-has-been-the-worst-big-tech-stock-lately-heres-why-investors-are-missing-the-big-picture-3fdfa582: 401 Client Error: HTTP Forbidden for url: https://www.marketwatch.com/story/apple-has-been-the-worst-big-tech-stock-lately-heres-why-investors-are-missing-the-big-picture-3fdfa582
+2025-05-25 01:15:49,134 - root - WARNING - news_analyzer:65 - Failed to scrape full article for https://www.marketwatch.com/story/apple-has-been-the-worst-big-tech-stock-lately-heres-why-investors-are-missing-the-big-picture-3fdfa582. Analysis will use summary if available.
+2025-05-25 01:15:49,554 - root - INFO - news_analyzer:101 - Stored new news event: Apple has been the worst Big Tech stock lately. Here’s why investors a... (ID: 5)
+2025-05-25 01:15:49,643 - root - INFO - news_analyzer:351 - News 'Apple has been the worst Big Tech stock lately. He...' (ID: 5) requires new analysis (never analyzed).
+2025-05-25 01:15:49,644 - root - WARNING - news_analyzer:128 - No full article text for 'Apple has been the worst Big Tech stock lately. Here’s why investors are missing the big picture.'. Analyzing based on headline only.
+2025-05-25 01:15:49,648 - root - INFO - news_analyzer:138 - Analyzing news: 'Apple has been the worst Big Tech stock lately. Here’s why investors a...' (using headline only)
+2025-05-25 01:15:59,251 - root - INFO - news_analyzer:240 - Successfully analyzed and saved news: 'Apple has been the worst Big Tech stock lately. Here’s why investors a...' (Analysis ID: 5)
+2025-05-25 01:16:02,253 - root - INFO - news_analyzer:325 - Reached analysis limit of 5 new/re-analyzed items for this run.
+2025-05-25 01:16:02,254 - root - INFO - news_analyzer:389 - News analysis pipeline completed. Newly analyzed/re-analyzed 5 items.
+2025-05-25 01:16:02,336 - root - INFO - main:157 - --- Main script execution finished. ---
+2025-05-25 01:16:02,337 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-24 22:16:02 UTC
+2025-05-25 01:16:02,339 - root - INFO - main:175 - Total execution time: 0:01:17.714128
+2025-05-25 01:16:02,339 - root - INFO - main:176 - ===================================================================

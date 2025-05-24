@@ -405,9 +405,9 @@ class GeminiAPIClient:
         if total_keys == 0:
             logger.error("Gemini: No API keys configured.");
             return "Error: No Google API keys."
-        if len(prompt) > 30000:
+        if len(prompt) > 150000:
             logger.warning(f"Gemini prompt length {len(prompt)} very long. Truncating to 30000 chars.")
-            prompt = prompt[:30000] + "\n...[PROMPT TRUNCATED]..."
+            prompt = prompt[:150000] + "\n...[PROMPT TRUNCATED]..."
 
         for overall_attempt_num in range(total_keys * max_attempts_per_key):
             api_key, current_retry_for_this_key = self._get_next_api_key_for_attempt(
