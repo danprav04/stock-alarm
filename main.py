@@ -1,7 +1,7 @@
 # main.py
 import argparse
 from datetime import datetime, timezone
-from sqlalchemy.orm import joinedload  # <--- ADDED THIS IMPORT
+from sqlalchemy.orm import joinedload # Ensured import
 from database import init_db, get_db_session
 from error_handler import logger
 import time
@@ -19,24 +19,24 @@ def run_stock_analysis(tickers):
     results = []
     for ticker in tickers:
         try:
-            analyzer = StockAnalyzer(ticker=ticker)
+            analyzer = StockAnalyzer(ticker=ticker) # StockAnalyzer manages its own session lifecycle
             analysis_result = analyzer.analyze()
             if analysis_result:
                 results.append(analysis_result)
             else:
                 logger.warning(f"Stock analysis for {ticker} did not return a result object.")
-        except RuntimeError as rt_err:
+        except RuntimeError as rt_err: # Catch init errors from StockAnalyzer
             logger.error(f"Could not run stock analysis for {ticker} due to critical init error: {rt_err}")
         except Exception as e:
             logger.error(f"Error analyzing stock {ticker}: {e}", exc_info=True)
-        time.sleep(2)
+        time.sleep(5) # Delay between analyzing different stocks
     return results
 
 
 def run_ipo_analysis():
     logger.info("--- Starting IPO Analysis Pipeline ---")
     try:
-        analyzer = IPOAnalyzer()
+        analyzer = IPOAnalyzer() # IPOAnalyzer now manages sessions per thread
         results = analyzer.run_ipo_analysis_pipeline()
         return results
     except Exception as e:
@@ -47,7 +47,7 @@ def run_ipo_analysis():
 def run_news_analysis(category="general", count_to_analyze=MAX_NEWS_TO_ANALYZE_PER_RUN):
     logger.info(f"--- Starting News Analysis Pipeline (Category: {category}, Max to Analyze: {count_to_analyze}) ---")
     try:
-        analyzer = NewsAnalyzer()
+        analyzer = NewsAnalyzer() # NewsAnalyzer manages its own session lifecycle
         results = analyzer.run_news_analysis_pipeline(category=category, count_to_analyze_this_run=count_to_analyze)
         return results
     except Exception as e:
@@ -57,7 +57,7 @@ def run_news_analysis(category="general", count_to_analyze=MAX_NEWS_TO_ANALYZE_P
 
 def generate_and_send_todays_email_summary():
     logger.info("--- Generating Today's Email Summary ---")
-    db_session = next(get_db_session())
+    db_session = SessionLocal() # Use scoped_session for a new session
     today_start_utc = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
 
     try:
@@ -93,8 +93,7 @@ def generate_and_send_todays_email_summary():
     except Exception as e:
         logger.error(f"Error generating or sending email summary: {e}", exc_info=True)
     finally:
-        if db_session.is_active:  # Ensure session is closed
-            db_session.close()
+        SessionLocal.remove() # Ensure session is closed/removed for scoped_session
 
 
 def main():
@@ -118,18 +117,18 @@ def main():
     if args.init_db:
         logger.info("Initializing database as per command line argument...")
         try:
-            init_db()
+            init_db() # This uses the engine defined in database.py
             logger.info("Database initialization complete.")
         except Exception as e:
             logger.critical(f"Database initialization failed: {e}", exc_info=True)
-            return
+            return # Stop if DB init fails
 
     if args.all:
-        default_stocks_for_all = ["AAPL", "MSFT", "GOOGL", "NVDA", "JPM"]
+        default_stocks_for_all = ["AAPL", "MSFT", "GOOGL", "NVDA", "JPM"] # Example list
         logger.info(
             f"Running all analyses for default stocks: {default_stocks_for_all}, IPOs, and News (max {args.news_count_analyze} items).")
         if default_stocks_for_all: run_stock_analysis(default_stocks_for_all)
-        time.sleep(5)
+        time.sleep(5) # Stagger main analysis types
         run_ipo_analysis()
         time.sleep(5)
         run_news_analysis(category=args.news_category, count_to_analyze=args.news_count_analyze)
@@ -159,6 +158,11 @@ def main():
 
 
 if __name__ == "__main__":
+    # Setup global exception handler (optional, can be useful for uncaught exceptions in threads)
+    # import sys
+    # from error_handler import handle_global_exception
+    # sys.excepthook = handle_global_exception
+
     script_start_time = datetime.now(timezone.utc)
     logger.info("===================================================================")
     logger.info(f"Starting Financial Analysis Script at {script_start_time.strftime('%Y-%m-%d %H:%M:%S %Z')}")
