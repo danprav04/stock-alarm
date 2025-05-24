@@ -14,6 +14,7 @@ FINNHUB_API_KEY = "d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390"  # Replace with you
 FINANCIAL_MODELING_PREP_API_KEY = "62ERGmJoqQgGD0nSGxRZS91TVzfz61uB"  # Replace with your actual key
 EODHD_API_KEY = "683079df749c42.21476005"  # Replace with your actual key or "demo"
 RAPIDAPI_UPCOMING_IPO_KEY = "0bd9b5144cmsh50c0e6d95c0b662p1cbdefjsn2d1cb0104cde"  # Replace with your actual key
+ALPHA_VANTAGE_API_KEY = "HB6N4X55UTFGN2FP" # User provided Alpha Vantage Key
 
 # SEC EDGAR Configuration
 EDGAR_USER_AGENT = "YourAppName YourContactEmail@example.com"  # SEC requests a user agent
@@ -38,7 +39,12 @@ LOG_LEVEL = "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 API_REQUEST_TIMEOUT = 45  # seconds, increased for potentially larger data
 API_RETRY_ATTEMPTS = 3
 API_RETRY_DELAY = 10  # seconds, increased
+# Alpha Vantage Free Tier Limit: 25 requests per day.
+# Using a longer delay for AV specifically in its client or being mindful of call frequency.
+# For now, the general API_RETRY_DELAY will apply if AV hits HTTP errors like 429.
+# Consider a specific rate limiter or call counter for Alpha Vantage if usage becomes high.
 MAX_GEMINI_TEXT_LENGTH = 150000 # Max characters to send to Gemini for summaries to avoid hitting limits
+
 
 # Analysis Settings
 MAX_NEWS_ARTICLES_PER_QUERY = 10
