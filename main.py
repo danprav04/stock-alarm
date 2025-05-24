@@ -1,16 +1,17 @@
 # main.py
 import argparse
-from datetime import datetime, timezone  # Added timezone
+from datetime import datetime, timezone
+from sqlalchemy.orm import joinedload  # <--- ADDED THIS IMPORT
 from database import init_db, get_db_session
 from error_handler import logger
-import time  # For delays between different analysis types if run in sequence
+import time
 
 from stock_analyzer import StockAnalyzer
 from ipo_analyzer import IPOAnalyzer
 from news_analyzer import NewsAnalyzer
 from email_generator import EmailGenerator
-from models import StockAnalysis, IPOAnalysis, NewsEventAnalysis  # For querying results
-from config import MAX_NEWS_TO_ANALYZE_PER_RUN  # Import config value
+from models import StockAnalysis, IPOAnalysis, NewsEventAnalysis
+from config import MAX_NEWS_TO_ANALYZE_PER_RUN
 
 
 def run_stock_analysis(tickers):
@@ -18,25 +19,23 @@ def run_stock_analysis(tickers):
     results = []
     for ticker in tickers:
         try:
-            # Each analyzer instance now manages its own session internally
             analyzer = StockAnalyzer(ticker=ticker)
-            analysis_result = analyzer.analyze()  # This method now handles its own session commit/close
+            analysis_result = analyzer.analyze()
             if analysis_result:
                 results.append(analysis_result)
             else:
                 logger.warning(f"Stock analysis for {ticker} did not return a result object.")
-        except RuntimeError as rt_err:  # Catch specific errors from analyzer init
+        except RuntimeError as rt_err:
             logger.error(f"Could not run stock analysis for {ticker} due to critical init error: {rt_err}")
         except Exception as e:
             logger.error(f"Error analyzing stock {ticker}: {e}", exc_info=True)
-        time.sleep(2)  # Small delay between analyzing different stocks
+        time.sleep(2)
     return results
 
 
 def run_ipo_analysis():
     logger.info("--- Starting IPO Analysis Pipeline ---")
     try:
-        # IPOAnalyzer manages its own session internally
         analyzer = IPOAnalyzer()
         results = analyzer.run_ipo_analysis_pipeline()
         return results
@@ -48,9 +47,7 @@ def run_ipo_analysis():
 def run_news_analysis(category="general", count_to_analyze=MAX_NEWS_TO_ANALYZE_PER_RUN):
     logger.info(f"--- Starting News Analysis Pipeline (Category: {category}, Max to Analyze: {count_to_analyze}) ---")
     try:
-        # NewsAnalyzer manages its own session internally
         analyzer = NewsAnalyzer()
-        # Pass the count_to_analyze from config (or args) to the pipeline
         results = analyzer.run_news_analysis_pipeline(category=category, count_to_analyze_this_run=count_to_analyze)
         return results
     except Exception as e:
@@ -60,16 +57,10 @@ def run_news_analysis(category="general", count_to_analyze=MAX_NEWS_TO_ANALYZE_P
 
 def generate_and_send_todays_email_summary():
     logger.info("--- Generating Today's Email Summary ---")
-    db_session = next(get_db_session())  # Session for fetching analysis results
-    # Fetch analyses performed "today" based on UTC.
-    # If script runs near midnight, "today" can be tricky.
-    # A better approach might be "last 24 hours" or since last email run.
-    # For simplicity, using today_start in UTC.
+    db_session = next(get_db_session())
     today_start_utc = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
 
     try:
-        # Fetch analyses with their related parent objects loaded to avoid N+1 in email generator
-        # Using joinedload or selectinload depending on relationship type and access pattern
         recent_stock_analyses = db_session.query(StockAnalysis).filter(StockAnalysis.analysis_date >= today_start_utc) \
             .options(joinedload(StockAnalysis.stock)).all()
         recent_ipo_analyses = db_session.query(IPOAnalysis).filter(IPOAnalysis.analysis_date >= today_start_utc) \
@@ -96,14 +87,13 @@ def generate_and_send_todays_email_summary():
 
         if email_message:
             email_gen.send_email(email_message)
-            # For testing, can save to file (already in email_generator's __main__)
         else:
             logger.error("Failed to create the email message (returned None).")
 
     except Exception as e:
         logger.error(f"Error generating or sending email summary: {e}", exc_info=True)
     finally:
-        if db_session.is_active:
+        if db_session.is_active:  # Ensure session is closed
             db_session.close()
 
 
@@ -115,7 +105,6 @@ def main():
     parser.add_argument("--analyze-news", action="store_true", help="Run news analysis pipeline.")
     parser.add_argument("--news-category", default="general",
                         help="Category for news analysis (e.g., general, forex, crypto, merger).")
-    # Use the config value for news_count by default, allow override
     parser.add_argument("--news-count-analyze", type=int, default=MAX_NEWS_TO_ANALYZE_PER_RUN,
                         help=f"Max number of new news items to analyze in this run (default from config: {MAX_NEWS_TO_ANALYZE_PER_RUN}).")
     parser.add_argument("--send-email", action="store_true",
@@ -129,26 +118,22 @@ def main():
     if args.init_db:
         logger.info("Initializing database as per command line argument...")
         try:
-            init_db()  # This creates tables based on models.py
+            init_db()
             logger.info("Database initialization complete.")
         except Exception as e:
             logger.critical(f"Database initialization failed: {e}", exc_info=True)
-            return  # Stop if DB init fails
-
-    # --- Execution Logic ---
-    # Each analyzer now manages its own session lifecycle for its operations.
-    # main.py orchestrates calls but doesn't pass sessions around to analyzers.
+            return
 
     if args.all:
         default_stocks_for_all = ["AAPL", "MSFT", "GOOGL", "NVDA", "JPM"]
         logger.info(
             f"Running all analyses for default stocks: {default_stocks_for_all}, IPOs, and News (max {args.news_count_analyze} items).")
         if default_stocks_for_all: run_stock_analysis(default_stocks_for_all)
-        time.sleep(5)  # Pause
+        time.sleep(5)
         run_ipo_analysis()
-        time.sleep(5)  # Pause
+        time.sleep(5)
         run_news_analysis(category=args.news_category, count_to_analyze=args.news_count_analyze)
-        time.sleep(5)  # Pause
+        time.sleep(5)
         generate_and_send_todays_email_summary()
         logger.info("--- '--all' tasks finished. ---")
         return
@@ -174,12 +159,6 @@ def main():
 
 
 if __name__ == "__main__":
-    # Logging is set up when error_handler.py is imported.
-    # Global exception hook can be set here if desired (see error_handler.py comments)
-    # import sys
-    # from error_handler import handle_exception
-    # sys.excepthook = handle_exception
-
     script_start_time = datetime.now(timezone.utc)
     logger.info("===================================================================")
     logger.info(f"Starting Financial Analysis Script at {script_start_time.strftime('%Y-%m-%d %H:%M:%S %Z')}")

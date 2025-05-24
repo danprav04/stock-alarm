@@ -21,26 +21,54 @@ from config import (
 )
 
 
+# Helper function to safely get a numeric value from a dictionary
+def safe_get_float(data_dict, key, default=None):
+    val = data_dict.get(key)
+    if val is None: return default
+    try:
+        return float(val)
+    except (ValueError, TypeError):
+        return default
+
+
+# Helper function for CAGR calculation
+def calculate_cagr(end_value, start_value, years):
+    if start_value is None or end_value is None or years <= 0: return None
+    if start_value == 0: return None  # Avoid division by zero
+    # Handle cases where start_value might be negative (e.g. for EPS)
+    if start_value < 0:
+        if end_value > 0:  # From loss to profit, CAGR is not straightforwardly meaningful
+            return None
+        elif end_value < 0:  # Both negative, growth of negative numbers (lessening loss is positive)
+            return -((end_value / start_value) ** (
+                        1 / years) - 1) if end_value != 0 else None  # avoid division by zero if end_value is 0
+        else:  # end_value is 0 from negative start
+            return 1.0  # 100% growth to zero loss
+    if end_value < 0 and start_value > 0:  # From profit to loss
+        return None  # Meaningful positive CAGR not possible
+
+    # Standard CAGR for positive start/end values
+    return ((end_value / start_value) ** (1 / years)) - 1
+
+
 class StockAnalyzer:
     def __init__(self, ticker):
         self.ticker = ticker.upper()
         self.finnhub = FinnhubClient()
         self.fmp = FinancialModelingPrepClient()
-        self.eodhd = EODHDClient()  # Retained for potential future use or different data points
+        self.eodhd = EODHDClient()
         self.gemini = GeminiAPIClient()
         self.sec_edgar = SECEDGARClient()
 
         self.db_session = next(get_db_session())
         self.stock_db_entry = None
-        self._financial_data_cache = {}  # In-memory cache for fetched data during a single analysis run
+        self._financial_data_cache = {}
 
         try:
             self._get_or_create_stock_entry()
         except Exception as e:
             logger.error(f"CRITICAL: Failed during _get_or_create_stock_entry for {self.ticker}: {e}", exc_info=True)
             self._close_session_if_active()
-            # Re-raise to prevent using a partially initialized or broken analyzer object
-            # This ensures the calling code knows this instance is not usable.
             raise RuntimeError(f"StockAnalyzer for {self.ticker} could not be initialized due to DB/API issues.")
 
     def _close_session_if_active(self):
@@ -54,43 +82,41 @@ class StockAnalyzer:
     def _get_or_create_stock_entry(self):
         if not self.db_session.is_active:
             logger.warning(f"Session for {self.ticker} in _get_or_create_stock_entry was inactive. Re-establishing.")
-            self._close_session_if_active()  # Close old one if possible
-            self.db_session = next(get_db_session())  # Get new one
+            self._close_session_if_active()
+            self.db_session = next(get_db_session())
 
         self.stock_db_entry = self.db_session.query(Stock).filter_by(ticker=self.ticker).first()
 
         company_name_from_api = None
         industry_from_api = None
         sector_from_api = None
-        cik_from_api = None  # Explicitly initialize
+        cik_from_api = None
 
-        # Attempt to fetch profile data to populate/update stock entry
-        # Prioritize FMP as it often has CIK, industry, sector
-        profile_fmp = self.fmp.get_company_profile(self.ticker)  # API Call
-        if profile_fmp and isinstance(profile_fmp, list) and profile_fmp[0]:
-            self._financial_data_cache['profile_fmp'] = profile_fmp[0]  # Cache for later use
-            company_name_from_api = profile_fmp[0].get('companyName')
-            industry_from_api = profile_fmp[0].get('industry')
-            sector_from_api = profile_fmp[0].get('sector')
-            cik_from_api = profile_fmp[0].get('cik')
+        profile_fmp_list = self.fmp.get_company_profile(self.ticker)  # API Call
+        profile_fmp_data = None
+        if profile_fmp_list and isinstance(profile_fmp_list, list) and profile_fmp_list[0]:
+            profile_fmp_data = profile_fmp_list[0]
+            self._financial_data_cache['profile_fmp'] = profile_fmp_data
+            company_name_from_api = profile_fmp_data.get('companyName')
+            industry_from_api = profile_fmp_data.get('industry')
+            sector_from_api = profile_fmp_data.get('sector')
+            cik_from_api = profile_fmp_data.get('cik')
             logger.info(f"Fetched profile from FMP for {self.ticker}.")
-        else:  # Fallback to Finnhub if FMP fails or returns no data
+        else:
             logger.warning(f"FMP profile fetch failed or empty for {self.ticker}. Trying Finnhub.")
             profile_finnhub = self.finnhub.get_company_profile2(self.ticker)  # API Call
             if profile_finnhub:
-                self._financial_data_cache['profile_finnhub'] = profile_finnhub  # Cache for later
+                self._financial_data_cache['profile_finnhub'] = profile_finnhub
                 company_name_from_api = profile_finnhub.get('name')
                 industry_from_api = profile_finnhub.get('finnhubIndustry')
-                # Finnhub doesn't typically provide a broad "sector" or CIK in company_profile2
                 logger.info(f"Fetched profile from Finnhub for {self.ticker}.")
             else:
                 logger.warning(f"Failed to fetch profile from FMP and Finnhub for {self.ticker}.")
 
-        if not company_name_from_api:  # If still no name, use ticker as placeholder
+        if not company_name_from_api:
             company_name_from_api = self.ticker
             logger.info(f"Using ticker '{self.ticker}' as company name due to lack of API data.")
 
-        # If CIK is still missing, try to get it directly from SEC EDGAR client
         if not cik_from_api and self.ticker:
             logger.info(f"CIK not found from FMP/Finnhub profile for {self.ticker}. Querying SEC EDGAR.")
             cik_from_api = self.sec_edgar.get_cik_by_ticker(self.ticker)  # API Call
@@ -106,19 +132,19 @@ class StockAnalyzer:
                 company_name=company_name_from_api,
                 industry=industry_from_api,
                 sector=sector_from_api,
-                cik=cik_from_api  # Store CIK if found
+                cik=cik_from_api
             )
             self.db_session.add(self.stock_db_entry)
             try:
                 self.db_session.commit()
-                self.db_session.refresh(self.stock_db_entry)  # Load defaults, ID
+                self.db_session.refresh(self.stock_db_entry)
                 logger.info(
                     f"Created and refreshed stock entry for {self.ticker} (ID: {self.stock_db_entry.id}). Name: {self.stock_db_entry.company_name}, CIK: {self.stock_db_entry.cik}")
             except SQLAlchemyError as e:
                 self.db_session.rollback()
                 logger.error(f"Error creating stock entry for {self.ticker}: {e}", exc_info=True)
-                raise  # Critical failure
-        else:  # Existing entry, check for updates
+                raise
+        else:
             logger.info(
                 f"Found existing stock entry for {self.ticker} (ID: {self.stock_db_entry.id}). Current DB CIK: {self.stock_db_entry.cik}")
             updated = False
@@ -133,7 +159,7 @@ class StockAnalyzer:
             if sector_from_api and self.stock_db_entry.sector != sector_from_api:
                 self.stock_db_entry.sector = sector_from_api
                 updated = True
-            if cik_from_api and self.stock_db_entry.cik != cik_from_api:  # Update CIK if newly found or changed
+            if cik_from_api and self.stock_db_entry.cik != cik_from_api:
                 logger.info(f"Updating CIK for {self.ticker} from '{self.stock_db_entry.cik}' to '{cik_from_api}'.")
                 self.stock_db_entry.cik = cik_from_api
                 updated = True
@@ -146,14 +172,12 @@ class StockAnalyzer:
                 except SQLAlchemyError as e:
                     self.db_session.rollback()
                     logger.error(f"Error updating stock entry for {self.ticker} in DB: {e}")
-                    # Non-critical, proceed with old data if update fails
 
     def _fetch_financial_statements(self):
         logger.info(f"Fetching financial statements for {self.ticker} for the last {STOCK_FINANCIAL_YEARS} years.")
         statements = {"income": [], "balance": [], "cashflow": []}
 
         try:
-            # FMP is primary for historical depth if available
             income_annual_fmp = self.fmp.get_financial_statements(self.ticker, "income-statement", period="annual",
                                                                   limit=STOCK_FINANCIAL_YEARS)
             balance_annual_fmp = self.fmp.get_financial_statements(self.ticker, "balance-sheet-statement",
@@ -165,46 +189,45 @@ class StockAnalyzer:
             if balance_annual_fmp: statements["balance"].extend(balance_annual_fmp)
             if cashflow_annual_fmp: statements["cashflow"].extend(cashflow_annual_fmp)
 
-            # Fetch quarterly data for recent trends (e.g., last 8 quarters for QoQ)
             income_quarterly_fmp = self.fmp.get_financial_statements(self.ticker, "income-statement",
                                                                      period="quarterly", limit=8)
-            self._financial_data_cache['income_quarterly_fmp'] = income_quarterly_fmp or []  # Ensure it's a list
+            if income_quarterly_fmp is None:  # API call failed (e.g. 403)
+                logger.warning(
+                    f"Failed to fetch FMP quarterly income statements for {self.ticker} (likely subscription issue). QoQ analysis will be limited.")
+                self._financial_data_cache['income_quarterly_fmp'] = []
+            else:
+                self._financial_data_cache['income_quarterly_fmp'] = income_quarterly_fmp
 
             logger.info(
-                f"Fetched from FMP: {len(statements['income'])} income, {len(statements['balance'])} balance, {len(statements['cashflow'])} cashflow annual statements. {len(income_quarterly_fmp or [])} quarterly income statements.")
+                f"Fetched from FMP: {len(statements['income'])} income, {len(statements['balance'])} balance, {len(statements['cashflow'])} cashflow annual statements. {len(self._financial_data_cache.get('income_quarterly_fmp', []))} quarterly income statements.")
 
         except Exception as e:
             logger.warning(
-                f"Error fetching FMP financial statements for {self.ticker}: {e}. This may limit trend analysis.",
+                f"Generic error during FMP financial statements fetch for {self.ticker}: {e}. This may limit trend analysis.",
                 exc_info=True)
-
-        # Fallback or supplement with Finnhub if FMP data is insufficient.
-        # Finnhub's `financials-reported` gives quarterly by default. We'd need to aggregate for annuals.
-        # This is complex. For now, if FMP fails, we have less historical data for deep trends.
-        # If essential, one could implement logic to pull Finnhub quarterly and sum up to annuals.
 
         self._financial_data_cache['financial_statements'] = statements
         return statements
 
-    def _fetch_key_metrics_and_profile_data(self):  # Renamed for clarity
+    def _fetch_key_metrics_and_profile_data(self):
         logger.info(f"Fetching key metrics and profile for {self.ticker}.")
 
-        # FMP Key Metrics (annual for trends, quarterly for latest)
-        # Ensure limit is reasonable based on typical API responses and desired history.
-        key_metrics_annual_fmp = self.fmp.get_key_metrics(self.ticker, period="annual",
-                                                          limit=STOCK_FINANCIAL_YEARS + 2)  # Get a bit more for safety
-        key_metrics_quarterly_fmp = self.fmp.get_key_metrics(self.ticker, period="quarterly",
-                                                             limit=8)  # Last 8 quarters
+        key_metrics_annual_fmp = self.fmp.get_key_metrics(self.ticker, period="annual", limit=STOCK_FINANCIAL_YEARS + 2)
+        key_metrics_quarterly_fmp = self.fmp.get_key_metrics(self.ticker, period="quarterly", limit=8)
 
         self._financial_data_cache['key_metrics_annual_fmp'] = key_metrics_annual_fmp or []
-        self._financial_data_cache['key_metrics_quarterly_fmp'] = key_metrics_quarterly_fmp or []
+        if key_metrics_quarterly_fmp is None:  # API call failed (e.g. 403)
+            logger.warning(
+                f"Failed to fetch FMP quarterly key metrics for {self.ticker} (likely subscription issue). Latest metrics might rely on annual or Finnhub.")
+            self._financial_data_cache['key_metrics_quarterly_fmp'] = []
+        else:
+            self._financial_data_cache['key_metrics_quarterly_fmp'] = key_metrics_quarterly_fmp
 
-        # Finnhub Basic Financials for potentially more real-time metrics like PE
         basic_financials_finnhub = self.finnhub.get_basic_financials(self.ticker)
         self._financial_data_cache['basic_financials_finnhub'] = basic_financials_finnhub or {}
 
-        # FMP Profile (might already be in cache from _get_or_create_stock_entry)
-        if not self._financial_data_cache.get('profile_fmp'):
+        if 'profile_fmp' not in self._financial_data_cache or not self._financial_data_cache.get(
+                'profile_fmp'):  # If not fetched during init
             profile_fmp_list = self.fmp.get_company_profile(self.ticker)
             self._financial_data_cache['profile_fmp'] = profile_fmp_list[0] if profile_fmp_list and isinstance(
                 profile_fmp_list, list) else {}
@@ -219,155 +242,148 @@ class StockAnalyzer:
                                                     {"income": [], "balance": [], "cashflow": []})
         key_metrics_annual = self._financial_data_cache.get('key_metrics_annual_fmp', [])
         key_metrics_quarterly = self._financial_data_cache.get('key_metrics_quarterly_fmp', [])
-        basic_fin_finnhub = self._financial_data_cache.get('basic_financials_finnhub', {}).get('metric', {})
+        basic_fin_finnhub_data = self._financial_data_cache.get('basic_financials_finnhub', {})
+        basic_fin_finnhub = basic_fin_finnhub_data.get('metric',
+                                                       {}) if basic_fin_finnhub_data else {}  # Ensure 'metric' key exists
         profile_fmp = self._financial_data_cache.get('profile_fmp', {})
 
         latest_km_q = key_metrics_quarterly[0] if key_metrics_quarterly else {}
         latest_km_a = key_metrics_annual[0] if key_metrics_annual else {}
 
-        metrics["pe_ratio"] = latest_km_q.get("peRatioTTM") or latest_km_a.get("peRatio") or basic_fin_finnhub.get(
-            "peTTM") or basic_fin_finnhub.get("peAnnual")
-        metrics["pb_ratio"] = latest_km_q.get("priceToBookRatioTTM") or latest_km_a.get(
-            "pbRatio") or basic_fin_finnhub.get("pbAnnual")
-        metrics["ps_ratio"] = latest_km_q.get("priceToSalesRatioTTM") or latest_km_a.get("priceSalesRatio")
-        metrics["ev_to_sales"] = latest_km_q.get("enterpriseValueOverRevenueTTM") or latest_km_a.get(
-            "enterpriseValueOverRevenue")
-        metrics["ev_to_ebitda"] = latest_km_q.get("evToEbitdaTTM") or latest_km_a.get("evToEbitda")
+        metrics["pe_ratio"] = safe_get_float(latest_km_q, "peRatioTTM") or safe_get_float(latest_km_a,
+                                                                                          "peRatio") or safe_get_float(
+            basic_fin_finnhub, "peTTM") or safe_get_float(basic_fin_finnhub, "peAnnual")
+        metrics["pb_ratio"] = safe_get_float(latest_km_q, "priceToBookRatioTTM") or safe_get_float(latest_km_a,
+                                                                                                   "pbRatio") or safe_get_float(
+            basic_fin_finnhub, "pbAnnual")
+        metrics["ps_ratio"] = safe_get_float(latest_km_q, "priceToSalesRatioTTM") or safe_get_float(latest_km_a,
+                                                                                                    "priceSalesRatio")
+        metrics["ev_to_sales"] = safe_get_float(latest_km_q, "enterpriseValueOverRevenueTTM") or safe_get_float(
+            latest_km_a, "enterpriseValueOverRevenue")
+        metrics["ev_to_ebitda"] = safe_get_float(latest_km_q, "evToEbitdaTTM") or safe_get_float(latest_km_a,
+                                                                                                 "evToEbitda")
 
-        div_yield_fmp_q = latest_km_q.get("dividendYieldTTM")
-        div_yield_fmp_a = latest_km_a.get("dividendYield")
-        div_yield_finnhub = basic_fin_finnhub.get("dividendYieldAnnual")
-        if div_yield_finnhub is not None: div_yield_finnhub = div_yield_finnhub / 100  # Finnhub yield is often percentage
-        metrics["dividend_yield"] = div_yield_fmp_q or div_yield_fmp_a or div_yield_finnhub
+        div_yield_fmp_q = safe_get_float(latest_km_q, "dividendYieldTTM")
+        div_yield_fmp_a = safe_get_float(latest_km_a, "dividendYield")
+        div_yield_finnhub_val = safe_get_float(basic_fin_finnhub, "dividendYieldAnnual")
+        if div_yield_finnhub_val is not None: div_yield_finnhub_val = div_yield_finnhub_val / 100
+        metrics["dividend_yield"] = div_yield_fmp_q or div_yield_fmp_a or div_yield_finnhub_val
 
         metrics["key_metrics_snapshot"]["FMP_peRatioTTM"] = metrics["pe_ratio"]
         metrics["key_metrics_snapshot"]["FMP_pbRatioTTM"] = metrics["pb_ratio"]
-        metrics["key_metrics_snapshot"]["FMP_psRatioTTM"] = metrics["ps_ratio"]
-        metrics["key_metrics_snapshot"]["Finnhub_peTTM"] = basic_fin_finnhub.get("peTTM")  # Store for comparison
 
-        income_annual = sorted(statements.get("income", []), key=lambda x: x.get("date"), reverse=True)
-        balance_annual = sorted(statements.get("balance", []), key=lambda x: x.get("date"), reverse=True)
-        cashflow_annual = sorted(statements.get("cashflow", []), key=lambda x: x.get("date"), reverse=True)
+        income_annual = sorted([s for s in statements.get("income", []) if s], key=lambda x: x.get("date"),
+                               reverse=True)
+        balance_annual = sorted([s for s in statements.get("balance", []) if s], key=lambda x: x.get("date"),
+                                reverse=True)
+        cashflow_annual = sorted([s for s in statements.get("cashflow", []) if s], key=lambda x: x.get("date"),
+                                 reverse=True)
 
         if income_annual:
             latest_income_a = income_annual[0]
-            metrics["eps"] = latest_income_a.get("eps") or latest_km_a.get("eps")
-            metrics["net_profit_margin"] = latest_income_a.get("netProfitMargin")
-            metrics["gross_profit_margin"] = latest_income_a.get("grossProfitMargin")
-            metrics["operating_profit_margin"] = latest_income_a.get(
-                "operatingIncomeRatio")  # FMP: operatingIncome / revenue
+            metrics["eps"] = safe_get_float(latest_income_a, "eps") or safe_get_float(latest_km_a, "eps")
+            metrics["net_profit_margin"] = safe_get_float(latest_income_a, "netProfitMargin")
+            metrics["gross_profit_margin"] = safe_get_float(latest_income_a, "grossProfitMargin")
+            metrics["operating_profit_margin"] = safe_get_float(latest_income_a, "operatingIncomeRatio")
 
-            ebit = latest_income_a.get("operatingIncome")  # Proxy for EBIT
-            interest_expense = latest_income_a.get("interestExpense")
-            if ebit is not None and interest_expense is not None and abs(interest_expense) > 0:
+            ebit = safe_get_float(latest_income_a, "operatingIncome")
+            interest_expense = safe_get_float(latest_income_a, "interestExpense")
+            if ebit is not None and interest_expense is not None and abs(
+                    interest_expense) > 1e-6:  # Avoid division by near-zero
                 metrics["interest_coverage_ratio"] = ebit / abs(interest_expense)
 
         if balance_annual:
             latest_balance_a = balance_annual[0]
-            total_equity = latest_balance_a.get("totalStockholdersEquity")
-            total_assets = latest_balance_a.get("totalAssets")
+            total_equity = safe_get_float(latest_balance_a, "totalStockholdersEquity")
+            total_assets = safe_get_float(latest_balance_a, "totalAssets")
+            latest_net_income = safe_get_float(income_annual[0], "netIncome") if income_annual else None
 
-            if total_equity and total_equity != 0 and income_annual and income_annual[0].get("netIncome") is not None:
-                metrics["roe"] = income_annual[0].get("netIncome") / total_equity
+            if total_equity and total_equity != 0 and latest_net_income is not None:
+                metrics["roe"] = latest_net_income / total_equity
 
-            if total_assets and total_assets != 0 and income_annual and income_annual[0].get("netIncome") is not None:
-                metrics["roa"] = income_annual[0].get("netIncome") / total_assets
+            if total_assets and total_assets != 0 and latest_net_income is not None:
+                metrics["roa"] = latest_net_income / total_assets
 
-            metrics["debt_to_equity"] = latest_balance_a.get("debtToEquity") or latest_km_a.get("debtToEquity")
-            if metrics["debt_to_equity"] is None and latest_balance_a.get(
-                    "totalDebt") is not None and total_equity and total_equity != 0:
-                metrics["debt_to_equity"] = latest_balance_a.get("totalDebt") / total_equity
+            metrics["debt_to_equity"] = safe_get_float(latest_balance_a, "debtToEquity") or safe_get_float(latest_km_a,
+                                                                                                           "debtToEquity")
+            if metrics["debt_to_equity"] is None:
+                total_debt_val = safe_get_float(latest_balance_a, "totalDebt")
+                if total_debt_val is not None and total_equity and total_equity != 0:
+                    metrics["debt_to_equity"] = total_debt_val / total_equity
 
-            current_assets = latest_balance_a.get("totalCurrentAssets")
-            current_liabilities = latest_balance_a.get("totalCurrentLiabilities")
+            current_assets = safe_get_float(latest_balance_a, "totalCurrentAssets")
+            current_liabilities = safe_get_float(latest_balance_a, "totalCurrentLiabilities")
             if current_assets is not None and current_liabilities is not None and current_liabilities != 0:
                 metrics["current_ratio"] = current_assets / current_liabilities
 
-            cash_equivalents = latest_balance_a.get("cashAndCashEquivalents", 0)
-            short_term_investments = latest_balance_a.get("shortTermInvestments", 0)
-            accounts_receivable = latest_balance_a.get("netReceivables", 0)
+            cash_equivalents = safe_get_float(latest_balance_a, "cashAndCashEquivalents", 0.0)
+            short_term_investments = safe_get_float(latest_balance_a, "shortTermInvestments", 0.0)
+            accounts_receivable = safe_get_float(latest_balance_a, "netReceivables", 0.0)
             if current_liabilities is not None and current_liabilities != 0:
                 metrics["quick_ratio"] = (
                                                      cash_equivalents + short_term_investments + accounts_receivable) / current_liabilities
 
-        ebitda_for_debt_ratio = latest_km_a.get("ebitda")  # Prefer from key metrics
-        if not ebitda_for_debt_ratio and income_annual and income_annual[0].get("ebitda"):
-            ebitda_for_debt_ratio = income_annual[0].get("ebitda")
+        ebitda_for_debt_ratio = safe_get_float(latest_km_a, "ebitda")
+        if not ebitda_for_debt_ratio and income_annual:
+            ebitda_for_debt_ratio = safe_get_float(income_annual[0], "ebitda")
 
-        if ebitda_for_debt_ratio and ebitda_for_debt_ratio != 0 and balance_annual and balance_annual[0].get(
-                "totalDebt") is not None:
-            metrics["debt_to_ebitda"] = balance_annual[0].get("totalDebt") / ebitda_for_debt_ratio
+        if ebitda_for_debt_ratio and ebitda_for_debt_ratio != 0 and balance_annual:
+            total_debt_val = safe_get_float(balance_annual[0], "totalDebt")
+            if total_debt_val is not None:
+                metrics["debt_to_ebitda"] = total_debt_val / ebitda_for_debt_ratio
 
-        # Growth Rates
-        def get_value_from_statement_by_year_offset(statement_list, field, year_offset=0):
-            if len(statement_list) > year_offset:
-                return statement_list[year_offset].get(field)
+        def get_value_from_statement_list(data_list, field, year_offset=0):  # More robust
+            if data_list and len(data_list) > year_offset and data_list[year_offset]:
+                return safe_get_float(data_list[year_offset], field)
             return None
 
-        def calculate_growth(current, previous):
-            if current is not None and previous is not None and previous != 0:
-                return (current - previous) / abs(previous)
-            return None
-
-        def calculate_cagr(end_value, start_value, years):
-            if start_value is None or end_value is None or start_value == 0 or years <= 0: return None
-            # Handle cases where start_value might be negative if dealing with earnings.
-            # For revenue, start_value should be positive.
-            if start_value < 0 and end_value > 0:  # From loss to profit, CAGR is complex/misleading
-                return None  # Or some other indicator
-            if start_value < 0 and end_value < 0:  # Both negative, growth of negative numbers
-                return ((abs(start_value) / abs(end_value)) ** (1 / years)) - 1  # growth in reduction of loss
-            if end_value < 0 and start_value > 0:  # From profit to loss
-                return - ((abs(end_value) / start_value) ** (
-                            1 / years))  # This is not perfect, but indicates negative trend
-
-            return ((end_value / start_value) ** (1 / years)) - 1
-
-        metrics["revenue_growth_yoy"] = calculate_growth(
-            get_value_from_statement_by_year_offset(income_annual, "revenue", 0),
-            get_value_from_statement_by_year_offset(income_annual, "revenue", 1))
-        metrics["eps_growth_yoy"] = calculate_growth(get_value_from_statement_by_year_offset(income_annual, "eps", 0),
-                                                     get_value_from_statement_by_year_offset(income_annual, "eps", 1))
+        metrics["revenue_growth_yoy"] = calculate_growth(get_value_from_statement_list(income_annual, "revenue", 0),
+                                                         get_value_from_statement_list(income_annual, "revenue", 1))
+        metrics["eps_growth_yoy"] = calculate_growth(get_value_from_statement_list(income_annual, "eps", 0),
+                                                     get_value_from_statement_list(income_annual, "eps", 1))
 
         if len(income_annual) >= 3:
             metrics["revenue_growth_cagr_3yr"] = calculate_cagr(
-                get_value_from_statement_by_year_offset(income_annual, "revenue", 0),
-                get_value_from_statement_by_year_offset(income_annual, "revenue", 2), 2)
-            metrics["eps_growth_cagr_3yr"] = calculate_cagr(
-                get_value_from_statement_by_year_offset(income_annual, "eps", 0),
-                get_value_from_statement_by_year_offset(income_annual, "eps", 2), 2)
-        if len(income_annual) >= 5:
+                get_value_from_statement_list(income_annual, "revenue", 0),
+                get_value_from_statement_list(income_annual, "revenue", 2), 2)
+            metrics["eps_growth_cagr_3yr"] = calculate_cagr(get_value_from_statement_list(income_annual, "eps", 0),
+                                                            get_value_from_statement_list(income_annual, "eps", 2), 2)
+        if len(income_annual) >= 5:  # Ensure 5 actual years of data, index 4 means 5th year
             metrics["revenue_growth_cagr_5yr"] = calculate_cagr(
-                get_value_from_statement_by_year_offset(income_annual, "revenue", 0),
-                get_value_from_statement_by_year_offset(income_annual, "revenue", 4), 4)
-            metrics["eps_growth_cagr_5yr"] = calculate_cagr(
-                get_value_from_statement_by_year_offset(income_annual, "eps", 0),
-                get_value_from_statement_by_year_offset(income_annual, "eps", 4), 4)
+                get_value_from_statement_list(income_annual, "revenue", 0),
+                get_value_from_statement_list(income_annual, "revenue", 4), 4)
+            metrics["eps_growth_cagr_5yr"] = calculate_cagr(get_value_from_statement_list(income_annual, "eps", 0),
+                                                            get_value_from_statement_list(income_annual, "eps", 4), 4)
 
         income_quarterly = self._financial_data_cache.get('income_quarterly_fmp', [])
-        if len(income_quarterly) >= 2:  # QoQ for revenue
+        if len(income_quarterly) >= 2:
             metrics["revenue_growth_qoq"] = calculate_growth(
-                get_value_from_statement_by_year_offset(income_quarterly, "revenue", 0),
-                get_value_from_statement_by_year_offset(income_quarterly, "revenue", 1))
+                get_value_from_statement_list(income_quarterly, "revenue", 0),
+                get_value_from_statement_list(income_quarterly, "revenue", 1))
 
-        # FCF calculations
         if cashflow_annual:
-            latest_cashflow_a = cashflow_annual[0]
-            fcf = latest_cashflow_a.get("freeCashFlow")
-            shares_outstanding_fcf = profile_fmp.get("mktCap") / profile_fmp.get("price") if profile_fmp.get(
-                "mktCap") and profile_fmp.get("price") and profile_fmp.get("price") != 0 else profile_fmp.get(
-                "sharesOutstanding")
+            fcf = get_value_from_statement_list(cashflow_annual, "freeCashFlow", 0)
+
+            # Get shares outstanding: FMP profile "sharesOutstanding" or mktCap / price
+            shares_outstanding_fcf = safe_get_float(profile_fmp, "sharesOutstanding")
+            if not shares_outstanding_fcf:
+                mkt_cap = safe_get_float(profile_fmp, "mktCap")
+                price = safe_get_float(profile_fmp, "price")
+                if mkt_cap and price and price != 0:
+                    shares_outstanding_fcf = mkt_cap / price
 
             if fcf is not None and shares_outstanding_fcf and shares_outstanding_fcf != 0:
                 metrics["free_cash_flow_per_share"] = fcf / shares_outstanding_fcf
-                if profile_fmp.get("mktCap") and profile_fmp.get("mktCap") != 0:
-                    metrics["free_cash_flow_yield"] = fcf / profile_fmp.get("mktCap")
+                mkt_cap_for_yield = safe_get_float(profile_fmp, "mktCap")
+                if mkt_cap_for_yield and mkt_cap_for_yield != 0:
+                    metrics["free_cash_flow_yield"] = fcf / mkt_cap_for_yield
 
             if len(cashflow_annual) >= 3:
-                fcf_curr = get_value_from_statement_by_year_offset(cashflow_annual, "freeCashFlow", 0)
-                fcf_prev1 = get_value_from_statement_by_year_offset(cashflow_annual, "freeCashFlow", 1)
-                fcf_prev2 = get_value_from_statement_by_year_offset(cashflow_annual, "freeCashFlow", 2)
-                if all(isinstance(x, (int, float)) for x in [fcf_curr, fcf_prev1, fcf_prev2]):
+                fcf_curr = get_value_from_statement_list(cashflow_annual, "freeCashFlow", 0)
+                fcf_prev1 = get_value_from_statement_list(cashflow_annual, "freeCashFlow", 1)
+                fcf_prev2 = get_value_from_statement_list(cashflow_annual, "freeCashFlow", 2)
+                if all(isinstance(x, (int, float)) for x in [fcf_curr, fcf_prev1, fcf_prev2] if
+                       x is not None):  # Check for None too
                     if fcf_curr > fcf_prev1 > fcf_prev2:
                         metrics["free_cash_flow_trend"] = "Growing"
                     elif fcf_curr < fcf_prev1 < fcf_prev2:
@@ -377,11 +393,11 @@ class StockAnalyzer:
             else:
                 metrics["free_cash_flow_trend"] = "Data N/A (needs 3+ years)"
 
-        if len(balance_annual) >= 3:  # Retained Earnings Trend
-            re_curr = get_value_from_statement_by_year_offset(balance_annual, "retainedEarnings", 0)
-            re_prev1 = get_value_from_statement_by_year_offset(balance_annual, "retainedEarnings", 1)
-            re_prev2 = get_value_from_statement_by_year_offset(balance_annual, "retainedEarnings", 2)
-            if all(isinstance(x, (int, float)) for x in [re_curr, re_prev1, re_prev2]):
+        if len(balance_annual) >= 3:
+            re_curr = get_value_from_statement_list(balance_annual, "retainedEarnings", 0)
+            re_prev1 = get_value_from_statement_list(balance_annual, "retainedEarnings", 1)
+            re_prev2 = get_value_from_statement_list(balance_annual, "retainedEarnings", 2)
+            if all(isinstance(x, (int, float)) for x in [re_curr, re_prev1, re_prev2] if x is not None):
                 if re_curr > re_prev1 > re_prev2:
                     metrics["retained_earnings_trend"] = "Growing"
                 elif re_curr < re_prev1 < re_prev2:
@@ -391,38 +407,35 @@ class StockAnalyzer:
         else:
             metrics["retained_earnings_trend"] = "Data N/A (needs 3+ years)"
 
-        # ROIC
         if income_annual and balance_annual:
-            ebit = get_value_from_statement_by_year_offset(income_annual, "operatingIncome", 0)
-            tax_provision = get_value_from_statement_by_year_offset(income_annual, "incomeTaxExpense", 0)
-            income_before_tax = get_value_from_statement_by_year_offset(income_annual, "incomeBeforeTax", 0)
+            ebit = get_value_from_statement_list(income_annual, "operatingIncome", 0)
+            tax_provision = get_value_from_statement_list(income_annual, "incomeTaxExpense", 0)
+            income_before_tax = get_value_from_statement_list(income_annual, "incomeBeforeTax", 0)
 
             effective_tax_rate = (
-                        tax_provision / income_before_tax) if income_before_tax and tax_provision and income_before_tax != 0 else 0.21  # Default tax rate
+                        tax_provision / income_before_tax) if income_before_tax and tax_provision and income_before_tax != 0 else 0.21
             nopat = ebit * (1 - effective_tax_rate) if ebit is not None else None
 
-            total_debt = get_value_from_statement_by_year_offset(balance_annual, "totalDebt", 0)
-            total_equity = get_value_from_statement_by_year_offset(balance_annual, "totalStockholdersEquity", 0)
-            cash_and_equivalents = get_value_from_statement_by_year_offset(balance_annual, "cashAndCashEquivalents",
-                                                                           0) or 0
+            total_debt = get_value_from_statement_list(balance_annual, "totalDebt", 0)
+            total_equity = get_value_from_statement_list(balance_annual, "totalStockholdersEquity", 0)
+            cash_and_equivalents = get_value_from_statement_list(balance_annual, "cashAndCashEquivalents", 0) or 0.0
 
-            if total_debt is not None and total_equity is not None:
+            if total_debt is not None and total_equity is not None:  # Ensure they are not None
                 invested_capital = total_debt + total_equity - cash_and_equivalents
                 if nopat is not None and invested_capital is not None and invested_capital != 0:
                     metrics["roic"] = nopat / invested_capital
 
-        # Clean up Nones for JSON snapshot and ensure proper types for DB
         final_metrics = {}
         for k, v in metrics.items():
-            if k == "key_metrics_snapshot":  # Handle snapshot separately
+            if k == "key_metrics_snapshot":
                 final_metrics[k] = {sk: sv for sk, sv in v.items() if sv is not None and not (
                             isinstance(sv, float) and (math.isnan(sv) or math.isinf(sv)))}
             elif isinstance(v, (int, float)) and not math.isnan(v) and not math.isinf(v):
                 final_metrics[k] = v
             elif isinstance(v, str) and v != "N/A":
                 final_metrics[k] = v
-            else:  # If v is None, "N/A", nan, or inf for numerical fields
-                final_metrics[k] = None  # Store as None in the database for numerical fields
+            else:
+                final_metrics[k] = None
 
         logger.info(
             f"Calculated metrics for {self.ticker}: { {k: v for k, v in final_metrics.items() if k != 'key_metrics_snapshot'} }")
@@ -437,81 +450,83 @@ class StockAnalyzer:
                 "discount_rate": DEFAULT_DISCOUNT_RATE,
                 "perpetual_growth_rate": DEFAULT_PERPETUAL_GROWTH_RATE,
                 "projection_years": DEFAULT_FCF_PROJECTION_YEARS,
-                "start_fcf": None, "fcf_growth_rates_projection": []  # Renamed for clarity
+                "start_fcf": None, "fcf_growth_rates_projection": []
             }
         }
 
         cashflow_annual = self._financial_data_cache.get('financial_statements', {}).get('cashflow', [])
+        # Sort cashflow_annual by date descending to ensure cashflow_annual[0] is the latest.
+        cashflow_annual = sorted([s for s in cashflow_annual if s], key=lambda x: x.get("date"), reverse=True)
+
         profile_fmp = self._financial_data_cache.get('profile_fmp', {})
         calculated_metrics = self._financial_data_cache.get('calculated_metrics', {})
 
-        if not cashflow_annual or not profile_fmp or profile_fmp.get("price") is None or profile_fmp.get(
-                "sharesOutstanding") is None:
+        current_price = safe_get_float(profile_fmp, "price")
+        # Determine shares outstanding carefully: FMP profile "sharesOutstanding" or from mktCap / price
+        shares_outstanding = safe_get_float(profile_fmp, "sharesOutstanding")
+        if not shares_outstanding:
+            mkt_cap = safe_get_float(profile_fmp, "mktCap")
+            if mkt_cap and current_price and current_price != 0:
+                shares_outstanding = mkt_cap / current_price
+
+        if not cashflow_annual or not profile_fmp or current_price is None or shares_outstanding is None or shares_outstanding == 0:
             logger.warning(
-                f"Insufficient data for DCF: missing FCF history, price, or shares outstanding for {self.ticker}.")
+                f"Insufficient data for DCF for {self.ticker}: FCF history ({len(cashflow_annual)} years), current price ({current_price}), or shares outstanding ({shares_outstanding}) missing/invalid.")
             return dcf_results
 
-        current_fcf = get_value_from_statement_by_year_offset(cashflow_annual, "freeCashFlow", 0)
-        if current_fcf is None or current_fcf <= 0:
+        current_fcf = get_value_from_statement_list(cashflow_annual, "freeCashFlow", 0)
+        if current_fcf is None or current_fcf <= 10000:  # Require FCF > 10k to be meaningful for DCF
             logger.warning(
-                f"Current FCF for {self.ticker} is {current_fcf}. Simplified DCF requires positive starting FCF.")
-            # Could try to normalize FCF or use an average, but that adds complexity.
-            # For this version, we'll stop if FCF is not positive and usable.
+                f"Current FCF for {self.ticker} is {current_fcf}. Simplified DCF requires positive & significant starting FCF.")
             return dcf_results
 
         dcf_results["dcf_assumptions"]["start_fcf"] = current_fcf
 
-        # Estimate FCF growth rate for projection period
-        # Prioritize historical FCF growth, then revenue growth, then default
         fcf_growth_hist_3yr = None
-        if len(cashflow_annual) >= 4:  # Need 4 years for 3 periods of FCF growth
-            fcf_start_3yr = get_value_from_statement_by_year_offset(cashflow_annual, "freeCashFlow", 3)
-            fcf_end_3yr = get_value_from_statement_by_year_offset(cashflow_annual, "freeCashFlow", 0)
-            if fcf_start_3yr and fcf_start_3yr > 0:  # Avoid issues with negative or zero start
+        if len(cashflow_annual) >= 4:  # Need 4 years for 3 growth periods
+            fcf_start_3yr = get_value_from_statement_list(cashflow_annual, "freeCashFlow",
+                                                          3)  # 4th element (index 3) for 3-year period
+            fcf_end_3yr = current_fcf  # current_fcf is from index 0
+            if fcf_start_3yr and fcf_start_3yr > 0:
                 fcf_growth_hist_3yr = calculate_cagr(fcf_end_3yr, fcf_start_3yr, 3)
 
         fcf_growth_initial = fcf_growth_hist_3yr \
                              or calculated_metrics.get("revenue_growth_cagr_3yr") \
                              or calculated_metrics.get("revenue_growth_yoy") \
-                             or 0.05  # Default to 5%
+                             or 0.05
+        if not isinstance(fcf_growth_initial, (int, float)): fcf_growth_initial = 0.05  # Ensure it's a number
 
-        fcf_growth_initial = min(fcf_growth_initial, 0.20)  # Cap initial growth at 20%
-        fcf_growth_initial = max(fcf_growth_initial, -0.10)  # Floor initial decline at -10% (FCF can decline)
+        fcf_growth_initial = min(fcf_growth_initial, 0.20)
+        fcf_growth_initial = max(fcf_growth_initial, -0.10)
 
         projected_fcfs = []
         last_projected_fcf = current_fcf
 
-        # Simple declining growth model: start with fcf_growth_initial, linearly decline to perpetual_growth_rate
         growth_decline_rate = (
                                           fcf_growth_initial - DEFAULT_PERPETUAL_GROWTH_RATE) / DEFAULT_FCF_PROJECTION_YEARS if DEFAULT_FCF_PROJECTION_YEARS > 0 else 0
 
         for i in range(DEFAULT_FCF_PROJECTION_YEARS):
             current_year_growth_rate = fcf_growth_initial - (growth_decline_rate * i)
-            current_year_growth_rate = max(current_year_growth_rate,
-                                           DEFAULT_PERPETUAL_GROWTH_RATE)  # Don't go below perpetual
+            current_year_growth_rate = max(current_year_growth_rate, DEFAULT_PERPETUAL_GROWTH_RATE)
 
             projected_fcf = last_projected_fcf * (1 + current_year_growth_rate)
             projected_fcfs.append(projected_fcf)
             last_projected_fcf = projected_fcf
-            dcf_results["dcf_assumptions"]["fcf_growth_rates_projection"].append(current_year_growth_rate)
+            dcf_results["dcf_assumptions"]["fcf_growth_rates_projection"].append(round(current_year_growth_rate, 4))
 
-        # Calculate Terminal Value (Gordon Growth Model)
+        if not projected_fcfs:  # Should not happen if DEFAULT_FCF_PROJECTION_YEARS > 0
+            logger.error(f"DCF: No projected FCFs generated for {self.ticker}.")
+            return dcf_results
+
         terminal_fcf_for_calc = projected_fcfs[-1] * (1 + DEFAULT_PERPETUAL_GROWTH_RATE)
-        if (
-                DEFAULT_DISCOUNT_RATE - DEFAULT_PERPETUAL_GROWTH_RATE) <= 0:  # Avoid division by zero or negative denominator
+
+        denominator = DEFAULT_DISCOUNT_RATE - DEFAULT_PERPETUAL_GROWTH_RATE
+        if denominator <= 1e-6:  # Avoid division by zero or very small numbers
             logger.warning(
-                f"DCF for {self.ticker}: Discount rate ({DEFAULT_DISCOUNT_RATE}) <= perpetual growth rate ({DEFAULT_PERPETUAL_GROWTH_RATE}). Terminal value is problematic.")
-            # In such cases, a multi-stage or exit multiple TV approach is better.
-            # For this simplified model, if this occurs, the TV might be unreliable or infinite.
-            # Setting TV to 0 or a very large number if DR is slightly lower could be one way, but it's flawed.
-            # Let's assume DR > PGR for this simplified model to work.
-            if DEFAULT_DISCOUNT_RATE <= DEFAULT_PERPETUAL_GROWTH_RATE:
-                logger.error(
-                    "DCF cannot be reliably calculated as Discount Rate is not sufficiently above Perpetual Growth Rate.")
-                return dcf_results  # Or set intrinsic value to error/None
-            terminal_value = terminal_fcf_for_calc / (DEFAULT_DISCOUNT_RATE - DEFAULT_PERPETUAL_GROWTH_RATE)
+                f"DCF for {self.ticker}: Discount rate ({DEFAULT_DISCOUNT_RATE}) is too close to or less than perpetual growth rate ({DEFAULT_PERPETUAL_GROWTH_RATE}). Terminal value calculation is unreliable.")
+            terminal_value = 0  # Or handle as error; cannot reliably calculate TV
         else:
-            terminal_value = terminal_fcf_for_calc / (DEFAULT_DISCOUNT_RATE - DEFAULT_PERPETUAL_GROWTH_RATE)
+            terminal_value = terminal_fcf_for_calc / denominator
 
         discounted_values_sum = 0
         for i, fcf_val in enumerate(projected_fcfs):
@@ -519,21 +534,11 @@ class StockAnalyzer:
 
         discounted_terminal_value = terminal_value / ((1 + DEFAULT_DISCOUNT_RATE) ** DEFAULT_FCF_PROJECTION_YEARS)
 
-        # This simplified DCF calculates equity value directly assuming FCFE-like input
         intrinsic_equity_value = discounted_values_sum + discounted_terminal_value
-
-        shares_outstanding = profile_fmp.get("mktCap") / profile_fmp.get("price") if profile_fmp.get(
-            "mktCap") and profile_fmp.get("price") and profile_fmp.get("price") != 0 else profile_fmp.get(
-            "sharesOutstanding")
-        if not shares_outstanding or shares_outstanding == 0:
-            logger.warning(
-                f"Shares outstanding is zero or unavailable for {self.ticker}. Cannot calculate DCF per share.")
-            return dcf_results
 
         intrinsic_value_per_share = intrinsic_equity_value / shares_outstanding
         dcf_results["dcf_intrinsic_value"] = intrinsic_value_per_share
 
-        current_price = profile_fmp.get("price")
         if current_price and current_price != 0 and intrinsic_value_per_share is not None:
             dcf_results["dcf_upside_percentage"] = (intrinsic_value_per_share - current_price) / current_price
 
@@ -543,17 +548,17 @@ class StockAnalyzer:
         return dcf_results
 
     def _fetch_and_summarize_10k(self):
+        # This method structure is largely okay from previous, ensure logging and error handling is fine.
+        # Key is that it uses self.stock_db_entry.cik which should now be populated more reliably.
         logger.info(f"Fetching and attempting to summarize latest 10-K for {self.ticker}")
-        summary_results = {"qualitative_sources_summary": {}}  # Initialize this dict
+        summary_results = {"qualitative_sources_summary": {}}
 
         if not self.stock_db_entry or not self.stock_db_entry.cik:
             logger.warning(f"No CIK found for {self.ticker} in DB. Cannot fetch 10-K from EDGAR directly.")
-            # As a fallback, one might try to find 10-K URL via Finnhub filings, but this is less direct.
-            # For now, if no CIK, we skip direct 10-K fetching. Qualitative analysis will use API profile data.
-            return summary_results  # Return empty or with profile-based summaries later
+            return summary_results
 
         filing_url = self.sec_edgar.get_filing_document_url(cik=self.stock_db_entry.cik, form_type="10-K")
-        if not filing_url:  # Try 10-K/A if 10-K not found
+        if not filing_url:
             filing_url = self.sec_edgar.get_filing_document_url(cik=self.stock_db_entry.cik, form_type="10-K/A")
 
         if not filing_url:
@@ -561,81 +566,79 @@ class StockAnalyzer:
                 f"Could not retrieve 10-K (or 10-K/A) filing URL for {self.ticker} (CIK: {self.stock_db_entry.cik})")
             return summary_results
 
-        ten_k_text_content = self.sec_edgar.get_filing_text(filing_url)  # API Call for text
+        ten_k_text_content = self.sec_edgar.get_filing_text(filing_url)
         if not ten_k_text_content:
             logger.warning(f"Failed to fetch 10-K text content from {filing_url}")
             return summary_results
 
         logger.info(f"Fetched 10-K text (length: {len(ten_k_text_content)}) for {self.ticker}. Extracting sections.")
-        extracted_sections = extract_S1_text_sections(ten_k_text_content,
-                                                      TEN_K_KEY_SECTIONS)  # Reusing general section helper
+        extracted_sections = extract_S1_text_sections(ten_k_text_content, TEN_K_KEY_SECTIONS)
 
         company_name = self.stock_db_entry.company_name or self.ticker
         summary_results["qualitative_sources_summary"]["10k_filing_url_used"] = filing_url
 
         # Summarize key sections using Gemini
-        if extracted_sections.get("business"):
-            prompt_context = f"This is the 'Business' section (Item 1) from the 10-K filing for {company_name} ({self.ticker}). Summarize the core business operations, products/services, revenue streams, and target markets."
-            summary = self.gemini.summarize_text_with_context(
-                extracted_sections["business"], prompt_context, MAX_10K_SECTION_LENGTH_FOR_GEMINI
-            )
+        # Business Summary
+        business_text = extracted_sections.get("business", "")
+        if business_text:
+            prompt_context = f"This is the 'Business' section (Item 1) from the 10-K for {company_name} ({self.ticker}). Summarize core operations, products/services, revenue streams, and target markets."
+            summary = self.gemini.summarize_text_with_context(business_text, prompt_context,
+                                                              MAX_10K_SECTION_LENGTH_FOR_GEMINI)
             if not summary.startswith("Error:"): summary_results["business_summary"] = summary
-            summary_results["qualitative_sources_summary"]["business_10k_source_length"] = len(
-                extracted_sections["business"])
-            time.sleep(2)  # API courtesy
+            summary_results["qualitative_sources_summary"]["business_10k_source_length"] = len(business_text)
+            time.sleep(2)
 
-        if extracted_sections.get("risk_factors"):
-            prompt_context = f"This is the 'Risk Factors' section (Item 1A) from the 10-K filing for {company_name} ({self.ticker}). Summarize the 3-5 most material and unique risks the company faces."
-            summary = self.gemini.summarize_text_with_context(
-                extracted_sections["risk_factors"], prompt_context, MAX_10K_SECTION_LENGTH_FOR_GEMINI
-            )
+            # Risk Factors
+        risk_text = extracted_sections.get("risk_factors", "")
+        if risk_text:
+            prompt_context = f"This is 'Risk Factors' (Item 1A) from 10-K for {company_name} ({self.ticker}). Summarize 3-5 most material risks."
+            summary = self.gemini.summarize_text_with_context(risk_text, prompt_context,
+                                                              MAX_10K_SECTION_LENGTH_FOR_GEMINI)
             if not summary.startswith("Error:"): summary_results["risk_factors_summary"] = summary
-            summary_results["qualitative_sources_summary"]["risk_factors_10k_source_length"] = len(
-                extracted_sections["risk_factors"])
+            summary_results["qualitative_sources_summary"]["risk_factors_10k_source_length"] = len(risk_text)
             time.sleep(2)
 
-        if extracted_sections.get("mda"):
-            prompt_context = f"This is the MD&A (Item 7) from the 10-K for {company_name} ({self.ticker}). Summarize key performance drivers, financial condition changes, liquidity, capital resources, and management's outlook if stated."
-            summary = self.gemini.summarize_text_with_context(
-                extracted_sections["mda"], prompt_context, MAX_10K_SECTION_LENGTH_FOR_GEMINI
-            )
-            if not summary.startswith("Error:"): summary_results[
-                "management_assessment_summary"] = summary  # Using this field for MD&A summary
-            summary_results["qualitative_sources_summary"]["mda_10k_source_length"] = len(extracted_sections["mda"])
+        # MD&A
+        mda_text = extracted_sections.get("mda", "")
+        if mda_text:
+            prompt_context = f"This is MD&A (Item 7) from 10-K for {company_name} ({self.ticker}). Summarize key performance drivers, financial condition, liquidity, capital resources, and management's outlook."
+            summary = self.gemini.summarize_text_with_context(mda_text, prompt_context,
+                                                              MAX_10K_SECTION_LENGTH_FOR_GEMINI)
+            if not summary.startswith("Error:"): summary_results["management_assessment_summary"] = summary
+            summary_results["qualitative_sources_summary"]["mda_10k_source_length"] = len(mda_text)
             time.sleep(2)
 
-        # For competitive landscape, combine Business and MD&A if available
-        comp_landscape_input = (summary_results.get("business_summary", "") + "\n" + summary_results.get(
-            "management_assessment_summary", ""))[:MAX_GEMINI_TEXT_LENGTH]
-        if comp_landscape_input.strip():
-            prompt_context = f"Company: {company_name} ({self.ticker}). Industry: {self.stock_db_entry.industry}."
-            comp_prompt = (f"Based on the business overview and MD&A for {company_name}: \"{comp_landscape_input}\"\n"
-                           f"Describe its competitive landscape. Identify key competitors if mentioned or inferable, and discuss {company_name}'s competitive positioning (strengths/weaknesses relative to peers).")
+        # Competitive Landscape from Business & MD&A
+        comp_landscape_input_text = (summary_results.get("business_summary", "") + "\n" + summary_results.get(
+            "management_assessment_summary", ""))[:MAX_GEMINI_TEXT_LENGTH].strip()
+        if comp_landscape_input_text:
+            comp_prompt = (
+                f"Based on business & MD&A for {company_name} ({self.ticker}): \"{comp_landscape_input_text}\"\n"
+                f"Describe its competitive landscape, key competitors, and {company_name}'s competitive positioning.")
             summary_results["competitive_landscape_summary"] = self.gemini.generate_text(comp_prompt)
             summary_results["qualitative_sources_summary"][
-                "competitive_landscape_context"] = "Based on 10-K business/MD&A summaries."
+                "competitive_landscape_context"] = "Derived from 10-K Business/MD&A summaries."
             time.sleep(2)
 
-        # Fallback to API profile if 10-K summaries are sparse for moat/industry
-        business_desc_for_qual = summary_results.get("business_summary") or self._financial_data_cache.get(
-            'profile_fmp', {}).get('description', '')
-        if business_desc_for_qual and not summary_results.get(
-                "economic_moat_summary"):  # Only if not already populated from more specific 10K section prompts
-            qual_prompt_context = f"Company: {company_name} ({self.ticker}). Industry: {self.stock_db_entry.industry}."
-            full_text_for_qual = f"{qual_prompt_context}\nBusiness Description: {business_desc_for_qual[:1000]}"
-            if summary_results.get("risk_factors_summary"):
-                full_text_for_qual += f"\nKey Risks: {summary_results.get('risk_factors_summary')[:500]}"
-
-            moat_prompt = (
-                f"Based on the business description and risks for {company_name}: \"{full_text_for_qual[:MAX_GEMINI_TEXT_LENGTH - 200]}\"\n"
-                f"Analyze its primary economic moats (e.g., brand, network effects, switching costs, intangible assets, cost advantages). Provide a concise summary.")
+        # Economic Moat (if not directly from 10-K summaries)
+        moat_input_text = (summary_results.get("business_summary", "") + "\n" + summary_results.get(
+            "competitive_landscape_summary", "") + "\n" + summary_results.get("risk_factors_summary", ""))[
+                          :MAX_GEMINI_TEXT_LENGTH].strip()
+        if moat_input_text and not summary_results.get("economic_moat_summary"):
+            moat_prompt = (f"Based on info for {company_name} ({self.ticker}): \"{moat_input_text}\"\n"
+                           f"Analyze its primary economic moats (brand, network effects, switching costs, IP, cost advantages). Concise summary.")
             summary_results["economic_moat_summary"] = self.gemini.generate_text(moat_prompt)
             time.sleep(2)
 
-        if self.stock_db_entry.industry and not summary_results.get("industry_trends_summary"):
+        # Industry Trends (if not directly from 10-K summaries)
+        industry_input_text = (summary_results.get("business_summary", "") + "\n" + (
+                    self.stock_db_entry.industry or "") + "\n" + (self.stock_db_entry.sector or ""))[
+                              :MAX_GEMINI_TEXT_LENGTH].strip()
+        if industry_input_text and not summary_results.get("industry_trends_summary"):
             industry_prompt = (
-                f"Company: {company_name} operates in the '{self.stock_db_entry.industry}' industry and '{self.stock_db_entry.sector}' sector.\n"
-                f"Provide a concise analysis of the current key trends, growth drivers, opportunities, and significant challenges/risks for this industry and sector. How might {company_name} be generally positioned within these dynamics?")
+                f"Company: {company_name} in '{self.stock_db_entry.industry}' industry, '{self.stock_db_entry.sector}' sector.\n"
+                f"Context: \"{industry_input_text}\"\n"
+                f"Analyze current key trends, opportunities, and challenges for this industry/sector. How is {company_name} positioned?")
             summary_results["industry_trends_summary"] = self.gemini.generate_text(industry_prompt)
             time.sleep(2)
 
@@ -644,11 +647,10 @@ class StockAnalyzer:
         return summary_results
 
     def _determine_investment_thesis(self):
-        # This method remains largely the same as in the previous thought process,
-        # but now it consumes from `self._financial_data_cache` which holds richer data.
+        # This method structure is okay, ensure it uses the richer data from cache.
         logger.info(f"Synthesizing investment thesis for {self.ticker}...")
         metrics = self._financial_data_cache.get('calculated_metrics', {})
-        qual_summaries = self._financial_data_cache.get('10k_summaries', {})  # Now from 10-K
+        qual_summaries = self._financial_data_cache.get('10k_summaries', {})
         dcf_results = self._financial_data_cache.get('dcf_results', {})
         company_profile = self._financial_data_cache.get('profile_fmp', {})
 
@@ -660,7 +662,6 @@ class StockAnalyzer:
         prompt += f"Industry: {industry}, Sector: {sector}\n\n"
         prompt += "Key Financial Metrics (approximate values):\n"
 
-        # Prioritize key metrics for the prompt to keep it concise yet informative
         metrics_for_prompt = {
             "P/E Ratio": metrics.get("pe_ratio"), "P/B Ratio": metrics.get("pb_ratio"),
             "P/S Ratio": metrics.get("ps_ratio"), "EV/Sales": metrics.get("ev_to_sales"),
@@ -680,19 +681,20 @@ class StockAnalyzer:
                 if isinstance(val, float):
                     if name.endswith(
                             "Yield") or "Growth" in name or "Margin" in name or name == "ROE" or name == "ROIC":
-                        val_str = f"{val:.2%}"  # Percentage
+                        val_str = f"{val:.2%}"
                     else:
-                        val_str = f"{val:.2f}"  # Decimal
+                        val_str = f"{val:.2f}"
                 else:
-                    val_str = str(val)  # String like "Growing"
+                    val_str = str(val)
                 prompt += f"- {name}: {val_str}\n"
 
-        if dcf_results.get("dcf_intrinsic_value") is not None:
-            prompt += f"\nDCF Intrinsic Value per Share: {dcf_results['dcf_intrinsic_value']:.2f}\n"
-            if dcf_results.get("dcf_upside_percentage") is not None:
-                prompt += f"DCF Upside: {dcf_results['dcf_upside_percentage']:.2%}\n"
-        if company_profile.get("price") is not None:
-            prompt += f"Current Stock Price: {company_profile['price']:.2f}\n\n"
+        dcf_val = dcf_results.get("dcf_intrinsic_value")
+        dcf_upside = dcf_results.get("dcf_upside_percentage")
+        current_price = company_profile.get("price")
+
+        if dcf_val is not None: prompt += f"\nDCF Intrinsic Value per Share: {dcf_val:.2f}\n"
+        if dcf_upside is not None: prompt += f"DCF Upside: {dcf_upside:.2%}\n"
+        if current_price is not None: prompt += f"Current Stock Price: {current_price:.2f}\n\n"
 
         prompt += "Qualitative Summary (derived from 10-K, Profile, and AI analysis):\n"
         prompt += f"- Business Overview: {qual_summaries.get('business_summary', 'N/A')[:300]}...\n"
@@ -718,7 +720,7 @@ class StockAnalyzer:
             "Be objective, balanced, and explicitly state if data is limited or assumptions are strong."
         )
 
-        final_prompt = prompt[:MAX_GEMINI_TEXT_LENGTH]  # Ensure prompt length
+        final_prompt = prompt[:MAX_GEMINI_TEXT_LENGTH]
         if len(prompt) > MAX_GEMINI_TEXT_LENGTH:
             logger.warning(
                 f"Investment thesis prompt for {self.ticker} truncated to {MAX_GEMINI_TEXT_LENGTH} chars for Gemini.")
@@ -728,58 +730,49 @@ class StockAnalyzer:
         if ai_response.startswith("Error:"):
             logger.error(f"Gemini failed to generate investment thesis for {self.ticker}: {ai_response}")
             return {
-                "investment_decision": "AI Error",
-                "reasoning": ai_response,  # Store the error message
-                "strategy_type": "N/A",
-                "confidence_level": "N/A",
-                "investment_thesis_full": ai_response  # Store the error message
+                "investment_decision": "AI Error", "reasoning": ai_response,
+                "strategy_type": "N/A", "confidence_level": "N/A",
+                "investment_thesis_full": ai_response
             }
 
-        # Enhanced parsing for structured output
         parsed_thesis = {}
-        current_section = None
-        thesis_lines = []
-        reasoning_lines = []
+        current_section_key = None
+        # Simple parser based on keywords; a more robust regex parser might be better
+        # For now, ensure these keys match the StockAnalysis model fields where appropriate
+        section_map = {
+            "investment thesis:": "investment_thesis_full",
+            "investment decision:": "investment_decision",
+            "strategy type:": "strategy_type",
+            "confidence level:": "confidence_level",
+            "key reasoning:": "reasoning"
+        }
+
+        collected_lines = {}  # To store lines for multi-line sections
 
         for line in ai_response.split('\n'):
-            line_l = line.lower().strip()
-            if line_l.startswith("investment thesis:"):
-                current_section = "thesis"
-                thesis_lines.append(line.split(":", 1)[1].strip())
-                continue
-            elif line_l.startswith("investment decision:"):
-                current_section = "decision"
-                parsed_thesis["investment_decision"] = line.split(":", 1)[1].strip()
-                continue
-            elif line_l.startswith("strategy type:"):
-                current_section = "strategy"
-                parsed_thesis["strategy_type"] = line.split(":", 1)[1].strip()
-                continue
-            elif line_l.startswith("confidence level:"):
-                current_section = "confidence"
-                parsed_thesis["confidence_level"] = line.split(":", 1)[1].strip()
-                continue
-            elif line_l.startswith("key reasoning:"):
-                current_section = "reasoning"
-                # Content after "Key Reasoning:" might be on the same line or start on next
-                reasoning_content_on_header = line.split(":", 1)[1].strip()
-                if reasoning_content_on_header: reasoning_lines.append(reasoning_content_on_header)
-                continue
+            line_l_strip = line.lower().strip()
+            found_new_section = False
+            for header, key_name in section_map.items():
+                if line_l_strip.startswith(header):
+                    current_section_key = key_name
+                    # Initialize list for this section's lines
+                    collected_lines[current_section_key] = [line[len(header):].strip()]
+                    found_new_section = True
+                    break  # Found a header, move to next line
 
-            if current_section == "thesis":
-                thesis_lines.append(line)
-            elif current_section == "reasoning":
-                reasoning_lines.append(line)
+            if not found_new_section and current_section_key:
+                # If we are in a section, append the line
+                collected_lines[current_section_key].append(line)
 
-        parsed_thesis["investment_thesis_full"] = "\n".join(
-            thesis_lines).strip() if thesis_lines else ai_response  # Fallback
-        parsed_thesis["reasoning"] = "\n".join(
-            reasoning_lines).strip() if reasoning_lines else "Reasoning not explicitly parsed."
+        # Join collected lines for each section
+        for key, lines_list in collected_lines.items():
+            parsed_thesis[key] = "\n".join(lines_list).strip()
 
-        # Fallbacks if specific sections aren't found
+        # Fallbacks
         if "investment_decision" not in parsed_thesis: parsed_thesis["investment_decision"] = "Review AI Output"
-        if "strategy_type" not in parsed_thesis: parsed_thesis["strategy_type"] = "N/A"
-        if "confidence_level" not in parsed_thesis: parsed_thesis["confidence_level"] = "N/A"
+        if "reasoning" not in parsed_thesis: parsed_thesis["reasoning"] = ai_response  # fallback
+        if "investment_thesis_full" not in parsed_thesis: parsed_thesis[
+            "investment_thesis_full"] = ai_response  # fallback
 
         logger.info(
             f"Generated investment thesis for {self.ticker}. Decision: {parsed_thesis.get('investment_decision')}")
@@ -787,39 +780,36 @@ class StockAnalyzer:
 
     def analyze(self):
         logger.info(f"Full analysis pipeline started for {self.ticker}...")
-        final_analysis_data = {}  # This will hold all data for the StockAnalysis model instance
+        final_analysis_data = {}
 
         try:
-            if not self.stock_db_entry:  # Should have been caught by __init__ if critical
+            if not self.stock_db_entry:
                 logger.error(f"Stock entry for {self.ticker} was not properly initialized. Aborting analysis.")
-                return None  # Analysis cannot proceed
+                return None
 
-            self._ensure_stock_db_entry_is_bound()  # Crucial for DB operations
+            self._ensure_stock_db_entry_is_bound()
 
-            # --- Data Fetching ---
-            self._fetch_financial_statements()  # Populates self._financial_data_cache
-            self._fetch_key_metrics_and_profile_data()  # Populates self._financial_data_cache
+            self._fetch_financial_statements()
+            self._fetch_key_metrics_and_profile_data()
 
-            # --- Calculations ---
-            calculated_metrics = self._calculate_derived_metrics()  # Uses data from cache
+            calculated_metrics = self._calculate_derived_metrics()
             final_analysis_data.update(calculated_metrics)
 
-            dcf_results = self._perform_dcf_analysis()  # Uses data from cache
+            dcf_results = self._perform_dcf_analysis()
             final_analysis_data.update(dcf_results)
 
-            # --- Qualitative Analysis from 10-K (if CIK available) or Profile ---
-            qual_summaries = self._fetch_and_summarize_10k()  # Uses CIK from stock_db_entry
+            qual_summaries = self._fetch_and_summarize_10k()
             final_analysis_data.update(qual_summaries)
 
-            # --- Investment Thesis Synthesis ---
-            investment_thesis_parts = self._determine_investment_thesis()  # Uses all cached data
+            investment_thesis_parts = self._determine_investment_thesis()
             final_analysis_data.update(investment_thesis_parts)
-            # Store the full thesis text separately if desired
-            final_analysis_data["reasoning"] = investment_thesis_parts.get("investment_thesis_full",
-                                                                           investment_thesis_parts.get("reasoning"))
 
-            # --- Persist to DB ---
-            # Map final_analysis_data to StockAnalysis model fields
+            # Ensure the 'reasoning' field gets the detailed bullet points if available,
+            # and 'investment_thesis_full' gets the narrative thesis.
+            # The parser for _determine_investment_thesis now separates these.
+            # If 'reasoning' is not specifically parsed, it might default to the full response.
+            # Let's ensure that "reasoning" is specifically the key points.
+
             analysis_entry = StockAnalysis(stock_id=self.stock_db_entry.id)
 
             model_fields = [col.key for col in StockAnalysis.__table__.columns if
@@ -828,28 +818,35 @@ class StockAnalyzer:
             for field in model_fields:
                 if field in final_analysis_data:
                     value_to_set = final_analysis_data[field]
-                    # Ensure "N/A" or problematic floats don't go into numeric DB fields
                     if getattr(StockAnalysis, field).type.python_type == float:
-                        if isinstance(value_to_set, str) and value_to_set == "N/A":
+                        if isinstance(value_to_set, str) and value_to_set.lower() == "n/a":
                             value_to_set = None
-                        elif isinstance(value_to_set, float) and (math.isnan(value_to_set) or math.isinf(value_to_set)):
+                        elif isinstance(value_to_set, str):  # Try to convert string to float if it's a number
+                            try:
+                                value_to_set = float(value_to_set)
+                            except ValueError:
+                                value_to_set = None  # If conversion fails, set to None
+                        if isinstance(value_to_set, float) and (math.isnan(value_to_set) or math.isinf(value_to_set)):
                             value_to_set = None
 
                     setattr(analysis_entry, field, value_to_set)
 
-            # Explicitly set the reasoning from the full thesis if parsed structure was different
-            analysis_entry.reasoning = final_analysis_data.get("reasoning", "AI reasoning not fully captured.")
+            # Ensure the specific parsed reasoning is used if available
+            if "reasoning" in investment_thesis_parts and investment_thesis_parts[
+                "reasoning"] != "Reasoning not explicitly parsed.":
+                analysis_entry.reasoning = investment_thesis_parts["reasoning"]
+            elif "investment_thesis_full" in investment_thesis_parts:  # Fallback if detailed reasoning wasn't clear
+                analysis_entry.reasoning = investment_thesis_parts["investment_thesis_full"]
 
             self.db_session.add(analysis_entry)
-            self.stock_db_entry.last_analysis_date = datetime.now(timezone.utc)  # Update timestamp on parent
+            self.stock_db_entry.last_analysis_date = datetime.now(timezone.utc)
             self.db_session.commit()
 
             logger.info(f"Successfully analyzed and saved stock: {self.ticker} (Analysis ID: {analysis_entry.id})")
             return analysis_entry
 
-        except RuntimeError as r_err:  # Catch specific critical errors like session binding
+        except RuntimeError as r_err:
             logger.critical(f"Runtime error during analysis for {self.ticker}: {r_err}", exc_info=True)
-            # No rollback here as session might be the issue or already handled.
             return None
         except Exception as e:
             logger.error(f"CRITICAL error during full analysis pipeline for {self.ticker}: {e}", exc_info=True)
@@ -859,28 +856,24 @@ class StockAnalyzer:
                     logger.info(f"Rolled back transaction for {self.ticker} due to error.")
                 except Exception as e_rollback:
                     logger.error(f"Error during rollback for {self.ticker}: {e_rollback}")
-            return None  # Indicate failure for this stock
+            return None
         finally:
-            self._close_session_if_active()  # Ensure session is closed
+            self._close_session_if_active()
 
     def _ensure_stock_db_entry_is_bound(self):
-        """Ensures the stock_db_entry is bound to the current active session."""
-        # This method was detailed in the previous thought process.
-        # It handles re-establishing session and merging/re-fetching the stock_db_entry if detached.
         if not self.db_session.is_active:
             logger.warning(f"Session for {self.ticker} is INACTIVE. Re-establishing and re-fetching stock entry.")
             self._close_session_if_active()
             self.db_session = next(get_db_session())
 
             re_fetched_stock = self.db_session.query(Stock).filter(Stock.ticker == self.ticker).first()
-            if not re_fetched_stock:  # Should not happen if _get_or_create_stock_entry succeeded
+            if not re_fetched_stock:
                 logger.error(
-                    f"Could not re-fetch stock {self.ticker} ({self.stock_db_entry.id if self.stock_db_entry and self.stock_db_entry.id else 'Unknown ID'}) after session re-establishment. This may indicate a problem with initial creation or commit.")
-                # Attempt to re-run _get_or_create_stock_entry to fix the state
-                self._get_or_create_stock_entry()
+                    f"Could not re-fetch stock {self.ticker} after session re-establishment. This may indicate a problem with initial creation or commit.")
+                self._get_or_create_stock_entry()  # Attempt to fix it by re-running the creation/fetch logic
                 if not self.stock_db_entry:  # If still no stock_db_entry, then critical failure.
                     raise RuntimeError(f"Failed to create or re-fetch stock {self.ticker} for active session.")
-                return  # Successfully re-created/fetched
+                return
             self.stock_db_entry = re_fetched_stock
             logger.info(f"Re-fetched and bound stock {self.ticker} (ID: {self.stock_db_entry.id}) to new session.")
             return
@@ -896,25 +889,20 @@ class StockAnalyzer:
                 f"(Expected: {current_session_id}, Actual: {instance_session_id}). Attempting to merge."
             )
             try:
-                # If the object is transient (no ID yet, implies it wasn't committed from a previous session or is new)
-                # and it's not in the current session, merging might attach it or raise error if PK conflicts.
-                # If it has an ID but is detached, merge should re-associate.
                 merged_stock = self.db_session.merge(self.stock_db_entry)
                 self.stock_db_entry = merged_stock
-                # self.db_session.flush() # Ensure it's in session's identity map and any FKs are valid.
                 logger.info(
                     f"Successfully merged/re-associated stock {self.ticker} (ID: {self.stock_db_entry.id}) into current session {id(self.db_session)}.")
             except Exception as e_merge:
                 logger.error(f"Failed to merge stock {self.ticker} into session: {e_merge}. Re-fetching as fallback.",
                              exc_info=True)
-                # As a robust fallback, try to re-fetch the object from the current session using its ID or ticker
                 primary_key_to_fetch = self.stock_db_entry.id if instance_state.has_identity and self.stock_db_entry.id else None
 
                 re_fetched_stock_on_merge_fail = None
                 if primary_key_to_fetch:
                     re_fetched_stock_on_merge_fail = self.db_session.query(Stock).get(primary_key_to_fetch)
 
-                if not re_fetched_stock_on_merge_fail:  # If ID fetch failed or no ID
+                if not re_fetched_stock_on_merge_fail:
                     re_fetched_stock_on_merge_fail = self.db_session.query(Stock).filter(
                         Stock.ticker == self.ticker).first()
 
@@ -931,18 +919,17 @@ class StockAnalyzer:
 if __name__ == '__main__':
     from database import init_db
 
-    # init_db() # Ensure DB is initialized, or use migrations for changes
+    # init_db()
 
     logger.info("Starting standalone stock analysis test...")
-    # Test with diverse tickers, including one that might not have a CIK easily found by FMP to test SEC EDGAR client path
-    tickers_to_test = ["AAPL", "MSFT", "GOOGL", "JPM", "NONEXISTENTTICKERXYZ"]
+    tickers_to_test = ["AAPL", "MSFT", "GOOG"]  # Test with GOOG which had DCF issue in log
 
     for ticker_symbol in tickers_to_test:
-        analysis_result = None  # Ensure it's defined for logging in finally
+        analysis_result = None
         try:
             logger.info(f"--- Analyzing {ticker_symbol} ---")
-            analyzer = StockAnalyzer(ticker=ticker_symbol)  # Initialization might fail
-            analysis_result = analyzer.analyze()  # Analysis might fail
+            analyzer = StockAnalyzer(ticker=ticker_symbol)
+            analysis_result = analyzer.analyze()
 
             if analysis_result:
                 logger.info(
@@ -952,15 +939,16 @@ if __name__ == '__main__':
                         f"DCF Value: {analysis_result.dcf_intrinsic_value:.2f}, Upside: {analysis_result.dcf_upside_percentage:.2% if analysis_result.dcf_upside_percentage is not None else 'N/A'}")
                 else:
                     logger.info("DCF analysis did not yield an intrinsic value.")
-                logger.info(f"Reasoning highlights: {analysis_result.reasoning[:300]}...")
+                logger.info(
+                    f"Reasoning highlights: {str(analysis_result.reasoning)[:300]}...")  # Ensure reasoning is string
 
             else:
                 logger.error(f"Stock analysis pipeline FAILED for {ticker_symbol} (returned None).")
-        except RuntimeError as rt_err:  # Catch init errors
+        except RuntimeError as rt_err:
             logger.error(f"Could not initialize StockAnalyzer for {ticker_symbol}: {rt_err}")
         except Exception as e:
             logger.error(f"Unhandled error analyzing {ticker_symbol} in __main__: {e}", exc_info=True)
         finally:
             logger.info(f"--- Finished processing {ticker_symbol} ---")
             if analysis_result is None: logger.info(f"No analysis result object for {ticker_symbol}")
-            time.sleep(10)  # Increased delay due to more API calls (SEC, more Gemini) per stock
+            time.sleep(10)

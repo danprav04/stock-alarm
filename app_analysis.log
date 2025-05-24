@@ -1,133 +1,716 @@
-2025-05-24 22:08:17,673 - root - INFO - ===================================================================
-2025-05-24 22:08:17,674 - root - INFO - Starting Financial Analysis Script at 2025-05-24 22:08:17.674052
-2025-05-24 22:08:17,674 - root - INFO - ===================================================================
-2025-05-24 22:08:17,676 - root - INFO - Running all analyses for default stocks: ['AAPL', 'MSFT', 'GOOGL'], IPOs, and News.
-2025-05-24 22:08:17,676 - root - INFO - --- Starting Individual Stock Analysis for: ['AAPL', 'MSFT', 'GOOGL'] ---
-2025-05-24 22:08:19,279 - root - INFO - Stock AAPL not found in DB, creating new entry.
-2025-05-24 22:08:20,722 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
-2025-05-24 22:08:21,152 - root - INFO - Successfully created and committed new stock entry for AAPL (ID: 1).
-2025-05-24 22:08:21,241 - root - INFO - Refreshed stock entry for AAPL after creation. Company Name: Apple Inc.
-2025-05-24 22:08:21,242 - root - INFO - Starting analysis for AAPL...
-2025-05-24 22:08:21,243 - root - INFO - Fetching financial data for AAPL...
-2025-05-24 22:08:21,331 - root - INFO - Cache hit for: GET:https://financialmodelingprep.com/api/v3/profile/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
-2025-05-24 22:08:22,812 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/income-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
-2025-05-24 22:08:24,220 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
-2025-05-24 22:08:25,633 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
-2025-05-24 22:08:27,062 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
-2025-05-24 22:08:28,775 - root - INFO - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=AAPL&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390
-2025-05-24 22:08:28,777 - root - INFO - Calculating metrics for AAPL...
-2025-05-24 22:08:28,778 - root - INFO - Calculated metrics for AAPL: {'pe_ratio': 37.287278415656736, 'pb_ratio': 61.37243774486391, 'dividend_yield': 0.0043585983369965175, 'debt_to_equity': 1.872326602282704, 'net_profit_margin': None, 'roe': 1.6459350307287095, 'eps': 6.0836, 'revenue_growth': '2.02%', 'current_ratio': 0.8673125765340832, 'retained_earnings_trend': 'Mixed/Stable', 'free_cash_flow_trend': 'Mixed/Stable', 'interest_coverage_ratio': None}
-2025-05-24 22:08:28,779 - root - INFO - Analyzing qualitative factors for AAPL using Gemini...
-2025-05-24 22:08:39,598 - root - INFO - Qualitative analysis for AAPL complete.
-2025-05-24 22:08:39,599 - root - INFO - Determining investment strategy for AAPL...
-2025-05-24 22:08:51,175 - root - INFO - Successfully analyzed and saved stock: AAPL (Analysis ID: 1)
-2025-05-24 22:08:51,428 - root - INFO - Stock MSFT not found in DB, creating new entry.
-2025-05-24 22:08:52,784 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/MSFT?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
-2025-05-24 22:08:53,212 - root - INFO - Successfully created and committed new stock entry for MSFT (ID: 2).
-2025-05-24 22:08:53,298 - root - INFO - Refreshed stock entry for MSFT after creation. Company Name: Microsoft Corporation
-2025-05-24 22:08:53,299 - root - INFO - Starting analysis for MSFT...
-2025-05-24 22:08:53,300 - root - INFO - Fetching financial data for MSFT...
-2025-05-24 22:08:53,389 - root - INFO - Cache hit for: GET:https://financialmodelingprep.com/api/v3/profile/MSFT?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
-2025-05-24 22:08:54,905 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/income-statement/MSFT?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
-2025-05-24 22:08:56,313 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/MSFT?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
-2025-05-24 22:08:57,729 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/MSFT?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
-2025-05-24 22:08:59,125 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/MSFT?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
-2025-05-24 22:09:00,726 - root - INFO - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=MSFT&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390
-2025-05-24 22:09:00,728 - root - INFO - Calculating metrics for MSFT...
-2025-05-24 22:09:00,729 - root - INFO - Calculated metrics for MSFT: {'pe_ratio': 38.508221725515114, 'pb_ratio': 12.641532161041727, 'dividend_yield': 0.006414629506176681, 'debt_to_equity': 0.25002886653232864, 'net_profit_margin': None, 'roe': 0.32828137978299815, 'eps': 11.8002, 'revenue_growth': '15.67%', 'interest_coverage_ratio': 45.31822827938671, 'current_ratio': 1.2749549031815206, 'retained_earnings_trend': 'Growing', 'free_cash_flow_trend': 'Mixed/Stable'}
-2025-05-24 22:09:00,730 - root - INFO - Analyzing qualitative factors for MSFT using Gemini...
-2025-05-24 22:09:16,710 - root - INFO - Qualitative analysis for MSFT complete.
-2025-05-24 22:09:16,711 - root - INFO - Determining investment strategy for MSFT...
-2025-05-24 22:09:26,499 - root - INFO - Successfully analyzed and saved stock: MSFT (Analysis ID: 2)
-2025-05-24 22:09:26,751 - root - INFO - Stock GOOGL not found in DB, creating new entry.
-2025-05-24 22:09:28,159 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/GOOGL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
-2025-05-24 22:09:28,591 - root - INFO - Successfully created and committed new stock entry for GOOGL (ID: 3).
-2025-05-24 22:09:28,676 - root - INFO - Refreshed stock entry for GOOGL after creation. Company Name: Alphabet Inc.
-2025-05-24 22:09:28,677 - root - INFO - Starting analysis for GOOGL...
-2025-05-24 22:09:28,678 - root - INFO - Fetching financial data for GOOGL...
-2025-05-24 22:09:28,765 - root - INFO - Cache hit for: GET:https://financialmodelingprep.com/api/v3/profile/GOOGL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
-2025-05-24 22:09:30,270 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/income-statement/GOOGL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
-2025-05-24 22:09:31,680 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/GOOGL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
-2025-05-24 22:09:33,119 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/GOOGL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
-2025-05-24 22:09:34,543 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/GOOGL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
-2025-05-24 22:09:35,947 - root - INFO - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=GOOGL&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390
-2025-05-24 22:09:35,949 - root - INFO - Calculating metrics for GOOGL...
-2025-05-24 22:09:35,950 - root - INFO - Calculated metrics for GOOGL: {'pe_ratio': 23.292381989252682, 'pb_ratio': 7.173489621144074, 'dividend_yield': 0.0031573936506584708, 'debt_to_equity': 0.07832129541903016, 'net_profit_margin': None, 'roe': 0.30797578472025694, 'eps': 7.5203, 'revenue_growth': '13.87%', 'interest_coverage_ratio': 505.2014925373134, 'current_ratio': 1.8369313974102914, 'retained_earnings_trend': 'Growing', 'free_cash_flow_trend': 'Growing'}
-2025-05-24 22:09:35,951 - root - INFO - Analyzing qualitative factors for GOOGL using Gemini...
-2025-05-24 22:09:50,688 - root - INFO - Qualitative analysis for GOOGL complete.
-2025-05-24 22:09:50,690 - root - INFO - Determining investment strategy for GOOGL...
-2025-05-24 22:10:00,148 - root - INFO - Successfully analyzed and saved stock: GOOGL (Analysis ID: 3)
-2025-05-24 22:10:00,236 - root - INFO - --- Starting IPO Analysis Pipeline ---
-2025-05-24 22:10:00,237 - root - INFO - Fetching upcoming IPOs using Finnhub...
-2025-05-24 22:10:01,453 - root - INFO - Cached response for: GET:https://finnhub.io/api/v1/calendar/ipo?from=2025-05-17&to=2025-08-22&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390
-2025-05-24 22:10:01,455 - root - INFO - Successfully parsed 20 IPOs from Finnhub response.
-2025-05-24 22:10:01,456 - root - INFO - Total unique IPOs fetched after deduplication: 19
-2025-05-24 22:10:01,457 - root - INFO - Starting analysis for IPO: Vantage Corp (Singapore) from source Finnhub
-2025-05-24 22:10:01,629 - root - INFO - Found existing IPO entry for 'Vantage Corp (Singapore)' (ID: 1). Checking for updates.
-2025-05-24 22:10:01,816 - root - INFO - Re-analyzing IPO Vantage Corp (Singapore) due to significant calendar change or analysis older than one day.
-2025-05-24 22:11:06,998 - root - INFO - Updating existing IPO analysis for Vantage Corp (Singapore) (ID: 1)
-2025-05-24 22:11:07,565 - root - INFO - Successfully analyzed and saved IPO: Vantage Corp (Singapore) (Analysis ID: 1)
-2025-05-24 22:11:10,567 - root - INFO - Starting analysis for IPO: Fast Track Group from source Finnhub
-2025-05-24 22:11:10,651 - root - INFO - Found existing IPO entry for 'Fast Track Group' (ID: 2). Checking for updates.
-2025-05-24 22:11:10,819 - root - INFO - Re-analyzing IPO Fast Track Group due to significant calendar change or analysis older than one day.
-2025-05-24 22:12:14,864 - root - INFO - Updating existing IPO analysis for Fast Track Group (ID: 2)
-2025-05-24 22:12:15,394 - root - INFO - Successfully analyzed and saved IPO: Fast Track Group (Analysis ID: 2)
-2025-05-24 22:12:18,397 - root - INFO - Starting analysis for IPO: Pelican Acquisition Corp from source Finnhub
-2025-05-24 22:12:18,482 - root - INFO - Found existing IPO entry for 'Pelican Acquisition Corp' (ID: 3). Checking for updates.
-2025-05-24 22:12:18,651 - root - INFO - Re-analyzing IPO Pelican Acquisition Corp due to significant calendar change or analysis older than one day.
-2025-05-24 22:13:21,459 - root - INFO - Updating existing IPO analysis for Pelican Acquisition Corp (ID: 3)
-2025-05-24 22:13:21,977 - root - INFO - Successfully analyzed and saved IPO: Pelican Acquisition Corp (Analysis ID: 3)
-2025-05-24 22:13:24,981 - root - INFO - Starting analysis for IPO: Cal Redwood Acquisition Corp. from source Finnhub
-2025-05-24 22:13:25,066 - root - INFO - Found existing IPO entry for 'Cal Redwood Acquisition Corp.' (ID: 4). Checking for updates.
-2025-05-24 22:13:25,235 - root - INFO - Re-analyzing IPO Cal Redwood Acquisition Corp. due to significant calendar change or analysis older than one day.
-2025-05-24 22:14:25,935 - root - INFO - Updating existing IPO analysis for Cal Redwood Acquisition Corp. (ID: 4)
-2025-05-24 22:14:26,459 - root - INFO - Successfully analyzed and saved IPO: Cal Redwood Acquisition Corp. (Analysis ID: 4)
-2025-05-24 22:14:29,461 - root - INFO - Starting analysis for IPO: Oyster Enterprises II Acquisition Corp from source Finnhub
-2025-05-24 22:14:29,547 - root - INFO - Found existing IPO entry for 'Oyster Enterprises II Acquisition Corp' (ID: 5). Checking for updates.
-2025-05-24 22:14:29,718 - root - INFO - Re-analyzing IPO Oyster Enterprises II Acquisition Corp due to significant calendar change or analysis older than one day.
-2025-05-24 22:15:27,560 - root - INFO - Updating existing IPO analysis for Oyster Enterprises II Acquisition Corp (ID: 5)
-2025-05-24 22:15:28,081 - root - INFO - Successfully analyzed and saved IPO: Oyster Enterprises II Acquisition Corp (Analysis ID: 5)
-2025-05-24 22:15:31,082 - root - INFO - Starting analysis for IPO: Hinge Health, Inc. from source Finnhub
-2025-05-24 22:15:31,167 - root - INFO - Found existing IPO entry for 'Hinge Health, Inc.' (ID: 6). Checking for updates.
-2025-05-24 22:15:31,335 - root - INFO - Re-analyzing IPO Hinge Health, Inc. due to significant calendar change or analysis older than one day.
-2025-05-24 22:16:40,489 - root - INFO - Updating existing IPO analysis for Hinge Health, Inc. (ID: 6)
-2025-05-24 22:16:41,018 - root - INFO - Successfully analyzed and saved IPO: Hinge Health, Inc. (Analysis ID: 6)
-2025-05-24 22:16:44,020 - root - INFO - Starting analysis for IPO: MNTN, Inc. from source Finnhub
-2025-05-24 22:16:44,106 - root - INFO - Found existing IPO entry for 'MNTN, Inc.' (ID: 7). Checking for updates.
-2025-05-24 22:16:44,282 - root - INFO - Re-analyzing IPO MNTN, Inc. due to significant calendar change or analysis older than one day.
-2025-05-24 22:17:47,456 - root - INFO - Updating existing IPO analysis for MNTN, Inc. (ID: 7)
-2025-05-24 22:17:47,978 - root - INFO - Successfully analyzed and saved IPO: MNTN, Inc. (Analysis ID: 7)
-2025-05-24 22:17:50,981 - root - INFO - Starting analysis for IPO: AParadise Acquisition Corp. from source Finnhub
-2025-05-24 22:17:51,068 - root - INFO - Found existing IPO entry for 'AParadise Acquisition Corp.' (ID: 8). Checking for updates.
-2025-05-24 22:17:51,239 - root - ERROR - Error during IPO analysis pipeline: can't compare offset-naive and offset-aware datetimes
+2025-05-24 23:25:37,242 - root - INFO - main:163 - ===================================================================
+2025-05-24 23:25:37,242 - root - INFO - main:164 - Starting Financial Analysis Script at 2025-05-24 20:25:37 UTC
+2025-05-24 23:25:37,242 - root - INFO - main:165 - ===================================================================
+2025-05-24 23:25:37,243 - root - INFO - main:119 - Initializing database as per command line argument...
+2025-05-24 23:25:37,244 - root - INFO - database:21 - Initializing database and creating tables...
+2025-05-24 23:25:41,637 - root - INFO - database:26 - Database tables created successfully (if they didn't exist).
+2025-05-24 23:25:41,638 - root - INFO - main:122 - Database initialization complete.
+2025-05-24 23:25:41,639 - root - INFO - main:158 - --- Main script execution finished. ---
+2025-05-24 23:25:41,640 - root - INFO - main:170 - Financial Analysis Script finished at 2025-05-24 20:25:41 UTC
+2025-05-24 23:25:41,641 - root - INFO - main:171 - Total execution time: 0:00:04.396938
+2025-05-24 23:25:41,641 - root - INFO - main:172 - ===================================================================
+2025-05-24 23:25:46,230 - root - INFO - main:163 - ===================================================================
+2025-05-24 23:25:46,230 - root - INFO - main:164 - Starting Financial Analysis Script at 2025-05-24 20:25:46 UTC
+2025-05-24 23:25:46,231 - root - INFO - main:165 - ===================================================================
+2025-05-24 23:25:46,232 - root - INFO - main:18 - --- Starting Individual Stock Analysis for: ['GOOG'] ---
+2025-05-24 23:25:49,075 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/GOOG?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-24 23:25:49,077 - root - INFO - stock_analyzer:104 - Fetched profile from FMP for GOOG.
+2025-05-24 23:25:49,078 - root - INFO - stock_analyzer:129 - Stock GOOG not found in DB, creating new entry.
+2025-05-24 23:25:49,666 - root - INFO - stock_analyzer:141 - Created and refreshed stock entry for GOOG (ID: 1). Name: Alphabet Inc., CIK: 0001652044
+2025-05-24 23:25:49,667 - root - INFO - stock_analyzer:782 - Full analysis pipeline started for GOOG...
+2025-05-24 23:25:49,668 - root - INFO - stock_analyzer:177 - Fetching financial statements for GOOG for the last 7 years.
+2025-05-24 23:25:50,893 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/income-statement/GOOG?apikey=62ERGmJoqQgGD0nSGxRZS91TVz...
+2025-05-24 23:25:52,283 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/GOOG?apikey=62ERGmJoqQgGD0nSGxR...
+2025-05-24 23:25:53,725 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/GOOG?apikey=62ERGmJoqQgGD0nSGxRZS91...
+2025-05-24 23:25:54,728 - root - WARNING - api_clients:129 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/income-statement/GOOG (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVz******', 'period': 'quarterly', 'limit': 8}, Headers: Default): 403 - {
+  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
+2025-05-24 23:25:54,730 - root - ERROR - api_clients:143 - Non-retryable client error for https://financialmodelingprep.com/api/v3/income-statement/GOOG: 403 Forbidden
+2025-05-24 23:25:54,732 - root - WARNING - stock_analyzer:195 - Failed to fetch FMP quarterly income statements for GOOG (likely subscription issue). QoQ analysis will be limited.
+2025-05-24 23:25:54,733 - root - INFO - stock_analyzer:201 - Fetched from FMP: 5 income, 5 balance, 5 cashflow annual statements. 0 quarterly income statements.
+2025-05-24 23:25:54,734 - root - INFO - stock_analyzer:213 - Fetching key metrics and profile for GOOG.
+2025-05-24 23:25:56,132 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/GOOG?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61u...
+2025-05-24 23:25:57,132 - root - WARNING - api_clients:129 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/key-metrics/GOOG (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVz******', 'period': 'quarterly', 'limit': 8}, Headers: Default): 403 - {
+  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
+2025-05-24 23:25:57,134 - root - ERROR - api_clients:143 - Non-retryable client error for https://financialmodelingprep.com/api/v3/key-metrics/GOOG: 403 Forbidden
+2025-05-24 23:25:57,135 - root - WARNING - stock_analyzer:220 - Failed to fetch FMP quarterly key metrics for GOOG (likely subscription issue). Latest metrics might rely on annual or Finnhub.
+2025-05-24 23:25:58,906 - root - INFO - api_clients:70 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=GOOG&token=d0o7hphr01qqr9alj38gd0o7hphr...
+2025-05-24 23:25:58,908 - root - INFO - stock_analyzer:235 - Fetched Key Metrics from FMP (Annual: 5, Quarterly: 0). Fetched Finnhub Basic Financials.
+2025-05-24 23:25:58,909 - root - INFO - stock_analyzer:239 - Calculating derived metrics for GOOG...
+2025-05-24 23:25:58,910 - root - ERROR - stock_analyzer:852 - CRITICAL error during full analysis pipeline for GOOG: name 'calculate_growth' is not defined
 Traceback (most recent call last):
-  File "C:\GitHub\stock-alarm\main.py", line 35, in run_ipo_analysis
-    results = analyzer.run_ipo_analysis_pipeline()
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\GitHub\stock-alarm\ipo_analyzer.py", line 381, in run_ipo_analysis_pipeline
-    result = self.analyze_single_ipo(ipo_data)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\GitHub\stock-alarm\ipo_analyzer.py", line 236, in analyze_single_ipo
-    if existing_analysis and not significant_change and existing_analysis.analysis_date > one_day_ago:
-                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: can't compare offset-naive and offset-aware datetimes
-2025-05-24 22:17:51,249 - root - INFO - --- Starting News Analysis Pipeline (Category: general, Count: 3) ---
-2025-05-24 22:17:51,334 - root - INFO - Fetching latest market news for category: general (max 6)...
-2025-05-24 22:17:52,657 - root - INFO - Cached response for: GET:https://finnhub.io/api/v1/news?category=general&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390
-2025-05-24 22:17:52,659 - root - INFO - Fetched 100 news items from Finnhub.
-2025-05-24 22:17:52,849 - root - INFO - News event 'U.S. travelers say these are the 10 most popular summer destinations around the globe: 'People are craving relaxation'' is new. Storing and analyzing.
-2025-05-24 22:17:53,273 - root - INFO - Stored new news event: U.S. travelers say these are the 10 most popular summer destinations around the globe: 'People are craving relaxation'
-2025-05-24 22:17:53,275 - root - INFO - Analyzing news: U.S. travelers say these are the 10 most popular summer destinations around the globe: 'People are craving relaxation'
-2025-05-24 22:18:59,018 - root - INFO - Successfully analyzed and saved news: U.S. travelers say these are the 10 most popular summer destinations around the globe: 'People are craving relaxation'
-2025-05-24 22:19:01,188 - root - INFO - News event 'My wife and I are 73 and retired. Can we afford a $1.2 million home?' is new. Storing and analyzing.
-2025-05-24 22:19:01,609 - root - INFO - Stored new news event: My wife and I are 73 and retired. Can we afford a $1.2 million home?
-2025-05-24 22:19:01,609 - root - INFO - Analyzing news: My wife and I are 73 and retired. Can we afford a $1.2 million home?
-2025-05-24 22:20:15,883 - root - INFO - Successfully analyzed and saved news: My wife and I are 73 and retired. Can we afford a $1.2 million home?
-2025-05-24 22:20:18,052 - root - INFO - News event 'I published my first book at 38—here's exactly how I changed careers to make it happen' is new. Storing and analyzing.
-2025-05-24 22:20:18,472 - root - INFO - Stored new news event: I published my first book at 38—here's exactly how I changed careers to make it happen
-2025-05-24 22:20:18,474 - root - INFO - Analyzing news: I published my first book at 38—here's exactly how I changed careers to make it happen
-2025-05-24 22:21:16,792 - root - INFO - Successfully analyzed and saved news: I published my first book at 38—here's exactly how I changed careers to make it happen
-2025-05-24 22:21:18,795 - root - INFO - News analysis pipeline completed. Newly analyzed 3 items.
-2025-05-24 22:21:18,796 - root - INFO - --- Generating Today's Email Summary ---
-2025-05-24 22:21:19,503 - root - INFO - Found 3 stock analyses, 18 IPO analyses, 3 news analyses for today's email.
-2025-05-24 22:21:25,271 - root - INFO - Email sent successfully to daniprav@gmail.com
+  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 795, in analyze
+    calculated_metrics = self._calculate_derived_metrics()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 340, in _calculate_derived_metrics
+    metrics["revenue_growth_yoy"] = calculate_growth(get_value_from_statement_list(income_annual, "revenue", 0),
+                                    ^^^^^^^^^^^^^^^^
+NameError: name 'calculate_growth' is not defined
+2025-05-24 23:25:58,949 - root - INFO - stock_analyzer:856 - Rolled back transaction for GOOG due to error.
+2025-05-24 23:25:58,950 - root - WARNING - main:27 - Stock analysis for GOOG did not return a result object.
+2025-05-24 23:26:00,952 - root - INFO - main:158 - --- Main script execution finished. ---
+2025-05-24 23:26:00,953 - root - INFO - main:170 - Financial Analysis Script finished at 2025-05-24 20:26:00 UTC
+2025-05-24 23:26:00,954 - root - INFO - main:171 - Total execution time: 0:00:14.722313
+2025-05-24 23:26:00,955 - root - INFO - main:172 - ===================================================================
+2025-05-24 23:26:25,947 - root - INFO - main:163 - ===================================================================
+2025-05-24 23:26:25,947 - root - INFO - main:164 - Starting Financial Analysis Script at 2025-05-24 20:26:25 UTC
+2025-05-24 23:26:25,948 - root - INFO - main:165 - ===================================================================
+2025-05-24 23:26:25,949 - root - INFO - main:59 - --- Generating Today's Email Summary ---
+2025-05-24 23:26:27,759 - root - INFO - main:72 - Found 0 stock analyses, 0 IPO analyses, 0 news analyses since 2025-05-24 00:00:00 UTC for email.
+2025-05-24 23:26:27,760 - root - INFO - main:78 - No new analyses performed recently to include in the email summary.
+2025-05-24 23:26:27,844 - root - INFO - main:158 - --- Main script execution finished. ---
+2025-05-24 23:26:27,845 - root - INFO - main:170 - Financial Analysis Script finished at 2025-05-24 20:26:27 UTC
+2025-05-24 23:26:27,846 - root - INFO - main:171 - Total execution time: 0:00:01.897858
+2025-05-24 23:26:27,847 - root - INFO - main:172 - ===================================================================
+2025-05-24 23:27:21,358 - root - INFO - main:163 - ===================================================================
+2025-05-24 23:27:21,359 - root - INFO - main:164 - Starting Financial Analysis Script at 2025-05-24 20:27:21 UTC
+2025-05-24 23:27:21,359 - root - INFO - main:165 - ===================================================================
+2025-05-24 23:27:21,361 - root - INFO - main:129 - Running all analyses for default stocks: ['AAPL', 'MSFT', 'GOOGL', 'NVDA', 'JPM'], IPOs, and News (max 5 items).
+2025-05-24 23:27:21,361 - root - INFO - main:18 - --- Starting Individual Stock Analysis for: ['AAPL', 'MSFT', 'GOOGL', 'NVDA', 'JPM'] ---
+2025-05-24 23:27:24,287 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-24 23:27:24,289 - root - INFO - stock_analyzer:104 - Fetched profile from FMP for AAPL.
+2025-05-24 23:27:24,290 - root - INFO - stock_analyzer:129 - Stock AAPL not found in DB, creating new entry.
+2025-05-24 23:27:24,889 - root - INFO - stock_analyzer:141 - Created and refreshed stock entry for AAPL (ID: 2). Name: Apple Inc., CIK: 0000320193
+2025-05-24 23:27:24,890 - root - INFO - stock_analyzer:782 - Full analysis pipeline started for AAPL...
+2025-05-24 23:27:24,891 - root - INFO - stock_analyzer:177 - Fetching financial statements for AAPL for the last 7 years.
+2025-05-24 23:27:26,178 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/income-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVz...
+2025-05-24 23:27:27,643 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxR...
+2025-05-24 23:27:29,118 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91...
+2025-05-24 23:27:30,156 - root - WARNING - api_clients:129 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/income-statement/AAPL (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVz******', 'period': 'quarterly', 'limit': 8}, Headers: Default): 403 - {
+  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
+2025-05-24 23:27:30,158 - root - ERROR - api_clients:143 - Non-retryable client error for https://financialmodelingprep.com/api/v3/income-statement/AAPL: 403 Forbidden
+2025-05-24 23:27:30,159 - root - WARNING - stock_analyzer:195 - Failed to fetch FMP quarterly income statements for AAPL (likely subscription issue). QoQ analysis will be limited.
+2025-05-24 23:27:30,160 - root - INFO - stock_analyzer:201 - Fetched from FMP: 5 income, 5 balance, 5 cashflow annual statements. 0 quarterly income statements.
+2025-05-24 23:27:30,161 - root - INFO - stock_analyzer:213 - Fetching key metrics and profile for AAPL.
+2025-05-24 23:27:31,623 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61u...
+2025-05-24 23:27:32,638 - root - WARNING - api_clients:129 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/key-metrics/AAPL (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVz******', 'period': 'quarterly', 'limit': 8}, Headers: Default): 403 - {
+  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
+2025-05-24 23:27:32,639 - root - ERROR - api_clients:143 - Non-retryable client error for https://financialmodelingprep.com/api/v3/key-metrics/AAPL: 403 Forbidden
+2025-05-24 23:27:32,641 - root - WARNING - stock_analyzer:220 - Failed to fetch FMP quarterly key metrics for AAPL (likely subscription issue). Latest metrics might rely on annual or Finnhub.
+2025-05-24 23:27:34,483 - root - INFO - api_clients:70 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=AAPL&token=d0o7hphr01qqr9alj38gd0o7hphr...
+2025-05-24 23:27:34,485 - root - INFO - stock_analyzer:235 - Fetched Key Metrics from FMP (Annual: 5, Quarterly: 0). Fetched Finnhub Basic Financials.
+2025-05-24 23:27:34,486 - root - INFO - stock_analyzer:239 - Calculating derived metrics for AAPL...
+2025-05-24 23:27:34,487 - root - ERROR - stock_analyzer:852 - CRITICAL error during full analysis pipeline for AAPL: name 'calculate_growth' is not defined
+Traceback (most recent call last):
+  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 795, in analyze
+    calculated_metrics = self._calculate_derived_metrics()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 340, in _calculate_derived_metrics
+    metrics["revenue_growth_yoy"] = calculate_growth(get_value_from_statement_list(income_annual, "revenue", 0),
+                                    ^^^^^^^^^^^^^^^^
+NameError: name 'calculate_growth' is not defined
+2025-05-24 23:27:34,518 - root - INFO - stock_analyzer:856 - Rolled back transaction for AAPL due to error.
+2025-05-24 23:27:34,519 - root - WARNING - main:27 - Stock analysis for AAPL did not return a result object.
+2025-05-24 23:27:38,050 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/MSFT?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-24 23:27:38,052 - root - INFO - stock_analyzer:104 - Fetched profile from FMP for MSFT.
+2025-05-24 23:27:38,053 - root - INFO - stock_analyzer:129 - Stock MSFT not found in DB, creating new entry.
+2025-05-24 23:27:38,640 - root - INFO - stock_analyzer:141 - Created and refreshed stock entry for MSFT (ID: 3). Name: Microsoft Corporation, CIK: 0000789019
+2025-05-24 23:27:38,643 - root - INFO - stock_analyzer:782 - Full analysis pipeline started for MSFT...
+2025-05-24 23:27:38,643 - root - INFO - stock_analyzer:177 - Fetching financial statements for MSFT for the last 7 years.
+2025-05-24 23:27:39,929 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/income-statement/MSFT?apikey=62ERGmJoqQgGD0nSGxRZS91TVz...
+2025-05-24 23:27:41,394 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/MSFT?apikey=62ERGmJoqQgGD0nSGxR...
+2025-05-24 23:27:42,872 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/MSFT?apikey=62ERGmJoqQgGD0nSGxRZS91...
+2025-05-24 23:27:43,901 - root - WARNING - api_clients:129 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/income-statement/MSFT (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVz******', 'period': 'quarterly', 'limit': 8}, Headers: Default): 403 - {
+  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
+2025-05-24 23:27:43,902 - root - ERROR - api_clients:143 - Non-retryable client error for https://financialmodelingprep.com/api/v3/income-statement/MSFT: 403 Forbidden
+2025-05-24 23:27:43,904 - root - WARNING - stock_analyzer:195 - Failed to fetch FMP quarterly income statements for MSFT (likely subscription issue). QoQ analysis will be limited.
+2025-05-24 23:27:43,905 - root - INFO - stock_analyzer:201 - Fetched from FMP: 5 income, 5 balance, 5 cashflow annual statements. 0 quarterly income statements.
+2025-05-24 23:27:43,906 - root - INFO - stock_analyzer:213 - Fetching key metrics and profile for MSFT.
+2025-05-24 23:27:45,345 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/MSFT?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61u...
+2025-05-24 23:27:46,355 - root - WARNING - api_clients:129 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/key-metrics/MSFT (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVz******', 'period': 'quarterly', 'limit': 8}, Headers: Default): 403 - {
+  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
+2025-05-24 23:27:46,356 - root - ERROR - api_clients:143 - Non-retryable client error for https://financialmodelingprep.com/api/v3/key-metrics/MSFT: 403 Forbidden
+2025-05-24 23:27:46,359 - root - WARNING - stock_analyzer:220 - Failed to fetch FMP quarterly key metrics for MSFT (likely subscription issue). Latest metrics might rely on annual or Finnhub.
+2025-05-24 23:27:47,728 - root - INFO - api_clients:70 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=MSFT&token=d0o7hphr01qqr9alj38gd0o7hphr...
+2025-05-24 23:27:47,729 - root - INFO - stock_analyzer:235 - Fetched Key Metrics from FMP (Annual: 5, Quarterly: 0). Fetched Finnhub Basic Financials.
+2025-05-24 23:27:47,729 - root - INFO - stock_analyzer:239 - Calculating derived metrics for MSFT...
+2025-05-24 23:27:47,730 - root - ERROR - stock_analyzer:852 - CRITICAL error during full analysis pipeline for MSFT: name 'calculate_growth' is not defined
+Traceback (most recent call last):
+  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 795, in analyze
+    calculated_metrics = self._calculate_derived_metrics()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 340, in _calculate_derived_metrics
+    metrics["revenue_growth_yoy"] = calculate_growth(get_value_from_statement_list(income_annual, "revenue", 0),
+                                    ^^^^^^^^^^^^^^^^
+NameError: name 'calculate_growth' is not defined
+2025-05-24 23:27:47,738 - root - INFO - stock_analyzer:856 - Rolled back transaction for MSFT due to error.
+2025-05-24 23:27:47,738 - root - WARNING - main:27 - Stock analysis for MSFT did not return a result object.
+2025-05-24 23:27:51,249 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/GOOGL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-24 23:27:51,250 - root - INFO - stock_analyzer:104 - Fetched profile from FMP for GOOGL.
+2025-05-24 23:27:51,250 - root - INFO - stock_analyzer:129 - Stock GOOGL not found in DB, creating new entry.
+2025-05-24 23:27:51,831 - root - INFO - stock_analyzer:141 - Created and refreshed stock entry for GOOGL (ID: 4). Name: Alphabet Inc., CIK: 0001652044
+2025-05-24 23:27:51,832 - root - INFO - stock_analyzer:782 - Full analysis pipeline started for GOOGL...
+2025-05-24 23:27:51,832 - root - INFO - stock_analyzer:177 - Fetching financial statements for GOOGL for the last 7 years.
+2025-05-24 23:27:53,096 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/income-statement/GOOGL?apikey=62ERGmJoqQgGD0nSGxRZS91TV...
+2025-05-24 23:27:54,532 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/GOOGL?apikey=62ERGmJoqQgGD0nSGx...
+2025-05-24 23:27:55,980 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/GOOGL?apikey=62ERGmJoqQgGD0nSGxRZS9...
+2025-05-24 23:27:57,002 - root - WARNING - api_clients:129 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/income-statement/GOOGL (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVz******', 'period': 'quarterly', 'limit': 8}, Headers: Default): 403 - {
+  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
+2025-05-24 23:27:57,004 - root - ERROR - api_clients:143 - Non-retryable client error for https://financialmodelingprep.com/api/v3/income-statement/GOOGL: 403 Forbidden
+2025-05-24 23:27:57,006 - root - WARNING - stock_analyzer:195 - Failed to fetch FMP quarterly income statements for GOOGL (likely subscription issue). QoQ analysis will be limited.
+2025-05-24 23:27:57,007 - root - INFO - stock_analyzer:201 - Fetched from FMP: 5 income, 5 balance, 5 cashflow annual statements. 0 quarterly income statements.
+2025-05-24 23:27:57,007 - root - INFO - stock_analyzer:213 - Fetching key metrics and profile for GOOGL.
+2025-05-24 23:27:58,421 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/GOOGL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61...
+2025-05-24 23:27:59,440 - root - WARNING - api_clients:129 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/key-metrics/GOOGL (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVz******', 'period': 'quarterly', 'limit': 8}, Headers: Default): 403 - {
+  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
+2025-05-24 23:27:59,442 - root - ERROR - api_clients:143 - Non-retryable client error for https://financialmodelingprep.com/api/v3/key-metrics/GOOGL: 403 Forbidden
+2025-05-24 23:27:59,444 - root - WARNING - stock_analyzer:220 - Failed to fetch FMP quarterly key metrics for GOOGL (likely subscription issue). Latest metrics might rely on annual or Finnhub.
+2025-05-24 23:28:01,041 - root - INFO - api_clients:70 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=GOOGL&token=d0o7hphr01qqr9alj38gd0o7hph...
+2025-05-24 23:28:01,041 - root - INFO - stock_analyzer:235 - Fetched Key Metrics from FMP (Annual: 5, Quarterly: 0). Fetched Finnhub Basic Financials.
+2025-05-24 23:28:01,042 - root - INFO - stock_analyzer:239 - Calculating derived metrics for GOOGL...
+2025-05-24 23:28:01,042 - root - ERROR - stock_analyzer:852 - CRITICAL error during full analysis pipeline for GOOGL: name 'calculate_growth' is not defined
+Traceback (most recent call last):
+  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 795, in analyze
+    calculated_metrics = self._calculate_derived_metrics()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 340, in _calculate_derived_metrics
+    metrics["revenue_growth_yoy"] = calculate_growth(get_value_from_statement_list(income_annual, "revenue", 0),
+                                    ^^^^^^^^^^^^^^^^
+NameError: name 'calculate_growth' is not defined
+2025-05-24 23:28:01,050 - root - INFO - stock_analyzer:856 - Rolled back transaction for GOOGL due to error.
+2025-05-24 23:28:01,050 - root - WARNING - main:27 - Stock analysis for GOOGL did not return a result object.
+2025-05-24 23:28:04,643 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/NVDA?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-24 23:28:04,645 - root - INFO - stock_analyzer:104 - Fetched profile from FMP for NVDA.
+2025-05-24 23:28:04,646 - root - INFO - stock_analyzer:129 - Stock NVDA not found in DB, creating new entry.
+2025-05-24 23:28:05,228 - root - INFO - stock_analyzer:141 - Created and refreshed stock entry for NVDA (ID: 5). Name: NVIDIA Corporation, CIK: 0001045810
+2025-05-24 23:28:05,230 - root - INFO - stock_analyzer:782 - Full analysis pipeline started for NVDA...
+2025-05-24 23:28:05,231 - root - INFO - stock_analyzer:177 - Fetching financial statements for NVDA for the last 7 years.
+2025-05-24 23:28:06,513 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/income-statement/NVDA?apikey=62ERGmJoqQgGD0nSGxRZS91TVz...
+2025-05-24 23:28:07,962 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/NVDA?apikey=62ERGmJoqQgGD0nSGxR...
+2025-05-24 23:28:09,428 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/NVDA?apikey=62ERGmJoqQgGD0nSGxRZS91...
+2025-05-24 23:28:10,456 - root - WARNING - api_clients:129 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/income-statement/NVDA (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVz******', 'period': 'quarterly', 'limit': 8}, Headers: Default): 403 - {
+  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
+2025-05-24 23:28:10,459 - root - ERROR - api_clients:143 - Non-retryable client error for https://financialmodelingprep.com/api/v3/income-statement/NVDA: 403 Forbidden
+2025-05-24 23:28:10,460 - root - WARNING - stock_analyzer:195 - Failed to fetch FMP quarterly income statements for NVDA (likely subscription issue). QoQ analysis will be limited.
+2025-05-24 23:28:10,461 - root - INFO - stock_analyzer:201 - Fetched from FMP: 5 income, 5 balance, 5 cashflow annual statements. 0 quarterly income statements.
+2025-05-24 23:28:10,462 - root - INFO - stock_analyzer:213 - Fetching key metrics and profile for NVDA.
+2025-05-24 23:28:11,925 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/NVDA?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61u...
+2025-05-24 23:28:12,929 - root - WARNING - api_clients:129 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/key-metrics/NVDA (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVz******', 'period': 'quarterly', 'limit': 8}, Headers: Default): 403 - {
+  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
+2025-05-24 23:28:12,931 - root - ERROR - api_clients:143 - Non-retryable client error for https://financialmodelingprep.com/api/v3/key-metrics/NVDA: 403 Forbidden
+2025-05-24 23:28:12,933 - root - WARNING - stock_analyzer:220 - Failed to fetch FMP quarterly key metrics for NVDA (likely subscription issue). Latest metrics might rely on annual or Finnhub.
+2025-05-24 23:28:14,599 - root - INFO - api_clients:70 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=NVDA&token=d0o7hphr01qqr9alj38gd0o7hphr...
+2025-05-24 23:28:14,601 - root - INFO - stock_analyzer:235 - Fetched Key Metrics from FMP (Annual: 5, Quarterly: 0). Fetched Finnhub Basic Financials.
+2025-05-24 23:28:14,602 - root - INFO - stock_analyzer:239 - Calculating derived metrics for NVDA...
+2025-05-24 23:28:14,603 - root - ERROR - stock_analyzer:852 - CRITICAL error during full analysis pipeline for NVDA: name 'calculate_growth' is not defined
+Traceback (most recent call last):
+  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 795, in analyze
+    calculated_metrics = self._calculate_derived_metrics()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 340, in _calculate_derived_metrics
+    metrics["revenue_growth_yoy"] = calculate_growth(get_value_from_statement_list(income_annual, "revenue", 0),
+                                    ^^^^^^^^^^^^^^^^
+NameError: name 'calculate_growth' is not defined
+2025-05-24 23:28:14,631 - root - INFO - stock_analyzer:856 - Rolled back transaction for NVDA due to error.
+2025-05-24 23:28:14,631 - root - WARNING - main:27 - Stock analysis for NVDA did not return a result object.
+2025-05-24 23:28:18,178 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/JPM?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-24 23:28:18,180 - root - INFO - stock_analyzer:104 - Fetched profile from FMP for JPM.
+2025-05-24 23:28:18,181 - root - INFO - stock_analyzer:129 - Stock JPM not found in DB, creating new entry.
+2025-05-24 23:28:18,767 - root - INFO - stock_analyzer:141 - Created and refreshed stock entry for JPM (ID: 6). Name: JPMorgan Chase & Co., CIK: 0000019617
+2025-05-24 23:28:18,769 - root - INFO - stock_analyzer:782 - Full analysis pipeline started for JPM...
+2025-05-24 23:28:18,770 - root - INFO - stock_analyzer:177 - Fetching financial statements for JPM for the last 7 years.
+2025-05-24 23:28:20,052 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/income-statement/JPM?apikey=62ERGmJoqQgGD0nSGxRZS91TVzf...
+2025-05-24 23:28:21,512 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/JPM?apikey=62ERGmJoqQgGD0nSGxRZ...
+2025-05-24 23:28:22,958 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/JPM?apikey=62ERGmJoqQgGD0nSGxRZS91T...
+2025-05-24 23:28:24,043 - root - WARNING - api_clients:129 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/income-statement/JPM (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVz******', 'period': 'quarterly', 'limit': 8}, Headers: Default): 403 - {
+  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
+2025-05-24 23:28:24,044 - root - ERROR - api_clients:143 - Non-retryable client error for https://financialmodelingprep.com/api/v3/income-statement/JPM: 403 Forbidden
+2025-05-24 23:28:24,046 - root - WARNING - stock_analyzer:195 - Failed to fetch FMP quarterly income statements for JPM (likely subscription issue). QoQ analysis will be limited.
+2025-05-24 23:28:24,047 - root - INFO - stock_analyzer:201 - Fetched from FMP: 5 income, 5 balance, 5 cashflow annual statements. 0 quarterly income statements.
+2025-05-24 23:28:24,048 - root - INFO - stock_analyzer:213 - Fetching key metrics and profile for JPM.
+2025-05-24 23:28:25,573 - root - INFO - api_clients:70 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/JPM?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-24 23:28:26,609 - root - WARNING - api_clients:129 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/key-metrics/JPM (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVz******', 'period': 'quarterly', 'limit': 8}, Headers: Default): 403 - {
+  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
+2025-05-24 23:28:26,611 - root - ERROR - api_clients:143 - Non-retryable client error for https://financialmodelingprep.com/api/v3/key-metrics/JPM: 403 Forbidden
+2025-05-24 23:28:26,612 - root - WARNING - stock_analyzer:220 - Failed to fetch FMP quarterly key metrics for JPM (likely subscription issue). Latest metrics might rely on annual or Finnhub.
+2025-05-24 23:28:27,991 - root - INFO - api_clients:70 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=JPM&token=d0o7hphr01qqr9alj38gd0o7hphr0...
+2025-05-24 23:28:27,993 - root - INFO - stock_analyzer:235 - Fetched Key Metrics from FMP (Annual: 5, Quarterly: 0). Fetched Finnhub Basic Financials.
+2025-05-24 23:28:27,994 - root - INFO - stock_analyzer:239 - Calculating derived metrics for JPM...
+2025-05-24 23:28:27,995 - root - ERROR - stock_analyzer:852 - CRITICAL error during full analysis pipeline for JPM: name 'calculate_growth' is not defined
+Traceback (most recent call last):
+  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 795, in analyze
+    calculated_metrics = self._calculate_derived_metrics()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 340, in _calculate_derived_metrics
+    metrics["revenue_growth_yoy"] = calculate_growth(get_value_from_statement_list(income_annual, "revenue", 0),
+                                    ^^^^^^^^^^^^^^^^
+NameError: name 'calculate_growth' is not defined
+2025-05-24 23:28:28,027 - root - INFO - stock_analyzer:856 - Rolled back transaction for JPM due to error.
+2025-05-24 23:28:28,029 - root - WARNING - main:27 - Stock analysis for JPM did not return a result object.
+2025-05-24 23:28:35,031 - root - INFO - main:37 - --- Starting IPO Analysis Pipeline ---
+2025-05-24 23:28:35,032 - root - INFO - ipo_analyzer:675 - Fetching upcoming IPOs using Finnhub...
+2025-05-24 23:28:36,441 - root - INFO - api_clients:70 - Cached response for: GET:https://finnhub.io/api/v1/calendar/ipo?from=2025-03-25&to=2025-11-20&token=d0o7hphr01qqr9alj38gd...
+2025-05-24 23:28:36,465 - root - INFO - ipo_analyzer:737 - Successfully parsed 153 IPOs from Finnhub API response.
+2025-05-24 23:28:36,465 - root - INFO - ipo_analyzer:754 - Total unique IPOs fetched after deduplication: 153
+2025-05-24 23:28:36,466 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Vantage Corp (Singapore) from source Finnhub
+2025-05-24 23:28:36,812 - root - INFO - api_clients:275 - Fetching CIK map from SEC...
+2025-05-24 23:28:37,195 - root - INFO - api_clients:285 - CIK map loaded with 10046 entries.
+2025-05-24 23:28:37,197 - root - INFO - ipo_analyzer:779 - IPO 'Vantage Corp (Singapore)' not found in DB, creating new entry.
+2025-05-24 23:28:37,620 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Vantage Corp (Singapore)' (ID: 1, CIK: 0002027160)
+2025-05-24 23:28:37,715 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for Vantage Corp (Singapore) (CIK: 0002027160)
+2025-05-24 23:28:39,087 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002027160.json?...
+2025-05-24 23:28:39,088 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0002027160 matching criteria.
+2025-05-24 23:28:39,351 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002027160.json?...
+2025-05-24 23:28:39,435 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0002027160 matching criteria.
+2025-05-24 23:28:39,691 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002027160.json?...
+2025-05-24 23:28:39,777 - root - INFO - ipo_analyzer:859 - Found F-1 filing URL for Vantage Corp (Singapore): https://www.sec.gov/Archives/edgar/data/2027160/000149315224040628/formf-1.htm
+2025-05-24 23:28:39,778 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2027160/000149315224040628/formf-1.htm
+2025-05-24 23:28:44,484 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2027160/000149315224040628/formf-1.htm...
+2025-05-24 23:28:44,486 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 2016965) for Vantage Corp (Singapore)
+2025-05-24 23:28:45,072 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:29:00,868 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Vantage Corp (Singapore)
+2025-05-24 23:29:01,465 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Vantage Corp (Singapore) (Analysis ID: 1)
+2025-05-24 23:29:09,467 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Fast Track Group from source Finnhub
+2025-05-24 23:29:09,641 - root - INFO - ipo_analyzer:779 - IPO 'Fast Track Group' not found in DB, creating new entry.
+2025-05-24 23:29:10,059 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Fast Track Group' (ID: 2, CIK: 0002027262)
+2025-05-24 23:29:10,145 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for Fast Track Group (CIK: 0002027262)
+2025-05-24 23:29:11,106 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002027262.json?...
+2025-05-24 23:29:11,106 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0002027262 matching criteria.
+2025-05-24 23:29:11,360 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002027262.json?...
+2025-05-24 23:29:11,446 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0002027262 matching criteria.
+2025-05-24 23:29:11,699 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002027262.json?...
+2025-05-24 23:29:11,784 - root - INFO - ipo_analyzer:859 - Found F-1 filing URL for Fast Track Group: https://www.sec.gov/Archives/edgar/data/2027262/000164117225004569/formf-1.htm
+2025-05-24 23:29:11,785 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2027262/000164117225004569/formf-1.htm
+2025-05-24 23:29:15,111 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2027262/000164117225004569/formf-1.htm...
+2025-05-24 23:29:15,113 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 3354458) for Fast Track Group
+2025-05-24 23:29:16,046 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:29:31,340 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Fast Track Group
+2025-05-24 23:29:31,934 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Fast Track Group (Analysis ID: 2)
+2025-05-24 23:29:39,936 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Pelican Acquisition Corp from source Finnhub
+2025-05-24 23:29:40,105 - root - INFO - ipo_analyzer:779 - IPO 'Pelican Acquisition Corp' not found in DB, creating new entry.
+2025-05-24 23:29:40,523 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Pelican Acquisition Corp' (ID: 3, CIK: None)
+2025-05-24 23:29:40,611 - root - WARNING - ipo_analyzer:846 - No CIK found via symbol PELIU for IPO 'Pelican Acquisition Corp'.
+2025-05-24 23:29:56,051 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Pelican Acquisition Corp
+2025-05-24 23:29:56,561 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Pelican Acquisition Corp (Analysis ID: 3)
+2025-05-24 23:30:04,563 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Cal Redwood Acquisition Corp. from source Finnhub
+2025-05-24 23:30:04,735 - root - INFO - ipo_analyzer:779 - IPO 'Cal Redwood Acquisition Corp.' not found in DB, creating new entry.
+2025-05-24 23:30:05,152 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Cal Redwood Acquisition Corp.' (ID: 4, CIK: None)
+2025-05-24 23:30:05,237 - root - WARNING - ipo_analyzer:846 - No CIK found via symbol CRAQU for IPO 'Cal Redwood Acquisition Corp.'.
+2025-05-24 23:30:20,803 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Cal Redwood Acquisition Corp.
+2025-05-24 23:30:21,313 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Cal Redwood Acquisition Corp. (Analysis ID: 4)
+2025-05-24 23:30:29,314 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Oyster Enterprises II Acquisition Corp from source Finnhub
+2025-05-24 23:30:29,486 - root - INFO - ipo_analyzer:779 - IPO 'Oyster Enterprises II Acquisition Corp' not found in DB, creating new entry.
+2025-05-24 23:30:29,907 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Oyster Enterprises II Acquisition Corp' (ID: 5, CIK: None)
+2025-05-24 23:30:29,994 - root - WARNING - ipo_analyzer:846 - No CIK found via symbol OYSEU for IPO 'Oyster Enterprises II Acquisition Corp'.
+2025-05-24 23:30:46,003 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Oyster Enterprises II Acquisition Corp
+2025-05-24 23:30:46,513 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Oyster Enterprises II Acquisition Corp (Analysis ID: 5)
+2025-05-24 23:30:54,515 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Hinge Health, Inc. from source Finnhub
+2025-05-24 23:30:54,684 - root - INFO - ipo_analyzer:779 - IPO 'Hinge Health, Inc.' not found in DB, creating new entry.
+2025-05-24 23:30:55,107 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Hinge Health, Inc.' (ID: 6, CIK: 0001673743)
+2025-05-24 23:30:55,194 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for Hinge Health, Inc. (CIK: 0001673743)
+2025-05-24 23:30:56,148 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0001673743.json?...
+2025-05-24 23:30:56,150 - root - INFO - ipo_analyzer:859 - Found S-1 filing URL for Hinge Health, Inc.: https://www.sec.gov/Archives/edgar/data/1673743/000119312525051004/d829170ds1.htm
+2025-05-24 23:30:56,151 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/1673743/000119312525051004/d829170ds1.htm
+2025-05-24 23:30:58,926 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/1673743/000119312525051004/d829170ds1.htm...
+2025-05-24 23:30:58,927 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 2654569) for Hinge Health, Inc.
+2025-05-24 23:30:59,979 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:31:16,051 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Hinge Health, Inc.
+2025-05-24 23:31:16,662 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Hinge Health, Inc. (Analysis ID: 6)
+2025-05-24 23:31:24,664 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: MNTN, Inc. from source Finnhub
+2025-05-24 23:31:24,833 - root - INFO - ipo_analyzer:779 - IPO 'MNTN, Inc.' not found in DB, creating new entry.
+2025-05-24 23:31:25,254 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'MNTN, Inc.' (ID: 7, CIK: 0001891027)
+2025-05-24 23:31:25,342 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for MNTN, Inc. (CIK: 0001891027)
+2025-05-24 23:31:26,317 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0001891027.json?...
+2025-05-24 23:31:26,319 - root - INFO - ipo_analyzer:859 - Found S-1 filing URL for MNTN, Inc.: https://www.sec.gov/Archives/edgar/data/1891027/000110465925019247/tm2413466-11_s1.htm
+2025-05-24 23:31:26,320 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/1891027/000110465925019247/tm2413466-11_s1.htm
+2025-05-24 23:31:29,618 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/1891027/000110465925019247/tm2413466-11_s1.htm...
+2025-05-24 23:31:29,620 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 3281190) for MNTN, Inc.
+2025-05-24 23:31:30,638 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:31:47,546 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for MNTN, Inc.
+2025-05-24 23:31:48,130 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: MNTN, Inc. (Analysis ID: 7)
+2025-05-24 23:31:56,132 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: AParadise Acquisition Corp. from source Finnhub
+2025-05-24 23:31:56,302 - root - INFO - ipo_analyzer:779 - IPO 'AParadise Acquisition Corp.' not found in DB, creating new entry.
+2025-05-24 23:31:56,724 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'AParadise Acquisition Corp.' (ID: 8, CIK: None)
+2025-05-24 23:31:56,811 - root - WARNING - ipo_analyzer:846 - No CIK found via symbol APADU for IPO 'AParadise Acquisition Corp.'.
+2025-05-24 23:32:12,152 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for AParadise Acquisition Corp.
+2025-05-24 23:32:12,660 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: AParadise Acquisition Corp. (Analysis ID: 8)
+2025-05-24 23:32:20,662 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: ProCap Acquisition Corp from source Finnhub
+2025-05-24 23:32:20,831 - root - INFO - ipo_analyzer:779 - IPO 'ProCap Acquisition Corp' not found in DB, creating new entry.
+2025-05-24 23:32:21,250 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'ProCap Acquisition Corp' (ID: 9, CIK: 0002056634)
+2025-05-24 23:32:21,342 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for ProCap Acquisition Corp (CIK: 0002056634)
+2025-05-24 23:32:22,285 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002056634.json?...
+2025-05-24 23:32:22,287 - root - INFO - ipo_analyzer:859 - Found S-1 filing URL for ProCap Acquisition Corp: https://www.sec.gov/Archives/edgar/data/2056634/000121390025037771/ea0230984-04.htm
+2025-05-24 23:32:22,288 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2056634/000121390025037771/ea0230984-04.htm
+2025-05-24 23:32:25,954 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2056634/000121390025037771/ea0230984-04.htm...
+2025-05-24 23:32:25,957 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 3839608) for ProCap Acquisition Corp
+2025-05-24 23:32:26,565 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:32:41,755 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for ProCap Acquisition Corp
+2025-05-24 23:32:42,341 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: ProCap Acquisition Corp (Analysis ID: 9)
+2025-05-24 23:32:50,344 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Armada Acquisition Corp. II from source Finnhub
+2025-05-24 23:32:50,517 - root - INFO - ipo_analyzer:779 - IPO 'Armada Acquisition Corp. II' not found in DB, creating new entry.
+2025-05-24 23:32:50,936 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Armada Acquisition Corp. II' (ID: 10, CIK: None)
+2025-05-24 23:32:51,022 - root - WARNING - ipo_analyzer:846 - No CIK found via symbol AACIU for IPO 'Armada Acquisition Corp. II'.
+2025-05-24 23:33:07,534 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Armada Acquisition Corp. II
+2025-05-24 23:33:08,042 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Armada Acquisition Corp. II (Analysis ID: 10)
+2025-05-24 23:33:16,044 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: OFA Group from source Finnhub
+2025-05-24 23:33:16,216 - root - INFO - ipo_analyzer:779 - IPO 'OFA Group' not found in DB, creating new entry.
+2025-05-24 23:33:16,635 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'OFA Group' (ID: 11, CIK: 0002036307)
+2025-05-24 23:33:16,723 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for OFA Group (CIK: 0002036307)
+2025-05-24 23:33:19,003 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002036307.json?...
+2025-05-24 23:33:19,004 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0002036307 matching criteria.
+2025-05-24 23:33:19,258 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002036307.json?...
+2025-05-24 23:33:19,344 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0002036307 matching criteria.
+2025-05-24 23:33:19,595 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002036307.json?...
+2025-05-24 23:33:19,680 - root - INFO - ipo_analyzer:859 - Found F-1 filing URL for OFA Group: https://www.sec.gov/Archives/edgar/data/2036307/000149315225007774/formf-1.htm
+2025-05-24 23:33:19,682 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2036307/000149315225007774/formf-1.htm
+2025-05-24 23:33:22,743 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2036307/000149315225007774/formf-1.htm...
+2025-05-24 23:33:22,746 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 2850883) for OFA Group
+2025-05-24 23:33:23,567 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:33:38,250 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for OFA Group
+2025-05-24 23:33:38,828 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: OFA Group (Analysis ID: 11)
+2025-05-24 23:33:46,830 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: FIGX Capital Acquisition Corp. from source Finnhub
+2025-05-24 23:33:46,997 - root - INFO - ipo_analyzer:779 - IPO 'FIGX Capital Acquisition Corp.' not found in DB, creating new entry.
+2025-05-24 23:33:47,410 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'FIGX Capital Acquisition Corp.' (ID: 12, CIK: None)
+2025-05-24 23:33:47,495 - root - WARNING - ipo_analyzer:846 - No CIK found via symbol FIGXU for IPO 'FIGX Capital Acquisition Corp.'.
+2025-05-24 23:34:02,199 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for FIGX Capital Acquisition Corp.
+2025-05-24 23:34:02,698 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: FIGX Capital Acquisition Corp. (Analysis ID: 12)
+2025-05-24 23:34:10,699 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Jefferson Capital, Inc. / DE from source Finnhub
+2025-05-24 23:34:10,866 - root - INFO - ipo_analyzer:779 - IPO 'Jefferson Capital, Inc. / DE' not found in DB, creating new entry.
+2025-05-24 23:34:11,278 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Jefferson Capital, Inc. / DE' (ID: 13, CIK: None)
+2025-05-24 23:34:11,362 - root - WARNING - ipo_analyzer:846 - No CIK found via symbol JCAP for IPO 'Jefferson Capital, Inc. / DE'.
+2025-05-24 23:34:24,367 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Jefferson Capital, Inc. / DE
+2025-05-24 23:34:24,864 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Jefferson Capital, Inc. / DE (Analysis ID: 13)
+2025-05-24 23:34:32,865 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: INFINT Acquisition Corp 2 from source Finnhub
+2025-05-24 23:34:32,948 - root - INFO - ipo_analyzer:779 - IPO 'INFINT Acquisition Corp 2' not found in DB, creating new entry.
+2025-05-24 23:34:33,363 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'INFINT Acquisition Corp 2' (ID: 14, CIK: None)
+2025-05-24 23:34:33,447 - root - WARNING - ipo_analyzer:849 - No CIK or symbol for IPO 'INFINT Acquisition Corp 2'. Cannot fetch S-1/F-1.
+2025-05-24 23:34:48,803 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for INFINT Acquisition Corp 2
+2025-05-24 23:34:49,303 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: INFINT Acquisition Corp 2 (Analysis ID: 14)
+2025-05-24 23:34:57,305 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Uptrend Holdings Ltd from source Finnhub
+2025-05-24 23:34:57,473 - root - INFO - ipo_analyzer:779 - IPO 'Uptrend Holdings Ltd' not found in DB, creating new entry.
+2025-05-24 23:34:57,888 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Uptrend Holdings Ltd' (ID: 15, CIK: None)
+2025-05-24 23:34:57,973 - root - WARNING - ipo_analyzer:846 - No CIK found via symbol UPX for IPO 'Uptrend Holdings Ltd'.
+2025-05-24 23:35:12,997 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Uptrend Holdings Ltd
+2025-05-24 23:35:13,493 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Uptrend Holdings Ltd (Analysis ID: 15)
+2025-05-24 23:35:21,494 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: LightWave Acquisition Corp. from source Finnhub
+2025-05-24 23:35:21,661 - root - INFO - ipo_analyzer:779 - IPO 'LightWave Acquisition Corp.' not found in DB, creating new entry.
+2025-05-24 23:35:22,077 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'LightWave Acquisition Corp.' (ID: 16, CIK: None)
+2025-05-24 23:35:22,162 - root - WARNING - ipo_analyzer:846 - No CIK found via symbol LWACU for IPO 'LightWave Acquisition Corp.'.
+2025-05-24 23:35:37,533 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for LightWave Acquisition Corp.
+2025-05-24 23:35:38,033 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: LightWave Acquisition Corp. (Analysis ID: 16)
+2025-05-24 23:35:46,033 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Ultra High Point Holdings Ltd from source Finnhub
+2025-05-24 23:35:46,205 - root - INFO - ipo_analyzer:779 - IPO 'Ultra High Point Holdings Ltd' not found in DB, creating new entry.
+2025-05-24 23:35:46,622 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Ultra High Point Holdings Ltd' (ID: 17, CIK: None)
+2025-05-24 23:35:46,709 - root - WARNING - ipo_analyzer:846 - No CIK found via symbol UHP for IPO 'Ultra High Point Holdings Ltd'.
+2025-05-24 23:36:02,253 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Ultra High Point Holdings Ltd
+2025-05-24 23:36:02,759 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Ultra High Point Holdings Ltd (Analysis ID: 17)
+2025-05-24 23:36:18,761 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: K-TECH SOLUTIONS CO LTD from source Finnhub
+2025-05-24 23:36:18,930 - root - INFO - ipo_analyzer:779 - IPO 'K-TECH SOLUTIONS CO LTD' not found in DB, creating new entry.
+2025-05-24 23:36:19,342 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'K-TECH SOLUTIONS CO LTD' (ID: 18, CIK: 0002049187)
+2025-05-24 23:36:19,429 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for K-TECH SOLUTIONS CO LTD (CIK: 0002049187)
+2025-05-24 23:36:20,398 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002049187.json?...
+2025-05-24 23:36:20,400 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0002049187 matching criteria.
+2025-05-24 23:36:20,655 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002049187.json?...
+2025-05-24 23:36:20,741 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0002049187 matching criteria.
+2025-05-24 23:36:20,990 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002049187.json?...
+2025-05-24 23:36:21,075 - root - INFO - ipo_analyzer:859 - Found F-1 filing URL for K-TECH SOLUTIONS CO LTD: https://www.sec.gov/Archives/edgar/data/2049187/000121390025045262/ea0223235-08.htm
+2025-05-24 23:36:21,077 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2049187/000121390025045262/ea0223235-08.htm
+2025-05-24 23:36:27,407 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2049187/000121390025045262/ea0223235-08.htm...
+2025-05-24 23:36:27,411 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 6686376) for K-TECH SOLUTIONS CO LTD
+2025-05-24 23:36:28,341 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:36:42,886 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for K-TECH SOLUTIONS CO LTD
+2025-05-24 23:36:43,474 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: K-TECH SOLUTIONS CO LTD (Analysis ID: 18)
+2025-05-24 23:36:51,477 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Fitness Champs Holdings Ltd from source Finnhub
+2025-05-24 23:36:51,647 - root - INFO - ipo_analyzer:779 - IPO 'Fitness Champs Holdings Ltd' not found in DB, creating new entry.
+2025-05-24 23:36:52,067 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Fitness Champs Holdings Ltd' (ID: 19, CIK: 0002023796)
+2025-05-24 23:36:52,154 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for Fitness Champs Holdings Ltd (CIK: 0002023796)
+2025-05-24 23:36:53,155 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002023796.json?...
+2025-05-24 23:36:53,157 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0002023796 matching criteria.
+2025-05-24 23:36:53,415 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002023796.json?...
+2025-05-24 23:36:53,499 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0002023796 matching criteria.
+2025-05-24 23:36:53,753 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002023796.json?...
+2025-05-24 23:36:53,838 - root - INFO - ipo_analyzer:859 - Found F-1 filing URL for Fitness Champs Holdings Ltd: https://www.sec.gov/Archives/edgar/data/2023796/000164117225011509/formf-1.htm
+2025-05-24 23:36:53,840 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2023796/000164117225011509/formf-1.htm
+2025-05-24 23:36:57,117 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2023796/000164117225011509/formf-1.htm...
+2025-05-24 23:36:57,119 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 2566360) for Fitness Champs Holdings Ltd
+2025-05-24 23:36:57,983 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:37:14,653 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Fitness Champs Holdings Ltd
+2025-05-24 23:37:15,239 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Fitness Champs Holdings Ltd (Analysis ID: 19)
+2025-05-24 23:37:23,241 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: WEN Acquisition Corp from source Finnhub
+2025-05-24 23:37:23,410 - root - INFO - ipo_analyzer:779 - IPO 'WEN Acquisition Corp' not found in DB, creating new entry.
+2025-05-24 23:37:23,827 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'WEN Acquisition Corp' (ID: 20, CIK: 0002057043)
+2025-05-24 23:37:23,913 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for WEN Acquisition Corp (CIK: 0002057043)
+2025-05-24 23:37:24,872 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002057043.json?...
+2025-05-24 23:37:24,874 - root - INFO - ipo_analyzer:859 - Found S-1 filing URL for WEN Acquisition Corp: https://www.sec.gov/Archives/edgar/data/2057043/000121390025037753/ea0231326-04.htm
+2025-05-24 23:37:24,875 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2057043/000121390025037753/ea0231326-04.htm
+2025-05-24 23:37:28,688 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2057043/000121390025037753/ea0231326-04.htm...
+2025-05-24 23:37:28,691 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 4064362) for WEN Acquisition Corp
+2025-05-24 23:37:29,340 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:37:44,780 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for WEN Acquisition Corp
+2025-05-24 23:37:45,372 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: WEN Acquisition Corp (Analysis ID: 20)
+2025-05-24 23:37:53,376 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Columbus Circle Capital Corp. I from source Finnhub
+2025-05-24 23:37:53,547 - root - INFO - ipo_analyzer:779 - IPO 'Columbus Circle Capital Corp. I' not found in DB, creating new entry.
+2025-05-24 23:37:53,965 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Columbus Circle Capital Corp. I' (ID: 21, CIK: 0002056263)
+2025-05-24 23:37:54,053 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for Columbus Circle Capital Corp. I (CIK: 0002056263)
+2025-05-24 23:37:54,994 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002056263.json?...
+2025-05-24 23:37:54,996 - root - INFO - ipo_analyzer:859 - Found S-1 filing URL for Columbus Circle Capital Corp. I: https://www.sec.gov/Archives/edgar/data/2056263/000121390025035663/ea0232327-02.htm
+2025-05-24 23:37:54,997 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2056263/000121390025035663/ea0232327-02.htm
+2025-05-24 23:37:59,239 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2056263/000121390025035663/ea0232327-02.htm...
+2025-05-24 23:37:59,241 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 4532236) for Columbus Circle Capital Corp. I
+2025-05-24 23:37:59,944 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:38:15,339 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Columbus Circle Capital Corp. I
+2025-05-24 23:38:15,926 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Columbus Circle Capital Corp. I (Analysis ID: 21)
+2025-05-24 23:38:23,930 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Voyager Technologies, Inc./DE from source Finnhub
+2025-05-24 23:38:24,099 - root - INFO - ipo_analyzer:779 - IPO 'Voyager Technologies, Inc./DE' not found in DB, creating new entry.
+2025-05-24 23:38:24,519 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Voyager Technologies, Inc./DE' (ID: 22, CIK: 0001788060)
+2025-05-24 23:38:24,606 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for Voyager Technologies, Inc./DE (CIK: 0001788060)
+2025-05-24 23:38:25,555 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0001788060.json?...
+2025-05-24 23:38:25,556 - root - INFO - ipo_analyzer:859 - Found S-1 filing URL for Voyager Technologies, Inc./DE: https://www.sec.gov/Archives/edgar/data/1788060/000162828025026244/voyager-sx1.htm
+2025-05-24 23:38:25,557 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/1788060/000162828025026244/voyager-sx1.htm
+2025-05-24 23:38:29,318 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/1788060/000162828025026244/voyager-sx1.htm...
+2025-05-24 23:38:29,321 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 3888886) for Voyager Technologies, Inc./DE
+2025-05-24 23:38:30,113 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:38:47,199 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Voyager Technologies, Inc./DE
+2025-05-24 23:38:47,784 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Voyager Technologies, Inc./DE (Analysis ID: 22)
+2025-05-24 23:38:55,787 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: World Road Inc. from source Finnhub
+2025-05-24 23:38:55,960 - root - INFO - ipo_analyzer:779 - IPO 'World Road Inc.' not found in DB, creating new entry.
+2025-05-24 23:38:56,379 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'World Road Inc.' (ID: 23, CIK: 0002049348)
+2025-05-24 23:38:56,466 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for World Road Inc. (CIK: 0002049348)
+2025-05-24 23:38:57,456 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002049348.json?...
+2025-05-24 23:38:57,458 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0002049348 matching criteria.
+2025-05-24 23:38:57,714 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002049348.json?...
+2025-05-24 23:38:57,798 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0002049348 matching criteria.
+2025-05-24 23:38:58,048 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002049348.json?...
+2025-05-24 23:38:58,134 - root - INFO - ipo_analyzer:859 - Found F-1 filing URL for World Road Inc.: https://www.sec.gov/Archives/edgar/data/2049348/000182912625003770/worldroad_f1.htm
+2025-05-24 23:38:58,135 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2049348/000182912625003770/worldroad_f1.htm
+2025-05-24 23:39:01,119 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2049348/000182912625003770/worldroad_f1.htm...
+2025-05-24 23:39:01,120 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 2800467) for World Road Inc.
+2025-05-24 23:39:02,077 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:39:18,331 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for World Road Inc.
+2025-05-24 23:39:18,915 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: World Road Inc. (Analysis ID: 23)
+2025-05-24 23:39:26,917 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Zi Yun Dong Fang Ltd from source Finnhub
+2025-05-24 23:39:27,084 - root - INFO - ipo_analyzer:779 - IPO 'Zi Yun Dong Fang Ltd' not found in DB, creating new entry.
+2025-05-24 23:39:27,496 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Zi Yun Dong Fang Ltd' (ID: 24, CIK: 0002053115)
+2025-05-24 23:39:27,582 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for Zi Yun Dong Fang Ltd (CIK: 0002053115)
+2025-05-24 23:39:28,622 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002053115.json?...
+2025-05-24 23:39:28,623 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0002053115 matching criteria.
+2025-05-24 23:39:28,879 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002053115.json?...
+2025-05-24 23:39:28,969 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0002053115 matching criteria.
+2025-05-24 23:39:29,216 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002053115.json?...
+2025-05-24 23:39:29,299 - root - INFO - ipo_analyzer:859 - Found F-1 filing URL for Zi Yun Dong Fang Ltd: https://www.sec.gov/Archives/edgar/data/2053115/000164117225011292/formf-1.htm
+2025-05-24 23:39:29,299 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2053115/000164117225011292/formf-1.htm
+2025-05-24 23:39:32,277 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2053115/000164117225011292/formf-1.htm...
+2025-05-24 23:39:32,280 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 2782027) for Zi Yun Dong Fang Ltd
+2025-05-24 23:39:33,264 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:39:47,795 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Zi Yun Dong Fang Ltd
+2025-05-24 23:39:48,379 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Zi Yun Dong Fang Ltd (Analysis ID: 24)
+2025-05-24 23:39:56,380 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Thayer Ventures Acquisition Corp II from source Finnhub
+2025-05-24 23:39:56,551 - root - INFO - ipo_analyzer:779 - IPO 'Thayer Ventures Acquisition Corp II' not found in DB, creating new entry.
+2025-05-24 23:39:56,973 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Thayer Ventures Acquisition Corp II' (ID: 25, CIK: 0001872228)
+2025-05-24 23:39:57,059 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for Thayer Ventures Acquisition Corp II (CIK: 0001872228)
+2025-05-24 23:39:57,993 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0001872228.json?...
+2025-05-24 23:39:57,995 - root - INFO - ipo_analyzer:859 - Found S-1 filing URL for Thayer Ventures Acquisition Corp II: https://www.sec.gov/Archives/edgar/data/1872228/000119312525054865/d771523ds1.htm
+2025-05-24 23:39:57,996 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/1872228/000119312525054865/d771523ds1.htm
+2025-05-24 23:40:00,081 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/1872228/000119312525054865/d771523ds1.htm...
+2025-05-24 23:40:00,083 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 1555800) for Thayer Ventures Acquisition Corp II
+2025-05-24 23:40:00,519 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:40:16,076 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Thayer Ventures Acquisition Corp II
+2025-05-24 23:40:16,663 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Thayer Ventures Acquisition Corp II (Analysis ID: 25)
+2025-05-24 23:40:24,666 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Renatus Tactical Acquisition Corp I from source Finnhub
+2025-05-24 23:40:24,837 - root - INFO - ipo_analyzer:779 - IPO 'Renatus Tactical Acquisition Corp I' not found in DB, creating new entry.
+2025-05-24 23:40:25,256 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Renatus Tactical Acquisition Corp I' (ID: 26, CIK: 0002035173)
+2025-05-24 23:40:25,343 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for Renatus Tactical Acquisition Corp I (CIK: 0002035173)
+2025-05-24 23:40:26,356 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002035173.json?...
+2025-05-24 23:40:26,358 - root - INFO - ipo_analyzer:859 - Found S-1 filing URL for Renatus Tactical Acquisition Corp I: https://www.sec.gov/Archives/edgar/data/2035173/000114036125008858/ny20045296x1_s1.htm
+2025-05-24 23:40:26,359 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2035173/000114036125008858/ny20045296x1_s1.htm
+2025-05-24 23:40:29,527 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2035173/000114036125008858/ny20045296x1_s1.htm...
+2025-05-24 23:40:29,529 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 2346135) for Renatus Tactical Acquisition Corp I
+2025-05-24 23:40:30,100 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:40:44,190 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Renatus Tactical Acquisition Corp I
+2025-05-24 23:40:44,774 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Renatus Tactical Acquisition Corp I (Analysis ID: 26)
+2025-05-24 23:40:52,777 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Arrive AI Inc. from source Finnhub
+2025-05-24 23:40:52,943 - root - INFO - ipo_analyzer:779 - IPO 'Arrive AI Inc.' not found in DB, creating new entry.
+2025-05-24 23:40:53,363 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Arrive AI Inc.' (ID: 27, CIK: 0001818274)
+2025-05-24 23:40:53,450 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for Arrive AI Inc. (CIK: 0001818274)
+2025-05-24 23:40:54,417 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0001818274.json?...
+2025-05-24 23:40:54,419 - root - INFO - ipo_analyzer:859 - Found S-1 filing URL for Arrive AI Inc.: https://www.sec.gov/Archives/edgar/data/1818274/000149315224051854/forms-1.htm
+2025-05-24 23:40:54,420 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/1818274/000149315224051854/forms-1.htm
+2025-05-24 23:40:58,248 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/1818274/000149315224051854/forms-1.htm...
+2025-05-24 23:40:58,251 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 2790064) for Arrive AI Inc.
+2025-05-24 23:40:59,093 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:41:14,638 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Arrive AI Inc.
+2025-05-24 23:41:15,223 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Arrive AI Inc. (Analysis ID: 27)
+2025-05-24 23:41:23,225 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Hang Feng Technology Innovation Co., Ltd. from source Finnhub
+2025-05-24 23:41:23,400 - root - INFO - ipo_analyzer:779 - IPO 'Hang Feng Technology Innovation Co., Ltd.' not found in DB, creating new entry.
+2025-05-24 23:41:23,817 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Hang Feng Technology Innovation Co., Ltd.' (ID: 28, CIK: 0002060083)
+2025-05-24 23:41:23,904 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for Hang Feng Technology Innovation Co., Ltd. (CIK: 0002060083)
+2025-05-24 23:41:24,865 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002060083.json?...
+2025-05-24 23:41:24,866 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0002060083 matching criteria.
+2025-05-24 23:41:25,124 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002060083.json?...
+2025-05-24 23:41:25,211 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0002060083 matching criteria.
+2025-05-24 23:41:25,466 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002060083.json?...
+2025-05-24 23:41:25,550 - root - INFO - ipo_analyzer:859 - Found F-1 filing URL for Hang Feng Technology Innovation Co., Ltd.: https://www.sec.gov/Archives/edgar/data/2060083/000121390025043480/ea0233710-06.htm
+2025-05-24 23:41:25,552 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2060083/000121390025043480/ea0233710-06.htm
+2025-05-24 23:41:31,166 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2060083/000121390025043480/ea0233710-06.htm...
+2025-05-24 23:41:31,169 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 5421133) for Hang Feng Technology Innovation Co., Ltd.
+2025-05-24 23:41:31,954 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:41:48,740 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Hang Feng Technology Innovation Co., Ltd.
+2025-05-24 23:41:49,323 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Hang Feng Technology Innovation Co., Ltd. (Analysis ID: 28)
+2025-05-24 23:41:57,327 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Thrive Capital Group Co., LTD from source Finnhub
+2025-05-24 23:41:57,496 - root - INFO - ipo_analyzer:779 - IPO 'Thrive Capital Group Co., LTD' not found in DB, creating new entry.
+2025-05-24 23:41:57,918 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Thrive Capital Group Co., LTD' (ID: 29, CIK: 0002058349)
+2025-05-24 23:41:58,003 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for Thrive Capital Group Co., LTD (CIK: 0002058349)
+2025-05-24 23:41:58,962 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002058349.json?...
+2025-05-24 23:41:58,964 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0002058349 matching criteria.
+2025-05-24 23:41:59,220 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002058349.json?...
+2025-05-24 23:41:59,306 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0002058349 matching criteria.
+2025-05-24 23:41:59,557 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002058349.json?...
+2025-05-24 23:41:59,642 - root - INFO - ipo_analyzer:859 - Found F-1 filing URL for Thrive Capital Group Co., LTD: https://www.sec.gov/Archives/edgar/data/2058349/000121390025043926/ea0227995-04.htm
+2025-05-24 23:41:59,643 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2058349/000121390025043926/ea0227995-04.htm
+2025-05-24 23:42:03,797 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2058349/000121390025043926/ea0227995-04.htm...
+2025-05-24 23:42:03,800 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 4221508) for Thrive Capital Group Co., LTD
+2025-05-24 23:42:04,410 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:42:20,154 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Thrive Capital Group Co., LTD
+2025-05-24 23:42:20,749 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Thrive Capital Group Co., LTD (Analysis ID: 29)
+2025-05-24 23:42:28,753 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: CTW Cayman from source Finnhub
+2025-05-24 23:42:28,926 - root - INFO - ipo_analyzer:779 - IPO 'CTW Cayman' not found in DB, creating new entry.
+2025-05-24 23:42:29,346 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'CTW Cayman' (ID: 30, CIK: 0002047148)
+2025-05-24 23:42:29,431 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for CTW Cayman (CIK: 0002047148)
+2025-05-24 23:42:30,381 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002047148.json?...
+2025-05-24 23:42:30,383 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0002047148 matching criteria.
+2025-05-24 23:42:30,637 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002047148.json?...
+2025-05-24 23:42:30,723 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0002047148 matching criteria.
+2025-05-24 23:42:30,974 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002047148.json?...
+2025-05-24 23:42:31,058 - root - INFO - ipo_analyzer:859 - Found F-1 filing URL for CTW Cayman: https://www.sec.gov/Archives/edgar/data/2047148/000121390025044061/ea0229974-05.htm
+2025-05-24 23:42:31,059 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2047148/000121390025044061/ea0229974-05.htm
+2025-05-24 23:42:37,875 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2047148/000121390025044061/ea0229974-05.htm...
+2025-05-24 23:42:37,879 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 7538291) for CTW Cayman
+2025-05-24 23:42:38,913 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:42:54,700 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for CTW Cayman
+2025-05-24 23:42:55,279 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: CTW Cayman (Analysis ID: 30)
+2025-05-24 23:43:03,280 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Linkhome Holdings Inc. from source Finnhub
+2025-05-24 23:43:03,449 - root - INFO - ipo_analyzer:779 - IPO 'Linkhome Holdings Inc.' not found in DB, creating new entry.
+2025-05-24 23:43:03,864 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Linkhome Holdings Inc.' (ID: 31, CIK: 0002017758)
+2025-05-24 23:43:03,949 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for Linkhome Holdings Inc. (CIK: 0002017758)
+2025-05-24 23:43:04,884 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002017758.json?...
+2025-05-24 23:43:04,885 - root - INFO - ipo_analyzer:859 - Found S-1 filing URL for Linkhome Holdings Inc.: https://www.sec.gov/Archives/edgar/data/2017758/000121390024054736/ea0203553-04.htm
+2025-05-24 23:43:04,885 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2017758/000121390024054736/ea0203553-04.htm
+2025-05-24 23:43:09,682 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2017758/000121390024054736/ea0203553-04.htm...
+2025-05-24 23:43:09,685 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 4853561) for Linkhome Holdings Inc.
+2025-05-24 23:43:10,384 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:43:25,376 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Linkhome Holdings Inc.
+2025-05-24 23:43:25,959 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Linkhome Holdings Inc. (Analysis ID: 31)
+2025-05-24 23:43:33,961 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Churchill Capital Corp X/Cayman from source Finnhub
+2025-05-24 23:43:34,128 - root - INFO - ipo_analyzer:779 - IPO 'Churchill Capital Corp X/Cayman' not found in DB, creating new entry.
+2025-05-24 23:43:34,547 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Churchill Capital Corp X/Cayman' (ID: 32, CIK: 0002007825)
+2025-05-24 23:43:34,631 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for Churchill Capital Corp X/Cayman (CIK: 0002007825)
+2025-05-24 23:43:35,544 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002007825.json?...
+2025-05-24 23:43:35,545 - root - INFO - ipo_analyzer:859 - Found S-1 filing URL for Churchill Capital Corp X/Cayman: https://www.sec.gov/Archives/edgar/data/2007825/000119312525100727/d698385ds1.htm
+2025-05-24 23:43:35,545 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2007825/000119312525100727/d698385ds1.htm
+2025-05-24 23:43:38,193 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2007825/000119312525100727/d698385ds1.htm...
+2025-05-24 23:43:38,195 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 1896916) for Churchill Capital Corp X/Cayman
+2025-05-24 23:43:38,843 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:43:54,471 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Churchill Capital Corp X/Cayman
+2025-05-24 23:43:55,059 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Churchill Capital Corp X/Cayman (Analysis ID: 32)
+2025-05-24 23:44:03,061 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Antalpha Platform Holding Co from source Finnhub
+2025-05-24 23:44:03,229 - root - INFO - ipo_analyzer:779 - IPO 'Antalpha Platform Holding Co' not found in DB, creating new entry.
+2025-05-24 23:44:03,645 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Antalpha Platform Holding Co' (ID: 33, CIK: 0002044255)
+2025-05-24 23:44:03,729 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for Antalpha Platform Holding Co (CIK: 0002044255)
+2025-05-24 23:44:04,665 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002044255.json?...
+2025-05-24 23:44:04,665 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0002044255 matching criteria.
+2025-05-24 23:44:04,918 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002044255.json?...
+2025-05-24 23:44:05,005 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0002044255 matching criteria.
+2025-05-24 23:44:05,253 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002044255.json?...
+2025-05-24 23:44:05,339 - root - INFO - ipo_analyzer:859 - Found F-1 filing URL for Antalpha Platform Holding Co: https://www.sec.gov/Archives/edgar/data/2044255/000119312525085747/d849162df1.htm
+2025-05-24 23:44:05,340 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2044255/000119312525085747/d849162df1.htm
+2025-05-24 23:44:07,900 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2044255/000119312525085747/d849162df1.htm...
+2025-05-24 23:44:07,901 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 2141759) for Antalpha Platform Holding Co
+2025-05-24 23:44:08,832 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:44:23,698 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Antalpha Platform Holding Co
+2025-05-24 23:44:24,279 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Antalpha Platform Holding Co (Analysis ID: 33)
+2025-05-24 23:44:32,281 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: eToro Group Ltd. from source Finnhub
+2025-05-24 23:44:32,448 - root - INFO - ipo_analyzer:779 - IPO 'eToro Group Ltd.' not found in DB, creating new entry.
+2025-05-24 23:44:32,864 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'eToro Group Ltd.' (ID: 34, CIK: 0001493318)
+2025-05-24 23:44:32,949 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for eToro Group Ltd. (CIK: 0001493318)
+2025-05-24 23:44:33,888 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0001493318.json?...
+2025-05-24 23:44:33,889 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0001493318 matching criteria.
+2025-05-24 23:44:34,143 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0001493318.json?...
+2025-05-24 23:44:34,236 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0001493318 matching criteria.
+2025-05-24 23:44:34,496 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0001493318.json?...
+2025-05-24 23:44:34,582 - root - INFO - ipo_analyzer:859 - Found F-1 filing URL for eToro Group Ltd.: https://www.sec.gov/Archives/edgar/data/1493318/000101376225001589/ea0223534-08.htm
+2025-05-24 23:44:34,583 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/1493318/000101376225001589/ea0223534-08.htm
+2025-05-24 23:44:41,486 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/1493318/000101376225001589/ea0223534-08.htm...
+2025-05-24 23:44:41,495 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 8512546) for eToro Group Ltd.
+2025-05-24 23:44:43,073 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:44:58,061 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for eToro Group Ltd.
+2025-05-24 23:44:58,942 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: eToro Group Ltd. (Analysis ID: 34)
+2025-05-24 23:45:06,946 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Charming Medical Ltd from source Finnhub
+2025-05-24 23:45:07,124 - root - INFO - ipo_analyzer:779 - IPO 'Charming Medical Ltd' not found in DB, creating new entry.
+2025-05-24 23:45:07,546 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Charming Medical Ltd' (ID: 35, CIK: 0002035992)
+2025-05-24 23:45:07,632 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for Charming Medical Ltd (CIK: 0002035992)
+2025-05-24 23:45:08,579 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002035992.json?...
+2025-05-24 23:45:08,580 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0002035992 matching criteria.
+2025-05-24 23:45:08,829 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002035992.json?...
+2025-05-24 23:45:08,915 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0002035992 matching criteria.
+2025-05-24 23:45:09,164 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002035992.json?...
+2025-05-24 23:45:09,253 - root - INFO - ipo_analyzer:859 - Found F-1 filing URL for Charming Medical Ltd: https://www.sec.gov/Archives/edgar/data/2035992/000121390025043185/ea0213012-06.htm
+2025-05-24 23:45:09,254 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2035992/000121390025043185/ea0213012-06.htm
+2025-05-24 23:45:15,520 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2035992/000121390025043185/ea0213012-06.htm...
+2025-05-24 23:45:15,521 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 6951619) for Charming Medical Ltd
+2025-05-24 23:45:16,523 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:45:33,680 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Charming Medical Ltd
+2025-05-24 23:45:34,279 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Charming Medical Ltd (Analysis ID: 35)
+2025-05-24 23:45:42,282 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Axiom Intelligence Acquisition Corp 1 from source Finnhub
+2025-05-24 23:45:42,448 - root - INFO - ipo_analyzer:779 - IPO 'Axiom Intelligence Acquisition Corp 1' not found in DB, creating new entry.
+2025-05-24 23:45:42,867 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Axiom Intelligence Acquisition Corp 1' (ID: 36, CIK: None)
+2025-05-24 23:45:42,951 - root - WARNING - ipo_analyzer:846 - No CIK found via symbol AXINU for IPO 'Axiom Intelligence Acquisition Corp 1'.
+2025-05-24 23:45:58,502 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Axiom Intelligence Acquisition Corp 1
+2025-05-24 23:45:59,010 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Axiom Intelligence Acquisition Corp 1 (Analysis ID: 36)
+2025-05-24 23:46:07,011 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Blue Acquisition Corp/Cayman from source Finnhub
+2025-05-24 23:46:07,191 - root - INFO - ipo_analyzer:779 - IPO 'Blue Acquisition Corp/Cayman' not found in DB, creating new entry.
+2025-05-24 23:46:07,602 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Blue Acquisition Corp/Cayman' (ID: 37, CIK: None)
+2025-05-24 23:46:07,687 - root - WARNING - ipo_analyzer:846 - No CIK found via symbol BACCU for IPO 'Blue Acquisition Corp/Cayman'.
+2025-05-24 23:46:23,997 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Blue Acquisition Corp/Cayman
+2025-05-24 23:46:24,500 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Blue Acquisition Corp/Cayman (Analysis ID: 37)
+2025-05-24 23:46:32,502 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Perimeter Acquisition Corp. I from source Finnhub
+2025-05-24 23:46:32,672 - root - INFO - ipo_analyzer:779 - IPO 'Perimeter Acquisition Corp. I' not found in DB, creating new entry.
+2025-05-24 23:46:33,093 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Perimeter Acquisition Corp. I' (ID: 38, CIK: 0002061473)
+2025-05-24 23:46:33,177 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for Perimeter Acquisition Corp. I (CIK: 0002061473)
+2025-05-24 23:46:34,200 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002061473.json?...
+2025-05-24 23:46:34,200 - root - INFO - ipo_analyzer:859 - Found S-1 filing URL for Perimeter Acquisition Corp. I: https://www.sec.gov/Archives/edgar/data/2061473/000164117225000074/forms-1.htm
+2025-05-24 23:46:34,201 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2061473/000164117225000074/forms-1.htm
+2025-05-24 23:46:37,068 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2061473/000164117225000074/forms-1.htm...
+2025-05-24 23:46:37,068 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 2639976) for Perimeter Acquisition Corp. I
+2025-05-24 23:46:37,785 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:46:53,203 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Perimeter Acquisition Corp. I
+2025-05-24 23:46:53,784 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Perimeter Acquisition Corp. I (Analysis ID: 38)
+2025-05-24 23:47:01,787 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: OMS Energy Technologies Inc. from source Finnhub
+2025-05-24 23:47:01,955 - root - INFO - ipo_analyzer:779 - IPO 'OMS Energy Technologies Inc.' not found in DB, creating new entry.
+2025-05-24 23:47:02,370 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'OMS Energy Technologies Inc.' (ID: 39, CIK: 0002012219)
+2025-05-24 23:47:02,456 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for OMS Energy Technologies Inc. (CIK: 0002012219)
+2025-05-24 23:47:03,368 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002012219.json?...
+2025-05-24 23:47:03,369 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0002012219 matching criteria.
+2025-05-24 23:47:03,622 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002012219.json?...
+2025-05-24 23:47:03,707 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0002012219 matching criteria.
+2025-05-24 23:47:03,956 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002012219.json?...
+2025-05-24 23:47:04,042 - root - INFO - ipo_analyzer:859 - Found F-1 filing URL for OMS Energy Technologies Inc.: https://www.sec.gov/Archives/edgar/data/2012219/000121390024094183/ea0200016-06.htm
+2025-05-24 23:47:04,042 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2012219/000121390024094183/ea0200016-06.htm
+2025-05-24 23:47:11,401 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2012219/000121390024094183/ea0200016-06.htm...
+2025-05-24 23:47:11,403 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 9481144) for OMS Energy Technologies Inc.
+2025-05-24 23:47:12,741 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:47:29,118 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for OMS Energy Technologies Inc.
+2025-05-24 23:47:29,706 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: OMS Energy Technologies Inc. (Analysis ID: 39)
+2025-05-24 23:47:37,707 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: Chime Financial, Inc. from source Finnhub
+2025-05-24 23:47:37,874 - root - INFO - ipo_analyzer:779 - IPO 'Chime Financial, Inc.' not found in DB, creating new entry.
+2025-05-24 23:47:38,290 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'Chime Financial, Inc.' (ID: 40, CIK: 0001795586)
+2025-05-24 23:47:38,374 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for Chime Financial, Inc. (CIK: 0001795586)
+2025-05-24 23:47:39,308 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0001795586.json?...
+2025-05-24 23:47:39,309 - root - INFO - ipo_analyzer:859 - Found S-1 filing URL for Chime Financial, Inc.: https://www.sec.gov/Archives/edgar/data/1795586/000162828025025059/chimefinancialinc-sx1wq1da.htm
+2025-05-24 23:47:39,309 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/1795586/000162828025025059/chimefinancialinc-sx1wq1da.htm
+2025-05-24 23:47:43,848 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/1795586/000162828025025059/chimefinancialinc-sx1...
+2025-05-24 23:47:43,849 - root - INFO - ipo_analyzer:870 - Fetched S-1/F-1 text content (length: 5080002) for Chime Financial, Inc.
+2025-05-24 23:47:44,895 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-24 23:48:00,928 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for Chime Financial, Inc.
+2025-05-24 23:48:01,516 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: Chime Financial, Inc. (Analysis ID: 40)
+2025-05-24 23:48:09,520 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: JENA ACQUISITION CORPORARTION II from source Finnhub
+2025-05-24 23:48:09,690 - root - INFO - ipo_analyzer:779 - IPO 'JENA ACQUISITION CORPORARTION II' not found in DB, creating new entry.
+2025-05-24 23:48:10,106 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'JENA ACQUISITION CORPORARTION II' (ID: 41, CIK: None)
+2025-05-24 23:48:10,192 - root - WARNING - ipo_analyzer:846 - No CIK found via symbol JENAU for IPO 'JENA ACQUISITION CORPORARTION II'.
+2025-05-24 23:48:24,981 - root - INFO - ipo_analyzer:1026 - Creating new IPO analysis entry for JENA ACQUISITION CORPORARTION II
+2025-05-24 23:48:25,485 - root - INFO - ipo_analyzer:1038 - Successfully analyzed and saved IPO: JENA ACQUISITION CORPORARTION II (Analysis ID: 41)
+2025-05-24 23:48:49,488 - root - INFO - ipo_analyzer:884 - Starting analysis for IPO: EGH Acquisition Corp. from source Finnhub
+2025-05-24 23:48:49,655 - root - INFO - ipo_analyzer:779 - IPO 'EGH Acquisition Corp.' not found in DB, creating new entry.
+2025-05-24 23:48:50,067 - root - INFO - ipo_analyzer:797 - Created IPO entry for 'EGH Acquisition Corp.' (ID: 42, CIK: 0002052547)
+2025-05-24 23:48:50,152 - root - INFO - ipo_analyzer:852 - Attempting to fetch S-1/F-1 filing for EGH Acquisition Corp. (CIK: 0002052547)
+2025-05-24 23:48:51,375 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002052547.json?...
+2025-05-24 23:48:51,377 - root - INFO - ipo_analyzer:859 - Found S-1 filing URL for EGH Acquisition Corp.: https://www.sec.gov/Archives/edgar/data/2052547/000110465925035524/tm255377-6_drsa.htm
+2025-05-24 23:48:51,378 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2052547/000110465925035524/tm255377-6_drsa.htm
