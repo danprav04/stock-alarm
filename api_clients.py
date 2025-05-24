@@ -232,7 +232,7 @@ class GeminiAPIClient:
         return api_key, current_retry_for_this_key
 
 
-    def generate_text(self, prompt, model="gemini-pro"):
+    def generate_text(self, prompt, model="gemini-2.5-flash-preview-05-20"):
         max_attempts_per_key = API_RETRY_ATTEMPTS
         total_keys = len(GOOGLE_API_KEYS)
         if total_keys == 0:
@@ -248,7 +248,7 @@ class GeminiAPIClient:
                 "contents": [{"parts": [{"text": prompt}]}],
                 "generationConfig": {
                     "temperature": 0.7,
-                    "maxOutputTokens": 8192, # Adjusted from 65536, check API limits for gemini-pro
+                    "maxOutputTokens": 65536,  # Adjusted from 65536, check API limits for gemini-pro
                 },
                 "safetySettings": [
                     {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
