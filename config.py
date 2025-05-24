@@ -38,7 +38,7 @@ LOG_LEVEL = "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 API_REQUEST_TIMEOUT = 45  # seconds, increased for potentially larger data
 API_RETRY_ATTEMPTS = 3
 API_RETRY_DELAY = 10  # seconds, increased
-MAX_GEMINI_TEXT_LENGTH = 15000 # Max characters to send to Gemini for summaries to avoid hitting limits
+MAX_GEMINI_TEXT_LENGTH = 150000 # Max characters to send to Gemini for summaries to avoid hitting limits
 
 # Analysis Settings
 MAX_NEWS_ARTICLES_PER_QUERY = 10
@@ -48,8 +48,8 @@ STOCK_FINANCIAL_YEARS = 7 # Number of years for financial statement analysis
 IPO_ANALYSIS_REANALYZE_DAYS = 7 # Re-analyze IPO if last analysis is older than this
 
 # Path to store cached API responses
-CACHE_DIR = "api_cache" # Currently using DB cache, this is for potential file cache fallback
-CACHE_EXPIRY_SECONDS = 3600 * 6 # 6 hours for general data
+CACHE_DIR = "api_cache"  # Currently using DB cache, this is for potential file cache fallback
+CACHE_EXPIRY_SECONDS = 3600 * 6  # 6 hours for general data
 
 # DCF Analysis Defaults (Stock Analyzer)
 DEFAULT_DISCOUNT_RATE = 0.09  # WACC estimate
@@ -57,7 +57,7 @@ DEFAULT_PERPETUAL_GROWTH_RATE = 0.025
 DEFAULT_FCF_PROJECTION_YEARS = 5
 
 # News Analysis
-NEWS_ARTICLE_MAX_LENGTH_FOR_GEMINI = 25000 # Max characters of full news article to send to Gemini
+NEWS_ARTICLE_MAX_LENGTH_FOR_GEMINI = 250000  # Max characters of full news article to send to Gemini
 
 # IPO Analysis
 # Define keywords to identify sections in S-1/F-1 filings (very basic)
@@ -67,8 +67,8 @@ S1_KEY_SECTIONS = {
     "mda": ["Item 7.", "Management's Discussion and Analysis"],
     "financial_statements": ["Item 8.", "Financial Statements and Supplementary Data"]
 }
-MAX_S1_SECTION_LENGTH_FOR_GEMINI = 5000 # Max characters per S-1 section to send to Gemini
+MAX_S1_SECTION_LENGTH_FOR_GEMINI = 200000  # Max characters per S-1 section to send to Gemini
 
 # Stock Analysis (10-K sections, similar to S-1)
-TEN_K_KEY_SECTIONS = S1_KEY_SECTIONS # Often similar item numbers
+TEN_K_KEY_SECTIONS = S1_KEY_SECTIONS
 MAX_10K_SECTION_LENGTH_FOR_GEMINI = MAX_S1_SECTION_LENGTH_FOR_GEMINI
