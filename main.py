@@ -84,12 +84,12 @@ def generate_and_send_todays_email_summary():
 
         if email_message:
             # In a real scenario, uncomment to send. Ensure SMTP settings in config.py are correct.
-            # email_gen.send_email(email_message)
-            logger.info("Email summary created. Sending is commented out in main.py for safety.")
+            email_gen.send_email(email_message)
+            # logger.info("Email summary created. Sending is commented out in main.py for safety.")
             # For testing, save to file:
-            with open(f"daily_summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html", "w", encoding="utf-8") as f:
-                f.write(email_message.get_payload(0).get_payload(decode=True).decode())  # type: ignore
-            logger.info("Email HTML saved to a file.")
+            # with open(f"daily_summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html", "w", encoding="utf-8") as f:
+            #     f.write(email_message.get_payload(0).get_payload(decode=True).decode())  # type: ignore
+            # logger.info("Email HTML saved to a file.")
         else:
             logger.error("Failed to create the email message.")
 
