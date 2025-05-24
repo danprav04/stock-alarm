@@ -16,7 +16,7 @@ from config import (
 )
 
 # Define max workers for ThreadPoolExecutor
-MAX_IPO_ANALYSIS_WORKERS = 5  # Adjustable
+MAX_IPO_ANALYSIS_WORKERS = 1  # Adjustable
 
 
 class IPOAnalyzer:

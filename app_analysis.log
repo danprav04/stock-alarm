@@ -1293,3 +1293,340 @@ Registration Ordinance (Chapter 310 of the Laws of Hong Kong) (th...'
 2025-05-25 00:36:03,568 - root - INFO - ipo_analyzer:219 - Task: Starting analysis for IPO: Ultra High Point Holdings Ltd from source Finnhub
 2025-05-25 00:36:04,408 - root - INFO - ipo_analyzer:128 - IPO 'Ultra High Point Holdings Ltd' not found in DB, creating new entry.
 2025-05-25 00:36:04,443 - root - INFO - ipo_analyzer:296 - Task: Saved IPO analysis for FIGX Capital Acquisition Corp. (ID: 13)
+2025-05-25 00:36:04,528 - root - INFO - ipo_analyzer:219 - Task: Starting analysis for IPO: K-TECH SOLUTIONS CO LTD from source Finnhub
+2025-05-25 00:36:04,825 - root - INFO - ipo_analyzer:143 - Created IPO entry for 'Ultra High Point Holdings Ltd' (ID: 17, CIK: None)
+2025-05-25 00:36:05,362 - root - INFO - ipo_analyzer:128 - IPO 'K-TECH SOLUTIONS CO LTD' not found in DB, creating new entry.
+2025-05-25 00:36:05,411 - root - WARNING - ipo_analyzer:186 - No CIK via symbol UHP for 'Ultra High Point Holdings Ltd'.
+2025-05-25 00:36:05,783 - root - INFO - ipo_analyzer:143 - Created IPO entry for 'K-TECH SOLUTIONS CO LTD' (ID: 18, CIK: 0002049187)
+2025-05-25 00:36:05,868 - root - INFO - ipo_analyzer:191 - Attempting to fetch S-1/F-1 for K-TECH SOLUTIONS CO LTD (CIK: 0002049187)
+2025-05-25 00:36:06,817 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002049187.json?...
+2025-05-25 00:36:06,819 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0002049187 matching criteria.
+2025-05-25 00:36:07,573 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002049187.json?...
+2025-05-25 00:36:07,659 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0002049187 matching criteria.
+2025-05-25 00:36:07,983 - root - INFO - ipo_analyzer:296 - Task: Saved IPO analysis for OFA Group (ID: 14)
+2025-05-25 00:36:08,069 - root - INFO - ipo_analyzer:219 - Task: Starting analysis for IPO: Fitness Champs Holdings Ltd from source Finnhub
+2025-05-25 00:36:08,413 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002049187.json?...
+2025-05-25 00:36:08,477 - root - INFO - ipo_analyzer:296 - Task: Saved IPO analysis for INFINT Acquisition Corp 2 (ID: 15)
+2025-05-25 00:36:08,563 - root - INFO - ipo_analyzer:219 - Task: Starting analysis for IPO: WEN Acquisition Corp from source Finnhub
+2025-05-25 00:36:08,833 - root - INFO - ipo_analyzer:296 - Task: Saved IPO analysis for Jefferson Capital, Inc. / DE (ID: 16)
+2025-05-25 00:36:08,918 - root - INFO - ipo_analyzer:128 - IPO 'Fitness Champs Holdings Ltd' not found in DB, creating new entry.
+2025-05-25 00:36:08,919 - root - INFO - ipo_analyzer:219 - Task: Starting analysis for IPO: Columbus Circle Capital Corp. I from source Finnhub
+2025-05-25 00:36:09,000 - root - INFO - ipo_analyzer:197 - Found F-1 URL for K-TECH SOLUTIONS CO LTD: https://www.sec.gov/Archives/edgar/data/2049187/000121390025045262/ea0223235-08.htm
+2025-05-25 00:36:09,007 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2049187/000121390025045262/ea0223235-08.htm
+2025-05-25 00:36:09,371 - root - INFO - ipo_analyzer:143 - Created IPO entry for 'Fitness Champs Holdings Ltd' (ID: 19, CIK: 0002023796)
+2025-05-25 00:36:09,420 - root - INFO - ipo_analyzer:128 - IPO 'WEN Acquisition Corp' not found in DB, creating new entry.
+2025-05-25 00:36:09,457 - root - INFO - ipo_analyzer:191 - Attempting to fetch S-1/F-1 for Fitness Champs Holdings Ltd (CIK: 0002023796)
+2025-05-25 00:36:09,800 - root - INFO - ipo_analyzer:128 - IPO 'Columbus Circle Capital Corp. I' not found in DB, creating new entry.
+2025-05-25 00:36:09,838 - root - INFO - ipo_analyzer:143 - Created IPO entry for 'WEN Acquisition Corp' (ID: 20, CIK: 0002057043)
+2025-05-25 00:36:09,922 - root - INFO - ipo_analyzer:191 - Attempting to fetch S-1/F-1 for WEN Acquisition Corp (CIK: 0002057043)
+2025-05-25 00:36:10,219 - root - INFO - ipo_analyzer:143 - Created IPO entry for 'Columbus Circle Capital Corp. I' (ID: 21, CIK: 0002056263)
+2025-05-25 00:36:10,303 - root - INFO - ipo_analyzer:191 - Attempting to fetch S-1/F-1 for Columbus Circle Capital Corp. I (CIK: 0002056263)
+2025-05-25 00:36:10,328 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002023796.json?...
+2025-05-25 00:36:10,328 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0002023796 matching criteria.
+2025-05-25 00:36:10,809 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002057043.json?...
+2025-05-25 00:36:11,092 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002023796.json?...
+2025-05-25 00:36:11,181 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0002023796 matching criteria.
+2025-05-25 00:36:11,194 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002056263.json?...
+2025-05-25 00:36:11,310 - root - INFO - ipo_analyzer:197 - Found S-1 URL for WEN Acquisition Corp: https://www.sec.gov/Archives/edgar/data/2057043/000121390025037753/ea0231326-04.htm
+2025-05-25 00:36:11,310 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2057043/000121390025037753/ea0231326-04.htm
+2025-05-25 00:36:11,697 - root - INFO - ipo_analyzer:197 - Found S-1 URL for Columbus Circle Capital Corp. I: https://www.sec.gov/Archives/edgar/data/2056263/000121390025035663/ea0232327-02.htm
+2025-05-25 00:36:11,697 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2056263/000121390025035663/ea0232327-02.htm
+2025-05-25 00:36:11,946 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002023796.json?...
+2025-05-25 00:36:12,533 - root - INFO - ipo_analyzer:197 - Found F-1 URL for Fitness Champs Holdings Ltd: https://www.sec.gov/Archives/edgar/data/2023796/000164117225011509/formf-1.htm
+2025-05-25 00:36:12,533 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2023796/000164117225011509/formf-1.htm
+2025-05-25 00:36:18,370 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2023796/000164117225011509/formf-1.htm...
+2025-05-25 00:36:18,372 - root - INFO - ipo_analyzer:207 - Fetched S-1/F-1 text (len: 2566360) for Fitness Champs Holdings Ltd
+2025-05-25 00:36:19,219 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-25 00:36:19,457 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 1/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'IPO: Fitness Champs Holdings Ltd (FCHL). Business: S
+STRATEGIES AND FUTURE PLANS
+
+Our
+principal obje...'
+2025-05-25 00:36:21,087 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2049187/000121390025045262/ea0223235-08.htm...
+2025-05-25 00:36:21,091 - root - INFO - ipo_analyzer:207 - Fetched S-1/F-1 text (len: 6686376) for K-TECH SOLUTIONS CO LTD
+2025-05-25 00:36:21,489 - root - INFO - ipo_analyzer:296 - Task: Saved IPO analysis for Ultra High Point Holdings Ltd (ID: 17)
+2025-05-25 00:36:21,575 - root - INFO - ipo_analyzer:219 - Task: Starting analysis for IPO: Voyager Technologies, Inc./DE from source Finnhub
+2025-05-25 00:36:21,734 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2057043/000121390025037753/ea0231326-04.htm...
+2025-05-25 00:36:21,736 - root - INFO - ipo_analyzer:207 - Fetched S-1/F-1 text (len: 4064362) for WEN Acquisition Corp
+2025-05-25 00:36:22,415 - root - INFO - ipo_analyzer:128 - IPO 'Voyager Technologies, Inc./DE' not found in DB, creating new entry.
+2025-05-25 00:36:22,521 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-25 00:36:22,904 - root - INFO - ipo_analyzer:143 - Created IPO entry for 'Voyager Technologies, Inc./DE' (ID: 22, CIK: 0001788060)
+2025-05-25 00:36:23,009 - root - INFO - ipo_analyzer:191 - Attempting to fetch S-1/F-1 for Voyager Technologies, Inc./DE (CIK: 0001788060)
+2025-05-25 00:36:23,009 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-25 00:36:23,062 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 1/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'IPO: K-TECH SOLUTIONS CO LTD (KMRK). Business: S
+
+OVERVIEW
+
+We are principally engaged in the design...'
+2025-05-25 00:36:23,521 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 1/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'IPO: WEN Acquisition Corp (WENNU). Business: s 
+combination
+
+We have until the date that is 24
+
+mont...'
+2025-05-25 00:36:23,915 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0001788060.json?...
+2025-05-25 00:36:24,238 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2056263/000121390025035663/ea0232327-02.htm...
+2025-05-25 00:36:24,240 - root - INFO - ipo_analyzer:207 - Fetched S-1/F-1 text (len: 4532236) for Columbus Circle Capital Corp. I
+2025-05-25 00:36:24,418 - root - INFO - ipo_analyzer:197 - Found S-1 URL for Voyager Technologies, Inc./DE: https://www.sec.gov/Archives/edgar/data/1788060/000162828025026244/voyager-sx1.htm
+2025-05-25 00:36:24,418 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/1788060/000162828025026244/voyager-sx1.htm
+2025-05-25 00:36:24,956 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-25 00:36:31,021 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/1788060/000162828025026244/voyager-sx1.htm...
+2025-05-25 00:36:31,024 - root - INFO - ipo_analyzer:207 - Fetched S-1/F-1 text (len: 3888886) for Voyager Technologies, Inc./DE
+2025-05-25 00:36:31,950 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-25 00:36:43,419 - root - INFO - ipo_analyzer:296 - Task: Saved IPO analysis for Columbus Circle Capital Corp. I (ID: 18)
+2025-05-25 00:36:43,508 - root - INFO - ipo_analyzer:219 - Task: Starting analysis for IPO: World Road Inc. from source Finnhub
+2025-05-25 00:36:44,346 - root - INFO - ipo_analyzer:128 - IPO 'World Road Inc.' not found in DB, creating new entry.
+2025-05-25 00:36:44,769 - root - INFO - ipo_analyzer:143 - Created IPO entry for 'World Road Inc.' (ID: 23, CIK: 0002049348)
+2025-05-25 00:36:44,853 - root - INFO - ipo_analyzer:191 - Attempting to fetch S-1/F-1 for World Road Inc. (CIK: 0002049348)
+2025-05-25 00:36:45,781 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002049348.json?...
+2025-05-25 00:36:45,783 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0002049348 matching criteria.
+2025-05-25 00:36:46,537 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002049348.json?...
+2025-05-25 00:36:46,626 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0002049348 matching criteria.
+2025-05-25 00:36:47,379 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002049348.json?...
+2025-05-25 00:36:47,967 - root - INFO - ipo_analyzer:197 - Found F-1 URL for World Road Inc.: https://www.sec.gov/Archives/edgar/data/2049348/000182912625003770/worldroad_f1.htm
+2025-05-25 00:36:47,968 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2049348/000182912625003770/worldroad_f1.htm
+2025-05-25 00:36:51,758 - root - INFO - ipo_analyzer:296 - Task: Saved IPO analysis for Voyager Technologies, Inc./DE (ID: 19)
+2025-05-25 00:36:51,848 - root - INFO - ipo_analyzer:219 - Task: Starting analysis for IPO: Zi Yun Dong Fang Ltd from source Finnhub
+2025-05-25 00:36:52,357 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2049348/000182912625003770/worldroad_f1.htm...
+2025-05-25 00:36:52,360 - root - INFO - ipo_analyzer:207 - Fetched S-1/F-1 text (len: 2800467) for World Road Inc.
+2025-05-25 00:36:52,758 - root - INFO - ipo_analyzer:128 - IPO 'Zi Yun Dong Fang Ltd' not found in DB, creating new entry.
+2025-05-25 00:36:53,215 - root - INFO - ipo_analyzer:143 - Created IPO entry for 'Zi Yun Dong Fang Ltd' (ID: 24, CIK: 0002053115)
+2025-05-25 00:36:53,314 - root - INFO - ipo_analyzer:191 - Attempting to fetch S-1/F-1 for Zi Yun Dong Fang Ltd (CIK: 0002053115)
+2025-05-25 00:36:53,383 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-25 00:36:53,929 - root - INFO - ipo_analyzer:296 - Task: Saved IPO analysis for WEN Acquisition Corp (ID: 20)
+2025-05-25 00:36:54,016 - root - INFO - ipo_analyzer:219 - Task: Starting analysis for IPO: Thayer Ventures Acquisition Corp II from source Finnhub
+2025-05-25 00:36:54,228 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002053115.json?...
+2025-05-25 00:36:54,230 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0002053115 matching criteria.
+2025-05-25 00:36:54,235 - root - INFO - ipo_analyzer:296 - Task: Saved IPO analysis for K-TECH SOLUTIONS CO LTD (ID: 21)
+2025-05-25 00:36:54,323 - root - INFO - ipo_analyzer:219 - Task: Starting analysis for IPO: Renatus Tactical Acquisition Corp I from source Finnhub
+2025-05-25 00:36:54,853 - root - INFO - ipo_analyzer:128 - IPO 'Thayer Ventures Acquisition Corp II' not found in DB, creating new entry.
+2025-05-25 00:36:54,905 - root - INFO - ipo_analyzer:296 - Task: Saved IPO analysis for Fitness Champs Holdings Ltd (ID: 22)
+2025-05-25 00:36:54,981 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002053115.json?...
+2025-05-25 00:36:54,991 - root - INFO - ipo_analyzer:219 - Task: Starting analysis for IPO: Arrive AI Inc. from source Finnhub
+2025-05-25 00:36:55,066 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0002053115 matching criteria.
+2025-05-25 00:36:55,164 - root - INFO - ipo_analyzer:128 - IPO 'Renatus Tactical Acquisition Corp I' not found in DB, creating new entry.
+2025-05-25 00:36:55,267 - root - INFO - ipo_analyzer:143 - Created IPO entry for 'Thayer Ventures Acquisition Corp II' (ID: 25, CIK: 0001872228)
+2025-05-25 00:36:55,352 - root - INFO - ipo_analyzer:191 - Attempting to fetch S-1/F-1 for Thayer Ventures Acquisition Corp II (CIK: 0001872228)
+2025-05-25 00:36:55,582 - root - INFO - ipo_analyzer:143 - Created IPO entry for 'Renatus Tactical Acquisition Corp I' (ID: 26, CIK: 0002035173)
+2025-05-25 00:36:55,669 - root - INFO - ipo_analyzer:191 - Attempting to fetch S-1/F-1 for Renatus Tactical Acquisition Corp I (CIK: 0002035173)
+2025-05-25 00:36:55,828 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002053115.json?...
+2025-05-25 00:36:55,828 - root - INFO - ipo_analyzer:128 - IPO 'Arrive AI Inc.' not found in DB, creating new entry.
+2025-05-25 00:36:56,255 - root - INFO - ipo_analyzer:143 - Created IPO entry for 'Arrive AI Inc.' (ID: 27, CIK: 0001818274)
+2025-05-25 00:36:56,260 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0001872228.json?...
+2025-05-25 00:36:56,342 - root - INFO - ipo_analyzer:191 - Attempting to fetch S-1/F-1 for Arrive AI Inc. (CIK: 0001818274)
+2025-05-25 00:36:56,413 - root - INFO - ipo_analyzer:197 - Found F-1 URL for Zi Yun Dong Fang Ltd: https://www.sec.gov/Archives/edgar/data/2053115/000164117225011292/formf-1.htm
+2025-05-25 00:36:56,414 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2053115/000164117225011292/formf-1.htm
+2025-05-25 00:36:56,526 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002035173.json?...
+2025-05-25 00:36:56,763 - root - INFO - ipo_analyzer:197 - Found S-1 URL for Thayer Ventures Acquisition Corp II: https://www.sec.gov/Archives/edgar/data/1872228/000119312525054865/d771523ds1.htm
+2025-05-25 00:36:56,764 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/1872228/000119312525054865/d771523ds1.htm
+2025-05-25 00:36:57,029 - root - INFO - ipo_analyzer:197 - Found S-1 URL for Renatus Tactical Acquisition Corp I: https://www.sec.gov/Archives/edgar/data/2035173/000114036125008858/ny20045296x1_s1.htm
+2025-05-25 00:36:57,030 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2035173/000114036125008858/ny20045296x1_s1.htm
+2025-05-25 00:36:57,216 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0001818274.json?...
+2025-05-25 00:36:57,717 - root - INFO - ipo_analyzer:197 - Found S-1 URL for Arrive AI Inc.: https://www.sec.gov/Archives/edgar/data/1818274/000149315224051854/forms-1.htm
+2025-05-25 00:36:57,718 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/1818274/000149315224051854/forms-1.htm
+2025-05-25 00:37:00,449 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 1/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'IPO: World Road Inc. (WODO). Business: S
+
+OUR MISSION
+
+Our mission is to build a global smart logist...'
+2025-05-25 00:37:00,772 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/1872228/000119312525054865/d771523ds1.htm...
+2025-05-25 00:37:00,775 - root - INFO - ipo_analyzer:207 - Fetched S-1/F-1 text (len: 1555800) for Thayer Ventures Acquisition Corp II
+2025-05-25 00:37:01,214 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-25 00:37:01,738 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 1/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'IPO: Thayer Ventures Acquisition Corp II (TVAIU). Business: COMBINATION OR
+CERTAIN SHAREHOLDER
+VOTES...'
+2025-05-25 00:37:01,900 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2035173/000114036125008858/ny20045296x1_s1.htm...
+2025-05-25 00:37:01,901 - root - INFO - ipo_analyzer:207 - Fetched S-1/F-1 text (len: 2346135) for Renatus Tactical Acquisition Corp I
+2025-05-25 00:37:02,499 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-25 00:37:02,769 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 1/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'IPO: Renatus Tactical Acquisition Corp I (RTACU). Business: N/A. Risks: An investment in our securit...'
+2025-05-25 00:37:03,062 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2053115/000164117225011292/formf-1.htm...
+2025-05-25 00:37:03,064 - root - INFO - ipo_analyzer:207 - Fetched S-1/F-1 text (len: 2782027) for Zi Yun Dong Fang Ltd
+2025-05-25 00:37:04,051 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-25 00:37:04,320 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 1/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'IPO: Zi Yun Dong Fang Ltd (YLY). Business: s
+Registration Ordinance (Chapter 310 of the Laws of Hong...'
+2025-05-25 00:37:05,958 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/1818274/000149315224051854/forms-1.htm...
+2025-05-25 00:37:05,959 - root - INFO - ipo_analyzer:207 - Fetched S-1/F-1 text (len: 2790064) for Arrive AI Inc.
+2025-05-25 00:37:06,851 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-25 00:37:07,334 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 1/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'IPO: Arrive AI Inc. (ARAI). Business: S
+
+Stockholders
+should read this section in conjunction with t...'
+2025-05-25 00:37:10,661 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 2/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'IPO: World Road Inc. (WODO). Business: S
+
+OUR MISSION
+
+Our mission is to build a global smart logist...'
+2025-05-25 00:37:11,943 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 2/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'IPO: Thayer Ventures Acquisition Corp II (TVAIU). Business: COMBINATION OR
+CERTAIN SHAREHOLDER
+VOTES...'
+2025-05-25 00:37:12,982 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 2/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'IPO: Renatus Tactical Acquisition Corp I (RTACU). Business: N/A. Risks: An investment in our securit...'
+2025-05-25 00:37:14,583 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 2/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'IPO: Zi Yun Dong Fang Ltd (YLY). Business: s
+Registration Ordinance (Chapter 310 of the Laws of Hong...'
+2025-05-25 00:37:17,808 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 2/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'IPO: Arrive AI Inc. (ARAI). Business: S
+
+Stockholders
+should read this section in conjunction with t...'
+2025-05-25 00:37:43,938 - root - INFO - ipo_analyzer:296 - Task: Saved IPO analysis for World Road Inc. (ID: 23)
+2025-05-25 00:37:44,024 - root - INFO - ipo_analyzer:219 - Task: Starting analysis for IPO: Hang Feng Technology Innovation Co., Ltd. from source Finnhub
+2025-05-25 00:37:44,863 - root - INFO - ipo_analyzer:128 - IPO 'Hang Feng Technology Innovation Co., Ltd.' not found in DB, creating new entry.
+2025-05-25 00:37:45,282 - root - INFO - ipo_analyzer:143 - Created IPO entry for 'Hang Feng Technology Innovation Co., Ltd.' (ID: 28, CIK: 0002060083)
+2025-05-25 00:37:45,367 - root - INFO - ipo_analyzer:191 - Attempting to fetch S-1/F-1 for Hang Feng Technology Innovation Co., Ltd. (CIK: 0002060083)
+2025-05-25 00:37:46,315 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002060083.json?...
+2025-05-25 00:37:46,317 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0002060083 matching criteria.
+2025-05-25 00:37:47,070 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002060083.json?...
+2025-05-25 00:37:47,158 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0002060083 matching criteria.
+2025-05-25 00:37:47,913 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002060083.json?...
+2025-05-25 00:37:48,502 - root - INFO - ipo_analyzer:197 - Found F-1 URL for Hang Feng Technology Innovation Co., Ltd.: https://www.sec.gov/Archives/edgar/data/2060083/000121390025043480/ea0233710-06.htm
+2025-05-25 00:37:48,503 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2060083/000121390025043480/ea0233710-06.htm
+2025-05-25 00:37:52,679 - root - INFO - ipo_analyzer:296 - Task: Saved IPO analysis for Renatus Tactical Acquisition Corp I (ID: 24)
+2025-05-25 00:37:52,770 - root - INFO - ipo_analyzer:219 - Task: Starting analysis for IPO: Thrive Capital Group Co., LTD from source Finnhub
+2025-05-25 00:37:53,614 - root - INFO - ipo_analyzer:128 - IPO 'Thrive Capital Group Co., LTD' not found in DB, creating new entry.
+2025-05-25 00:37:54,030 - root - INFO - ipo_analyzer:296 - Task: Saved IPO analysis for Thayer Ventures Acquisition Corp II (ID: 25)
+2025-05-25 00:37:54,066 - root - INFO - ipo_analyzer:143 - Created IPO entry for 'Thrive Capital Group Co., LTD' (ID: 29, CIK: 0002058349)
+2025-05-25 00:37:54,116 - root - INFO - ipo_analyzer:219 - Task: Starting analysis for IPO: CTW Cayman from source Finnhub
+2025-05-25 00:37:54,157 - root - INFO - ipo_analyzer:191 - Attempting to fetch S-1/F-1 for Thrive Capital Group Co., LTD (CIK: 0002058349)
+2025-05-25 00:37:54,709 - root - INFO - ipo_analyzer:296 - Task: Saved IPO analysis for Zi Yun Dong Fang Ltd (ID: 26)
+2025-05-25 00:37:54,800 - root - INFO - ipo_analyzer:219 - Task: Starting analysis for IPO: Linkhome Holdings Inc. from source Finnhub
+2025-05-25 00:37:54,968 - root - INFO - ipo_analyzer:128 - IPO 'CTW Cayman' not found in DB, creating new entry.
+2025-05-25 00:37:55,039 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002058349.json?...
+2025-05-25 00:37:55,041 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0002058349 matching criteria.
+2025-05-25 00:37:55,418 - root - INFO - ipo_analyzer:143 - Created IPO entry for 'CTW Cayman' (ID: 30, CIK: 0002047148)
+2025-05-25 00:37:55,508 - root - INFO - ipo_analyzer:191 - Attempting to fetch S-1/F-1 for CTW Cayman (CIK: 0002047148)
+2025-05-25 00:37:55,651 - root - INFO - ipo_analyzer:128 - IPO 'Linkhome Holdings Inc.' not found in DB, creating new entry.
+2025-05-25 00:37:55,806 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002058349.json?...
+2025-05-25 00:37:55,891 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0002058349 matching criteria.
+2025-05-25 00:37:56,101 - root - INFO - ipo_analyzer:143 - Created IPO entry for 'Linkhome Holdings Inc.' (ID: 31, CIK: 0002017758)
+2025-05-25 00:37:56,188 - root - INFO - ipo_analyzer:191 - Attempting to fetch S-1/F-1 for Linkhome Holdings Inc. (CIK: 0002017758)
+2025-05-25 00:37:56,382 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002047148.json?...
+2025-05-25 00:37:56,384 - root - INFO - api_clients:347 - No 'S-1' filings found for CIK 0002047148 matching criteria.
+2025-05-25 00:37:56,653 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002058349.json?...
+2025-05-25 00:37:57,003 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2060083/000121390025043480/ea0233710-06.htm...
+2025-05-25 00:37:57,006 - root - INFO - ipo_analyzer:207 - Fetched S-1/F-1 text (len: 5421133) for Hang Feng Technology Innovation Co., Ltd.
+2025-05-25 00:37:57,122 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002017758.json?...
+2025-05-25 00:37:57,139 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002047148.json?...
+2025-05-25 00:37:57,224 - root - INFO - api_clients:347 - No 'S-1/A' filings found for CIK 0002047148 matching criteria.
+2025-05-25 00:37:57,245 - root - INFO - ipo_analyzer:197 - Found F-1 URL for Thrive Capital Group Co., LTD: https://www.sec.gov/Archives/edgar/data/2058349/000121390025043926/ea0227995-04.htm
+2025-05-25 00:37:57,246 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2058349/000121390025043926/ea0227995-04.htm
+2025-05-25 00:37:57,623 - root - INFO - ipo_analyzer:197 - Found S-1 URL for Linkhome Holdings Inc.: https://www.sec.gov/Archives/edgar/data/2017758/000121390024054736/ea0203553-04.htm
+2025-05-25 00:37:57,623 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2017758/000121390024054736/ea0203553-04.htm
+2025-05-25 00:37:57,755 - root - INFO - ipo_analyzer:296 - Task: Saved IPO analysis for Arrive AI Inc. (ID: 27)
+2025-05-25 00:37:57,797 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-25 00:37:57,862 - root - INFO - ipo_analyzer:219 - Task: Starting analysis for IPO: Churchill Capital Corp X/Cayman from source Finnhub
+2025-05-25 00:37:58,003 - root - INFO - api_clients:41 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002047148.json?...
+2025-05-25 00:37:58,590 - root - INFO - ipo_analyzer:197 - Found F-1 URL for CTW Cayman: https://www.sec.gov/Archives/edgar/data/2047148/000121390025044061/ea0229974-05.htm
+2025-05-25 00:37:58,591 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2047148/000121390025044061/ea0229974-05.htm
+2025-05-25 00:37:58,743 - root - INFO - ipo_analyzer:128 - IPO 'Churchill Capital Corp X/Cayman' not found in DB, creating new entry.
+2025-05-25 00:37:59,267 - root - INFO - ipo_analyzer:143 - Created IPO entry for 'Churchill Capital Corp X/Cayman' (ID: 32, CIK: 0002007825)
+2025-05-25 00:37:59,374 - root - INFO - ipo_analyzer:191 - Attempting to fetch S-1/F-1 for Churchill Capital Corp X/Cayman (CIK: 0002007825)
+2025-05-25 00:38:00,874 - root - INFO - api_clients:70 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002007825.json?...
+2025-05-25 00:38:01,375 - root - INFO - ipo_analyzer:197 - Found S-1 URL for Churchill Capital Corp X/Cayman: https://www.sec.gov/Archives/edgar/data/2007825/000119312525100727/d698385ds1.htm
+2025-05-25 00:38:01,375 - root - INFO - api_clients:360 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2007825/000119312525100727/d698385ds1.htm
+2025-05-25 00:38:07,178 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2017758/000121390024054736/ea0203553-04.htm...
+2025-05-25 00:38:07,180 - root - INFO - ipo_analyzer:207 - Fetched S-1/F-1 text (len: 4853561) for Linkhome Holdings Inc.
+2025-05-25 00:38:07,867 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2007825/000119312525100727/d698385ds1.htm...
+2025-05-25 00:38:07,868 - root - INFO - ipo_analyzer:207 - Fetched S-1/F-1 text (len: 1896916) for Churchill Capital Corp X/Cayman
+2025-05-25 00:38:08,000 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-25 00:38:08,494 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 1/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'IPO: Linkhome Holdings Inc. (LHAI). Business: N/A. Risks: ” for a discussion of our regulatory risks...'
+2025-05-25 00:38:08,680 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-25 00:38:09,204 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 1/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'IPO: Churchill Capital Corp X/Cayman (CCCXU). Business: Combination
+
+Other Permitted
+
+Purchases of P...'
+2025-05-25 00:38:09,552 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2058349/000121390025043926/ea0227995-04.htm...
+2025-05-25 00:38:09,553 - root - INFO - ipo_analyzer:207 - Fetched S-1/F-1 text (len: 4221508) for Thrive Capital Group Co., LTD
+2025-05-25 00:38:10,135 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-25 00:38:10,656 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 1/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'IPO: Thrive Capital Group Co., LTD (EFTY). Business: S
+
+Our Mission
+
+Our mission is to become a lead...'
+2025-05-25 00:38:11,103 - root - INFO - api_clients:70 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/2047148/000121390025044061/ea0229974-05.htm...
+2025-05-25 00:38:11,105 - root - INFO - ipo_analyzer:207 - Fetched S-1/F-1 text (len: 7538291) for CTW Cayman
+2025-05-25 00:38:11,150 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 1/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'Synthesize IPO perspective for Hang Feng Technology Innovation Co., Ltd. (FOFO) based on summaries: ...'
+2025-05-25 00:38:12,179 - root - WARNING - api_clients:633 - No primary section headers (ITEM X.) found in SEC filing. Extraction might be limited.
+2025-05-25 00:38:12,687 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 1/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'IPO: CTW Cayman (CTW). Business: S
+
+Overview
+
+We are a leading globally accessible, web
+-based
+ gami...'
+2025-05-25 00:38:18,951 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 2/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'IPO: Linkhome Holdings Inc. (LHAI). Business: N/A. Risks: ” for a discussion of our regulatory risks...'
+2025-05-25 00:38:19,693 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 2/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'IPO: Churchill Capital Corp X/Cayman (CCCXU). Business: Combination
+
+Other Permitted
+
+Purchases of P...'
+2025-05-25 00:38:21,123 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 2/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'IPO: Thrive Capital Group Co., LTD (EFTY). Business: S
+
+Our Mission
+
+Our mission is to become a lead...'
+2025-05-25 00:38:21,362 - root - WARNING - api_clients:475 - Gemini API HTTP error for key ...xcjY on attempt 2/3: 429 - {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a. Prompt: 'Synthesize IPO perspective for Hang Feng Technology Innovation Co., Ltd. (FOFO) based on summaries: ...'
