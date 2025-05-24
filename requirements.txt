@@ -1,5 +1,10 @@
+# requirements.txt
 sqlalchemy>=1.4,<2.0
 requests>=2.32.0
 psycopg2-binary>=2.8.0
-pandas
+pandas>=1.0.0
 markdown2>=2.4.0
+beautifulsoup4>=4.9.3
+lxml>=4.6.3 
+# Add other specific versions if needed
+# python-dotenv # For managing environment variables if you choose to use .env files

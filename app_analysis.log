@@ -1,497 +1,133 @@
-2025-05-23 21:46:20,914 - root - INFO - ===================================================================
-2025-05-23 21:46:20,915 - root - INFO - Starting Financial Analysis Script at 2025-05-23 21:46:20.915208
-2025-05-23 21:46:20,915 - root - INFO - ===================================================================
-2025-05-23 21:46:20,917 - root - INFO - --- Starting Individual Stock Analysis for: ['AAPL'] ---
-2025-05-23 21:46:22,493 - root - INFO - Found existing stock entry for AAPL (ID: 1).
-2025-05-23 21:46:22,493 - root - INFO - Starting analysis for AAPL...
-2025-05-23 21:46:22,493 - root - INFO - Fetching financial data for AAPL...
-2025-05-23 21:46:22,580 - root - INFO - Cache hit for: GET:https://financialmodelingprep.com/api/v3/profile/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
-2025-05-23 21:46:22,832 - root - INFO - Cache hit for: GET:https://financialmodelingprep.com/api/v3/income-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
-2025-05-23 21:46:23,902 - root - WARNING - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/income-statement/AAPL (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVzfz61uB', 'period': 'quarter', 'limit': 8}): 403 - {
-  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://site.financialmodelingprep.com/developer/docs/pricing"
-}
-2025-05-23 21:46:23,904 - root - ERROR - Non-retryable client error for https://financialmodelingprep.com/api/v3/income-statement/AAPL: 403 Client Error: Forbidden for url: https://financialmodelingprep.com/api/v3/income-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&period=quarter&limit=8
-2025-05-23 21:46:24,079 - root - INFO - Cache hit for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
-2025-05-23 21:46:25,106 - root - WARNING - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/balance-sheet-statement/AAPL (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVzfz61uB', 'period': 'quarter', 'limit': 8}): 403 - {
-  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://site.financialmodelingprep.com/developer/docs/pricing"
-}
-2025-05-23 21:46:25,107 - root - ERROR - Non-retryable client error for https://financialmodelingprep.com/api/v3/balance-sheet-statement/AAPL: 403 Client Error: Forbidden for url: https://financialmodelingprep.com/api/v3/balance-sheet-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&period=quarter&limit=8
-2025-05-23 21:46:25,274 - root - INFO - Cache hit for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
-2025-05-23 21:46:26,253 - root - WARNING - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/cash-flow-statement/AAPL (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVzfz61uB', 'period': 'quarter', 'limit': 8}): 403 - {
-  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://site.financialmodelingprep.com/developer/docs/pricing"
-}
-2025-05-23 21:46:26,254 - root - ERROR - Non-retryable client error for https://financialmodelingprep.com/api/v3/cash-flow-statement/AAPL: 403 Client Error: Forbidden for url: https://financialmodelingprep.com/api/v3/cash-flow-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&period=quarter&limit=8
-2025-05-23 21:46:26,428 - root - INFO - Cache hit for: GET:https://financialmodelingprep.com/api/v3/key-metrics/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
-2025-05-23 21:46:27,449 - root - WARNING - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/key-metrics/AAPL (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVzfz61uB', 'period': 'quarter', 'limit': 5}): 403 - {
-  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://site.financialmodelingprep.com/developer/docs/pricing"
-}
-2025-05-23 21:46:27,450 - root - ERROR - Non-retryable client error for https://financialmodelingprep.com/api/v3/key-metrics/AAPL: 403 Client Error: Forbidden for url: https://financialmodelingprep.com/api/v3/key-metrics/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&period=quarter&limit=5
-2025-05-23 21:46:27,957 - root - INFO - Cache hit for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=AAPL&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390
-2025-05-23 21:46:28,039 - root - INFO - Calculating metrics for AAPL...
-2025-05-23 21:46:28,039 - root - INFO - Calculated metrics for AAPL: {'pe_ratio': 37.287278415656736, 'pb_ratio': 61.37243774486391, 'dividend_yield': 0.0043585983369965175, 'debt_to_equity': 1.872326602282704, 'net_profit_margin': None, 'roe': 1.6459350307287095, 'eps': 6.0836, 'revenue_growth': '2.02%', 'current_ratio': 0.8673125765340832, 'retained_earnings_trend': 'Mixed/Stable', 'free_cash_flow_trend': 'Mixed/Stable', 'interest_coverage_ratio': None}
-2025-05-23 21:46:28,040 - root - INFO - Analyzing qualitative factors for AAPL using Gemini...
-2025-05-23 21:46:44,950 - root - INFO - Qualitative analysis for AAPL complete.
-2025-05-23 21:46:44,950 - root - INFO - Determining investment strategy for AAPL...
-2025-05-23 21:46:57,001 - root - WARNING - Gemini candidate finished with reason: MAX_TOKENS. Prompt: 'Synthesize the following financial metrics and qualitative analysis for Apple Inc. (AAPL) into an in...'
-2025-05-23 21:46:57,465 - root - INFO - Successfully analyzed and saved stock: AAPL (Analysis ID: 1)
-2025-05-23 21:46:57,551 - root - INFO - --- Script execution finished. ---
-2025-05-23 22:08:06,352 - root - INFO - ===================================================================
-2025-05-23 22:08:06,352 - root - INFO - Starting Financial Analysis Script at 2025-05-23 22:08:06.352019
-2025-05-23 22:08:06,352 - root - INFO - ===================================================================
-2025-05-23 22:08:06,354 - root - INFO - --- Starting Individual Stock Analysis for: ['GOOG'] ---
-2025-05-23 22:08:08,005 - root - INFO - Stock GOOG not found in DB, creating new entry.
-2025-05-23 22:08:09,411 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/GOOG?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
-2025-05-23 22:08:09,668 - root - INFO - Starting analysis for GOOG...
-2025-05-23 22:08:09,669 - root - INFO - Fetching financial data for GOOG...
-2025-05-23 22:08:09,840 - root - INFO - Cache hit for: GET:https://financialmodelingprep.com/api/v3/profile/GOOG?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
-2025-05-23 22:08:09,936 - root - ERROR - Outer exception in analyze() for GOOG: Instance <Stock at 0x18eafd44e00> is not bound to a Session; attribute refresh operation cannot proceed (Background on this error at: https://sqlalche.me/e/14/bhk3)
-Traceback (most recent call last):
-  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 402, in analyze
-    raw_data = self._fetch_financial_data()  # This might commit company name changes
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\GitHub\stock-alarm\stock_analyzer.py", line 83, in _fetch_financial_data
-    not self.stock_db_entry.company_name or self.stock_db_entry.company_name == self.ticker):
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\orm\attributes.py", line 487, in __get__
-    return self.impl.get(state, dict_)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\orm\attributes.py", line 959, in get
-    value = self._fire_loader_callables(state, key, passive)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\orm\attributes.py", line 990, in _fire_loader_callables
-    return state._load_expired(state, passive)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\orm\state.py", line 712, in _load_expired
-    self.manager.expired_attribute_loader(self, toload, passive)
-  File "C:\GitHub\stock-alarm\venv\Lib\site-packages\sqlalchemy\orm\loading.py", line 1369, in load_scalar_attributes
-    raise orm_exc.DetachedInstanceError(
-sqlalchemy.orm.exc.DetachedInstanceError: Instance <Stock at 0x18eafd44e00> is not bound to a Session; attribute refresh operation cannot proceed (Background on this error at: https://sqlalche.me/e/14/bhk3)
-2025-05-23 22:08:09,946 - root - INFO - --- Script execution finished. ---
-2025-05-23 22:12:39,281 - root - INFO - ===================================================================
-2025-05-23 22:12:39,281 - root - INFO - Starting Financial Analysis Script at 2025-05-23 22:12:39.281725
-2025-05-23 22:12:39,282 - root - INFO - ===================================================================
-2025-05-23 22:12:39,283 - root - INFO - --- Starting Individual Stock Analysis for: ['GOOG'] ---
-2025-05-23 22:12:40,900 - root - INFO - Found existing stock entry for GOOG (ID: 2). Current DB Company Name: Alphabet Inc.
-2025-05-23 22:12:40,901 - root - INFO - Starting analysis for GOOG...
-2025-05-23 22:12:40,901 - root - INFO - Fetching financial data for GOOG...
-2025-05-23 22:12:40,993 - root - INFO - Cache hit for: GET:https://financialmodelingprep.com/api/v3/profile/GOOG?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
-2025-05-23 22:12:42,737 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/income-statement/GOOG?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
-2025-05-23 22:12:44,176 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/GOOG?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
-2025-05-23 22:12:45,644 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/GOOG?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
-2025-05-23 22:12:47,186 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/GOOG?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
-2025-05-23 22:12:48,454 - root - INFO - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=GOOG&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390
-2025-05-23 22:12:48,456 - root - INFO - Calculating metrics for GOOG...
-2025-05-23 22:12:48,457 - root - INFO - Calculated metrics for GOOG: {'pe_ratio': 23.292381989252682, 'pb_ratio': 7.173489621144074, 'dividend_yield': 0.0031573936506584708, 'debt_to_equity': 0.07832129541903016, 'net_profit_margin': None, 'roe': 0.30797578472025694, 'eps': 7.5203, 'revenue_growth': '13.87%', 'interest_coverage_ratio': 505.2014925373134, 'current_ratio': 1.8369313974102914, 'retained_earnings_trend': 'Growing', 'free_cash_flow_trend': 'Growing'}
-2025-05-23 22:12:48,459 - root - INFO - Analyzing qualitative factors for GOOG using Gemini...
-2025-05-23 22:13:07,453 - root - INFO - Qualitative analysis for GOOG complete.
-2025-05-23 22:13:07,454 - root - INFO - Determining investment strategy for GOOG...
-2025-05-23 22:13:15,283 - root - INFO - Successfully analyzed and saved stock: GOOG (Analysis ID: 2)
-2025-05-23 22:13:15,371 - root - INFO - --- Script execution finished. ---
-2025-05-23 22:16:32,077 - root - INFO - ===================================================================
-2025-05-23 22:16:32,077 - root - INFO - Starting Financial Analysis Script at 2025-05-23 22:16:32.077652
-2025-05-23 22:16:32,078 - root - INFO - ===================================================================
-2025-05-23 22:16:32,080 - root - INFO - --- Generating Today's Email Summary ---
-2025-05-23 22:16:33,863 - root - INFO - Found 2 stock analyses, 0 IPO analyses, 0 news analyses for today's email.
-2025-05-23 22:16:34,042 - root - INFO - Email summary created. Sending is commented out in main.py for safety.
-2025-05-23 22:16:34,045 - root - INFO - Email HTML saved to a file.
-2025-05-23 22:16:34,129 - root - INFO - --- Script execution finished. ---
-2025-05-23 22:19:46,990 - root - INFO - ===================================================================
-2025-05-23 22:19:46,991 - root - INFO - Starting Financial Analysis Script at 2025-05-23 22:19:46.991001
-2025-05-23 22:19:46,991 - root - INFO - ===================================================================
-2025-05-23 22:19:46,993 - root - INFO - --- Starting News Analysis Pipeline (Category: general, Count: 3) ---
-2025-05-23 22:19:46,993 - root - INFO - Fetching latest market news for category: general (max 6)...
-2025-05-23 22:19:49,706 - root - INFO - Cached response for: GET:https://finnhub.io/api/v1/news?category=general&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390
-2025-05-23 22:19:49,708 - root - INFO - Fetched 100 news items from Finnhub.
-2025-05-23 22:19:49,902 - root - INFO - News event 'Why off-price retailer TJX is a buy after falling 3% on a rival's weak guidance' is new. Storing and analyzing.
-2025-05-23 22:19:50,329 - root - INFO - Stored new news event: Why off-price retailer TJX is a buy after falling 3% on a rival's weak guidance
-2025-05-23 22:19:50,330 - root - INFO - Analyzing news: Why off-price retailer TJX is a buy after falling 3% on a rival's weak guidance
-2025-05-23 22:20:54,653 - root - INFO - Successfully analyzed and saved news: Why off-price retailer TJX is a buy after falling 3% on a rival's weak guidance
-2025-05-23 22:20:56,826 - root - INFO - News event 'Jim Cramer says this is the real winner from Trump's tariff threat on Apple' is new. Storing and analyzing.
-2025-05-23 22:20:57,245 - root - INFO - Stored new news event: Jim Cramer says this is the real winner from Trump's tariff threat on Apple
-2025-05-23 22:20:57,246 - root - INFO - Analyzing news: Jim Cramer says this is the real winner from Trump's tariff threat on Apple
-2025-05-23 22:22:06,277 - root - INFO - Successfully analyzed and saved news: Jim Cramer says this is the real winner from Trump's tariff threat on Apple
-2025-05-23 22:22:08,447 - root - INFO - News event 'Nvidia’s stock is losing steam, and next week’s earnings could underscore the risks' is new. Storing and analyzing.
-2025-05-23 22:22:08,863 - root - INFO - Stored new news event: Nvidia’s stock is losing steam, and next week’s earnings could underscore the risks
-2025-05-23 22:22:08,864 - root - INFO - Analyzing news: Nvidia’s stock is losing steam, and next week’s earnings could underscore the risks
-2025-05-23 22:23:15,299 - root - INFO - Successfully analyzed and saved news: Nvidia’s stock is losing steam, and next week’s earnings could underscore the risks
-2025-05-23 22:23:17,301 - root - INFO - News analysis pipeline completed. Newly analyzed 3 items.
-2025-05-23 22:23:17,302 - root - INFO - --- Script execution finished. ---
-2025-05-23 22:23:25,926 - root - INFO - ===================================================================
-2025-05-23 22:23:25,927 - root - INFO - Starting Financial Analysis Script at 2025-05-23 22:23:25.927198
-2025-05-23 22:23:25,927 - root - INFO - ===================================================================
-2025-05-23 22:23:25,929 - root - INFO - --- Generating Today's Email Summary ---
-2025-05-23 22:23:27,800 - root - INFO - Found 2 stock analyses, 0 IPO analyses, 3 news analyses for today's email.
-2025-05-23 22:23:28,243 - root - INFO - Email summary created. Sending is commented out in main.py for safety.
-2025-05-23 22:23:28,249 - root - INFO - Email HTML saved to a file.
-2025-05-23 22:23:28,332 - root - INFO - --- Script execution finished. ---
-2025-05-23 22:26:51,672 - root - INFO - ===================================================================
-2025-05-23 22:26:51,673 - root - INFO - Starting Financial Analysis Script at 2025-05-23 22:26:51.673955
-2025-05-23 22:26:51,673 - root - INFO - ===================================================================
-2025-05-23 22:26:51,675 - root - INFO - --- Generating Today's Email Summary ---
-2025-05-23 22:26:53,513 - root - INFO - Found 2 stock analyses, 0 IPO analyses, 3 news analyses for today's email.
-2025-05-23 22:26:54,044 - root - INFO - Email summary created. Sending is commented out in main.py for safety.
-2025-05-23 22:26:54,048 - root - INFO - Email HTML saved to a file.
-2025-05-23 22:26:54,132 - root - INFO - --- Script execution finished. ---
-2025-05-23 23:47:36,494 - root - INFO - ===================================================================
-2025-05-23 23:47:36,497 - root - INFO - Starting Financial Analysis Script at 2025-05-23 23:47:36.497820
-2025-05-23 23:47:36,497 - root - INFO - ===================================================================
-2025-05-23 23:47:36,498 - root - INFO - --- Starting IPO Analysis Pipeline ---
-2025-05-23 23:47:36,499 - root - INFO - Fetching upcoming IPOs...
-2025-05-23 23:47:38,963 - root - WARNING - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/ipo_calendar (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVzfz61uB'}): 403 - {
-  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://site.financialmodelingprep.com/developer/docs/pricing"
-}
-2025-05-23 23:47:38,964 - root - ERROR - Non-retryable client error for https://financialmodelingprep.com/api/v3/ipo_calendar: 403 Client Error: Forbidden for url: https://financialmodelingprep.com/api/v3/ipo_calendar?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
-2025-05-23 23:47:40,175 - root - WARNING - HTTP error on attempt 1/3 for https://eodhistoricaldata.com/api/calendar/ipos (Params: {'api_token': '683079df749c42.21476005', 'fmt': 'json'}): 403 - Only EOD data allowed for free users. Please, contact our support team: support@eodhistoricaldata.com
-2025-05-23 23:47:40,178 - root - ERROR - Non-retryable client error for https://eodhistoricaldata.com/api/calendar/ipos: 403 Client Error: Forbidden for url: https://eodhistoricaldata.com/api/calendar/ipos?api_token=683079df749c42.21476005&fmt=json
-2025-05-23 23:47:40,179 - root - INFO - Total unique IPOs fetched: 0
-2025-05-23 23:47:40,180 - root - INFO - No upcoming IPOs found to analyze.
-2025-05-23 23:47:40,180 - root - INFO - --- Script execution finished. ---
-2025-05-23 23:50:26,549 - root - INFO - ===================================================================
-2025-05-23 23:50:26,551 - root - INFO - Starting Financial Analysis Script at 2025-05-23 23:50:26.550851
-2025-05-23 23:50:26,551 - root - INFO - ===================================================================
-2025-05-23 23:50:26,553 - root - INFO - --- Starting IPO Analysis Pipeline ---
-2025-05-23 23:50:26,553 - root - INFO - Fetching upcoming IPOs...
-2025-05-23 23:50:26,554 - root - INFO - Attempting to fetch IPOs from FinancialModelingPrep...
-2025-05-23 23:50:28,875 - root - WARNING - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/ipo_calendar (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVzfz61uB'}): 403 - {
-  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://site.financialmodelingprep.com/developer/docs/pricing"
-}
-2025-05-23 23:50:28,876 - root - ERROR - Non-retryable client error for https://financialmodelingprep.com/api/v3/ipo_calendar: 403 Client Error: Forbidden for url: https://financialmodelingprep.com/api/v3/ipo_calendar?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
-2025-05-23 23:50:28,878 - root - WARNING - Failed to fetch IPOs from FMP (API call failed, check previous logs for 403).
-2025-05-23 23:50:28,879 - root - INFO - Attempting to fetch IPOs from EODHistoricalData...
-2025-05-23 23:50:30,033 - root - WARNING - HTTP error on attempt 1/3 for https://eodhistoricaldata.com/api/calendar/ipos (Params: {'api_token': '683079df749c42.21476005', 'fmt': 'json'}): 403 - Only EOD data allowed for free users. Please, contact our support team: support@eodhistoricaldata.com
-2025-05-23 23:50:30,035 - root - ERROR - Non-retryable client error for https://eodhistoricaldata.com/api/calendar/ipos: 403 Client Error: Forbidden for url: https://eodhistoricaldata.com/api/calendar/ipos?api_token=683079df749c42.21476005&fmt=json
-2025-05-23 23:50:30,037 - root - WARNING - Failed to fetch IPOs from EODHD (API call failed, check previous logs for 403).
-2025-05-23 23:50:30,038 - root - INFO - Attempting to fetch IPOs from RapidAPI (upcoming-ipo-calendar)...
-2025-05-23 23:50:31,097 - root - WARNING - HTTP error on attempt 1/3 for https://upcoming-ipo-calendar.p.rapidapi.com/ (Params: {}): 403 - {"message":"You are not subscribed to this API."}
-2025-05-23 23:50:31,097 - root - ERROR - Non-retryable client error for https://upcoming-ipo-calendar.p.rapidapi.com/: 403 Client Error: Forbidden for url: https://upcoming-ipo-calendar.p.rapidapi.com/
-2025-05-23 23:50:31,098 - root - WARNING - Failed to fetch IPOs from RapidAPI (API call failed or returned None).
-2025-05-23 23:50:31,099 - root - INFO - Total unique IPOs fetched after deduplication: 0
-2025-05-23 23:50:31,100 - root - INFO - No upcoming IPOs found from any source to analyze.
-2025-05-23 23:50:31,100 - root - INFO - --- Script execution finished. ---
-2025-05-24 03:51:24,305 - root - INFO - ===================================================================
-2025-05-24 03:51:24,306 - root - INFO - Starting Financial Analysis Script at 2025-05-24 03:51:24.306544
-2025-05-24 03:51:24,306 - root - INFO - ===================================================================
-2025-05-24 03:51:24,308 - root - INFO - --- Starting IPO Analysis Pipeline ---
-2025-05-24 03:51:24,309 - root - INFO - Fetching upcoming IPOs...
-2025-05-24 03:51:24,309 - root - INFO - Attempting to fetch IPOs from FinancialModelingPrep...
-2025-05-24 03:51:26,686 - root - WARNING - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/ipo_calendar (Details: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVzfz61uB'}): 403 - {
-  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://site.financialmodelingprep.com/developer/docs/pricing"
-}
-2025-05-24 03:51:26,687 - root - ERROR - Non-retryable client error for https://financialmodelingprep.com/api/v3/ipo_calendar: 403 Forbidden
-2025-05-24 03:51:26,688 - root - WARNING - Failed to fetch IPOs from FMP (API call failed, check previous logs for 403).
-2025-05-24 03:51:26,688 - root - INFO - Attempting to fetch IPOs from EODHistoricalData...
-2025-05-24 03:51:28,094 - root - WARNING - HTTP error on attempt 1/3 for https://eodhistoricaldata.com/api/calendar/ipos (Details: {'api_token': '683079df749c42.21476005', 'fmt': 'json'}): 403 - Only EOD data allowed for free users. Please, contact our support team: support@eodhistoricaldata.com
-2025-05-24 03:51:28,094 - root - ERROR - Non-retryable client error for https://eodhistoricaldata.com/api/calendar/ipos: 403 Forbidden
-2025-05-24 03:51:28,095 - root - WARNING - Failed to fetch IPOs from EODHD (API call failed, check previous logs for 403).
-2025-05-24 03:51:28,095 - root - INFO - Attempting to fetch IPOs from RapidAPI (upcoming-ipo-calendar)...
-2025-05-24 03:51:29,071 - root - WARNING - HTTP error on attempt 1/3 for https://upcoming-ipo-calendar.p.rapidapi.com/ipo-calendar (Details: 104cde): 403 - {"message":"You are not subscribed to this API."}
-2025-05-24 03:51:29,072 - root - ERROR - Non-retryable client error for https://upcoming-ipo-calendar.p.rapidapi.com/ipo-calendar: 403 Forbidden
-2025-05-24 03:51:29,072 - root - WARNING - Failed to fetch IPOs from RapidAPI (API call failed or returned None).
-2025-05-24 03:51:29,073 - root - INFO - Total unique IPOs fetched after deduplication: 0
-2025-05-24 03:51:29,073 - root - INFO - No upcoming IPOs found from any source to analyze.
-2025-05-24 03:51:29,073 - root - INFO - --- Script execution finished. ---
-2025-05-24 04:05:22,421 - root - INFO - ===================================================================
-2025-05-24 04:05:22,423 - root - INFO - Starting Financial Analysis Script at 2025-05-24 04:05:22.423426
-2025-05-24 04:05:22,423 - root - INFO - ===================================================================
-2025-05-24 04:05:22,425 - root - INFO - --- Starting IPO Analysis Pipeline ---
-2025-05-24 04:05:22,425 - root - INFO - Fetching upcoming IPOs...
-2025-05-24 04:05:22,426 - root - INFO - Attempting to fetch IPOs from FinancialModelingPrep...
-2025-05-24 04:05:24,949 - root - WARNING - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/ipo_calendar (Details: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVzfz61uB'}): 403 - {
-  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://site.financialmodelingprep.com/developer/docs/pricing"
-}
-2025-05-24 04:05:24,951 - root - ERROR - Non-retryable client error for https://financialmodelingprep.com/api/v3/ipo_calendar: 403 Forbidden
-2025-05-24 04:05:24,953 - root - WARNING - Failed to fetch IPOs from FMP (API call failed, check previous logs for 403).
-2025-05-24 04:05:24,954 - root - INFO - Attempting to fetch IPOs from EODHistoricalData...
-2025-05-24 04:05:26,191 - root - WARNING - HTTP error on attempt 1/3 for https://eodhistoricaldata.com/api/calendar/ipos (Details: {'api_token': '683079df749c42.21476005', 'fmt': 'json'}): 403 - Only EOD data allowed for free users. Please, contact our support team: support@eodhistoricaldata.com
-2025-05-24 04:05:26,192 - root - ERROR - Non-retryable client error for https://eodhistoricaldata.com/api/calendar/ipos: 403 Forbidden
-2025-05-24 04:05:26,194 - root - WARNING - Failed to fetch IPOs from EODHD (API call failed, check previous logs for 403).
-2025-05-24 04:05:26,195 - root - INFO - Attempting to fetch IPOs from RapidAPI (upcoming-ipo-calendar)...
-2025-05-24 04:05:27,199 - root - WARNING - HTTP error on attempt 1/3 for https://upcoming-ipo-calendar.p.rapidapi.com/ipo-calendar (Details: 104cde): 403 - {"message":"You are not subscribed to this API."}
-2025-05-24 04:05:27,200 - root - ERROR - Non-retryable client error for https://upcoming-ipo-calendar.p.rapidapi.com/ipo-calendar: 403 Forbidden
-2025-05-24 04:05:27,202 - root - WARNING - Failed to fetch IPOs from RapidAPI (API call failed or returned None).
-2025-05-24 04:05:27,203 - root - INFO - Total unique IPOs fetched after deduplication: 0
-2025-05-24 04:05:27,204 - root - INFO - No upcoming IPOs found from any source to analyze.
-2025-05-24 04:05:27,205 - root - INFO - --- Script execution finished. ---
-2025-05-24 04:08:34,255 - root - INFO - ===================================================================
-2025-05-24 04:08:34,255 - root - INFO - Starting Financial Analysis Script at 2025-05-24 04:08:34.255962
-2025-05-24 04:08:34,255 - root - INFO - ===================================================================
-2025-05-24 04:08:34,256 - root - INFO - --- Starting IPO Analysis Pipeline ---
-2025-05-24 04:08:34,257 - root - INFO - Fetching upcoming IPOs...
-2025-05-24 04:08:34,257 - root - INFO - Attempting to fetch IPOs from FinancialModelingPrep...
-2025-05-24 04:08:36,702 - root - WARNING - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/ipo_calendar (Details: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVzfz61uB'}): 403 - {
-  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://site.financialmodelingprep.com/developer/docs/pricing"
-}
-2025-05-24 04:08:36,704 - root - ERROR - Non-retryable client error for https://financialmodelingprep.com/api/v3/ipo_calendar: 403 Forbidden
-2025-05-24 04:08:36,706 - root - WARNING - Failed to fetch IPOs from FMP (API call failed, check logs for 403 or other errors).
-2025-05-24 04:08:36,707 - root - INFO - Attempting to fetch IPOs from EODHistoricalData...
-2025-05-24 04:08:37,914 - root - WARNING - HTTP error on attempt 1/3 for https://eodhistoricaldata.com/api/calendar/ipos (Details: {'api_token': '683079df749c42.21476005', 'fmt': 'json'}): 403 - Only EOD data allowed for free users. Please, contact our support team: support@eodhistoricaldata.com
-2025-05-24 04:08:37,915 - root - ERROR - Non-retryable client error for https://eodhistoricaldata.com/api/calendar/ipos: 403 Forbidden
-2025-05-24 04:08:37,917 - root - WARNING - Failed to fetch IPOs from EODHD (API call failed, check logs for 403 or other errors).
-2025-05-24 04:08:37,917 - root - INFO - Attempting to fetch IPOs from RapidAPI (upcoming-ipo-calendar)...
-2025-05-24 04:08:38,950 - root - WARNING - HTTP error on attempt 1/3 for https://upcoming-ipo-calendar.p.rapidapi.com/ipo-calendar (Details: 104cde): 403 - {"message":"You are not subscribed to this API."}
-2025-05-24 04:08:38,951 - root - ERROR - Non-retryable client error for https://upcoming-ipo-calendar.p.rapidapi.com/ipo-calendar: 403 Forbidden
-2025-05-24 04:08:38,952 - root - WARNING - Failed to fetch IPOs from RapidAPI (API call failed or returned None). This often indicates a subscription issue (e.g., not subscribed to the free plan on RapidAPI Hub) or an incorrect API key.
-2025-05-24 04:08:38,953 - root - ERROR - No IPOs were fetched from any data source. Please check API key validity and service subscriptions (especially for RapidAPI if a free tier is expected).
-2025-05-24 04:08:38,954 - root - INFO - No upcoming IPOs found from any source to analyze. Pipeline will not proceed further.
-2025-05-24 04:08:38,955 - root - INFO - --- Script execution finished. ---
-2025-05-24 04:15:44,134 - root - INFO - ===================================================================
-2025-05-24 04:15:44,134 - root - INFO - Starting Financial Analysis Script at 2025-05-24 04:15:44.134976
-2025-05-24 04:15:44,134 - root - INFO - ===================================================================
-2025-05-24 04:15:44,135 - root - INFO - Initializing database as per command line argument...
-2025-05-24 04:15:44,136 - root - INFO - Initializing database and creating tables...
-2025-05-24 04:15:48,005 - root - INFO - Database tables created successfully (if they didn't exist).
-2025-05-24 04:15:48,006 - root - INFO - Database initialization complete.
-2025-05-24 04:15:48,007 - root - INFO - --- Script execution finished. ---
-2025-05-24 04:15:59,797 - root - INFO - ===================================================================
-2025-05-24 04:15:59,797 - root - INFO - Starting Financial Analysis Script at 2025-05-24 04:15:59.797001
-2025-05-24 04:15:59,797 - root - INFO - ===================================================================
-2025-05-24 04:15:59,799 - root - INFO - --- Starting IPO Analysis Pipeline ---
-2025-05-24 04:15:59,799 - root - INFO - Fetching upcoming IPOs using Finnhub...
-2025-05-24 04:15:59,799 - root - ERROR - Error during IPO analysis pipeline: name 'timedelta' is not defined
+2025-05-24 22:08:17,673 - root - INFO - ===================================================================
+2025-05-24 22:08:17,674 - root - INFO - Starting Financial Analysis Script at 2025-05-24 22:08:17.674052
+2025-05-24 22:08:17,674 - root - INFO - ===================================================================
+2025-05-24 22:08:17,676 - root - INFO - Running all analyses for default stocks: ['AAPL', 'MSFT', 'GOOGL'], IPOs, and News.
+2025-05-24 22:08:17,676 - root - INFO - --- Starting Individual Stock Analysis for: ['AAPL', 'MSFT', 'GOOGL'] ---
+2025-05-24 22:08:19,279 - root - INFO - Stock AAPL not found in DB, creating new entry.
+2025-05-24 22:08:20,722 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
+2025-05-24 22:08:21,152 - root - INFO - Successfully created and committed new stock entry for AAPL (ID: 1).
+2025-05-24 22:08:21,241 - root - INFO - Refreshed stock entry for AAPL after creation. Company Name: Apple Inc.
+2025-05-24 22:08:21,242 - root - INFO - Starting analysis for AAPL...
+2025-05-24 22:08:21,243 - root - INFO - Fetching financial data for AAPL...
+2025-05-24 22:08:21,331 - root - INFO - Cache hit for: GET:https://financialmodelingprep.com/api/v3/profile/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
+2025-05-24 22:08:22,812 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/income-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
+2025-05-24 22:08:24,220 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
+2025-05-24 22:08:25,633 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
+2025-05-24 22:08:27,062 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
+2025-05-24 22:08:28,775 - root - INFO - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=AAPL&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390
+2025-05-24 22:08:28,777 - root - INFO - Calculating metrics for AAPL...
+2025-05-24 22:08:28,778 - root - INFO - Calculated metrics for AAPL: {'pe_ratio': 37.287278415656736, 'pb_ratio': 61.37243774486391, 'dividend_yield': 0.0043585983369965175, 'debt_to_equity': 1.872326602282704, 'net_profit_margin': None, 'roe': 1.6459350307287095, 'eps': 6.0836, 'revenue_growth': '2.02%', 'current_ratio': 0.8673125765340832, 'retained_earnings_trend': 'Mixed/Stable', 'free_cash_flow_trend': 'Mixed/Stable', 'interest_coverage_ratio': None}
+2025-05-24 22:08:28,779 - root - INFO - Analyzing qualitative factors for AAPL using Gemini...
+2025-05-24 22:08:39,598 - root - INFO - Qualitative analysis for AAPL complete.
+2025-05-24 22:08:39,599 - root - INFO - Determining investment strategy for AAPL...
+2025-05-24 22:08:51,175 - root - INFO - Successfully analyzed and saved stock: AAPL (Analysis ID: 1)
+2025-05-24 22:08:51,428 - root - INFO - Stock MSFT not found in DB, creating new entry.
+2025-05-24 22:08:52,784 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/MSFT?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
+2025-05-24 22:08:53,212 - root - INFO - Successfully created and committed new stock entry for MSFT (ID: 2).
+2025-05-24 22:08:53,298 - root - INFO - Refreshed stock entry for MSFT after creation. Company Name: Microsoft Corporation
+2025-05-24 22:08:53,299 - root - INFO - Starting analysis for MSFT...
+2025-05-24 22:08:53,300 - root - INFO - Fetching financial data for MSFT...
+2025-05-24 22:08:53,389 - root - INFO - Cache hit for: GET:https://financialmodelingprep.com/api/v3/profile/MSFT?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
+2025-05-24 22:08:54,905 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/income-statement/MSFT?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
+2025-05-24 22:08:56,313 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/MSFT?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
+2025-05-24 22:08:57,729 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/MSFT?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
+2025-05-24 22:08:59,125 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/MSFT?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
+2025-05-24 22:09:00,726 - root - INFO - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=MSFT&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390
+2025-05-24 22:09:00,728 - root - INFO - Calculating metrics for MSFT...
+2025-05-24 22:09:00,729 - root - INFO - Calculated metrics for MSFT: {'pe_ratio': 38.508221725515114, 'pb_ratio': 12.641532161041727, 'dividend_yield': 0.006414629506176681, 'debt_to_equity': 0.25002886653232864, 'net_profit_margin': None, 'roe': 0.32828137978299815, 'eps': 11.8002, 'revenue_growth': '15.67%', 'interest_coverage_ratio': 45.31822827938671, 'current_ratio': 1.2749549031815206, 'retained_earnings_trend': 'Growing', 'free_cash_flow_trend': 'Mixed/Stable'}
+2025-05-24 22:09:00,730 - root - INFO - Analyzing qualitative factors for MSFT using Gemini...
+2025-05-24 22:09:16,710 - root - INFO - Qualitative analysis for MSFT complete.
+2025-05-24 22:09:16,711 - root - INFO - Determining investment strategy for MSFT...
+2025-05-24 22:09:26,499 - root - INFO - Successfully analyzed and saved stock: MSFT (Analysis ID: 2)
+2025-05-24 22:09:26,751 - root - INFO - Stock GOOGL not found in DB, creating new entry.
+2025-05-24 22:09:28,159 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/GOOGL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
+2025-05-24 22:09:28,591 - root - INFO - Successfully created and committed new stock entry for GOOGL (ID: 3).
+2025-05-24 22:09:28,676 - root - INFO - Refreshed stock entry for GOOGL after creation. Company Name: Alphabet Inc.
+2025-05-24 22:09:28,677 - root - INFO - Starting analysis for GOOGL...
+2025-05-24 22:09:28,678 - root - INFO - Fetching financial data for GOOGL...
+2025-05-24 22:09:28,765 - root - INFO - Cache hit for: GET:https://financialmodelingprep.com/api/v3/profile/GOOGL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB
+2025-05-24 22:09:30,270 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/income-statement/GOOGL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
+2025-05-24 22:09:31,680 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/GOOGL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
+2025-05-24 22:09:33,119 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/GOOGL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
+2025-05-24 22:09:34,543 - root - INFO - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/GOOGL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB&limit=5&period=annual
+2025-05-24 22:09:35,947 - root - INFO - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=GOOGL&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390
+2025-05-24 22:09:35,949 - root - INFO - Calculating metrics for GOOGL...
+2025-05-24 22:09:35,950 - root - INFO - Calculated metrics for GOOGL: {'pe_ratio': 23.292381989252682, 'pb_ratio': 7.173489621144074, 'dividend_yield': 0.0031573936506584708, 'debt_to_equity': 0.07832129541903016, 'net_profit_margin': None, 'roe': 0.30797578472025694, 'eps': 7.5203, 'revenue_growth': '13.87%', 'interest_coverage_ratio': 505.2014925373134, 'current_ratio': 1.8369313974102914, 'retained_earnings_trend': 'Growing', 'free_cash_flow_trend': 'Growing'}
+2025-05-24 22:09:35,951 - root - INFO - Analyzing qualitative factors for GOOGL using Gemini...
+2025-05-24 22:09:50,688 - root - INFO - Qualitative analysis for GOOGL complete.
+2025-05-24 22:09:50,690 - root - INFO - Determining investment strategy for GOOGL...
+2025-05-24 22:10:00,148 - root - INFO - Successfully analyzed and saved stock: GOOGL (Analysis ID: 3)
+2025-05-24 22:10:00,236 - root - INFO - --- Starting IPO Analysis Pipeline ---
+2025-05-24 22:10:00,237 - root - INFO - Fetching upcoming IPOs using Finnhub...
+2025-05-24 22:10:01,453 - root - INFO - Cached response for: GET:https://finnhub.io/api/v1/calendar/ipo?from=2025-05-17&to=2025-08-22&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390
+2025-05-24 22:10:01,455 - root - INFO - Successfully parsed 20 IPOs from Finnhub response.
+2025-05-24 22:10:01,456 - root - INFO - Total unique IPOs fetched after deduplication: 19
+2025-05-24 22:10:01,457 - root - INFO - Starting analysis for IPO: Vantage Corp (Singapore) from source Finnhub
+2025-05-24 22:10:01,629 - root - INFO - Found existing IPO entry for 'Vantage Corp (Singapore)' (ID: 1). Checking for updates.
+2025-05-24 22:10:01,816 - root - INFO - Re-analyzing IPO Vantage Corp (Singapore) due to significant calendar change or analysis older than one day.
+2025-05-24 22:11:06,998 - root - INFO - Updating existing IPO analysis for Vantage Corp (Singapore) (ID: 1)
+2025-05-24 22:11:07,565 - root - INFO - Successfully analyzed and saved IPO: Vantage Corp (Singapore) (Analysis ID: 1)
+2025-05-24 22:11:10,567 - root - INFO - Starting analysis for IPO: Fast Track Group from source Finnhub
+2025-05-24 22:11:10,651 - root - INFO - Found existing IPO entry for 'Fast Track Group' (ID: 2). Checking for updates.
+2025-05-24 22:11:10,819 - root - INFO - Re-analyzing IPO Fast Track Group due to significant calendar change or analysis older than one day.
+2025-05-24 22:12:14,864 - root - INFO - Updating existing IPO analysis for Fast Track Group (ID: 2)
+2025-05-24 22:12:15,394 - root - INFO - Successfully analyzed and saved IPO: Fast Track Group (Analysis ID: 2)
+2025-05-24 22:12:18,397 - root - INFO - Starting analysis for IPO: Pelican Acquisition Corp from source Finnhub
+2025-05-24 22:12:18,482 - root - INFO - Found existing IPO entry for 'Pelican Acquisition Corp' (ID: 3). Checking for updates.
+2025-05-24 22:12:18,651 - root - INFO - Re-analyzing IPO Pelican Acquisition Corp due to significant calendar change or analysis older than one day.
+2025-05-24 22:13:21,459 - root - INFO - Updating existing IPO analysis for Pelican Acquisition Corp (ID: 3)
+2025-05-24 22:13:21,977 - root - INFO - Successfully analyzed and saved IPO: Pelican Acquisition Corp (Analysis ID: 3)
+2025-05-24 22:13:24,981 - root - INFO - Starting analysis for IPO: Cal Redwood Acquisition Corp. from source Finnhub
+2025-05-24 22:13:25,066 - root - INFO - Found existing IPO entry for 'Cal Redwood Acquisition Corp.' (ID: 4). Checking for updates.
+2025-05-24 22:13:25,235 - root - INFO - Re-analyzing IPO Cal Redwood Acquisition Corp. due to significant calendar change or analysis older than one day.
+2025-05-24 22:14:25,935 - root - INFO - Updating existing IPO analysis for Cal Redwood Acquisition Corp. (ID: 4)
+2025-05-24 22:14:26,459 - root - INFO - Successfully analyzed and saved IPO: Cal Redwood Acquisition Corp. (Analysis ID: 4)
+2025-05-24 22:14:29,461 - root - INFO - Starting analysis for IPO: Oyster Enterprises II Acquisition Corp from source Finnhub
+2025-05-24 22:14:29,547 - root - INFO - Found existing IPO entry for 'Oyster Enterprises II Acquisition Corp' (ID: 5). Checking for updates.
+2025-05-24 22:14:29,718 - root - INFO - Re-analyzing IPO Oyster Enterprises II Acquisition Corp due to significant calendar change or analysis older than one day.
+2025-05-24 22:15:27,560 - root - INFO - Updating existing IPO analysis for Oyster Enterprises II Acquisition Corp (ID: 5)
+2025-05-24 22:15:28,081 - root - INFO - Successfully analyzed and saved IPO: Oyster Enterprises II Acquisition Corp (Analysis ID: 5)
+2025-05-24 22:15:31,082 - root - INFO - Starting analysis for IPO: Hinge Health, Inc. from source Finnhub
+2025-05-24 22:15:31,167 - root - INFO - Found existing IPO entry for 'Hinge Health, Inc.' (ID: 6). Checking for updates.
+2025-05-24 22:15:31,335 - root - INFO - Re-analyzing IPO Hinge Health, Inc. due to significant calendar change or analysis older than one day.
+2025-05-24 22:16:40,489 - root - INFO - Updating existing IPO analysis for Hinge Health, Inc. (ID: 6)
+2025-05-24 22:16:41,018 - root - INFO - Successfully analyzed and saved IPO: Hinge Health, Inc. (Analysis ID: 6)
+2025-05-24 22:16:44,020 - root - INFO - Starting analysis for IPO: MNTN, Inc. from source Finnhub
+2025-05-24 22:16:44,106 - root - INFO - Found existing IPO entry for 'MNTN, Inc.' (ID: 7). Checking for updates.
+2025-05-24 22:16:44,282 - root - INFO - Re-analyzing IPO MNTN, Inc. due to significant calendar change or analysis older than one day.
+2025-05-24 22:17:47,456 - root - INFO - Updating existing IPO analysis for MNTN, Inc. (ID: 7)
+2025-05-24 22:17:47,978 - root - INFO - Successfully analyzed and saved IPO: MNTN, Inc. (Analysis ID: 7)
+2025-05-24 22:17:50,981 - root - INFO - Starting analysis for IPO: AParadise Acquisition Corp. from source Finnhub
+2025-05-24 22:17:51,068 - root - INFO - Found existing IPO entry for 'AParadise Acquisition Corp.' (ID: 8). Checking for updates.
+2025-05-24 22:17:51,239 - root - ERROR - Error during IPO analysis pipeline: can't compare offset-naive and offset-aware datetimes
 Traceback (most recent call last):
   File "C:\GitHub\stock-alarm\main.py", line 35, in run_ipo_analysis
     results = analyzer.run_ipo_analysis_pipeline()
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\GitHub\stock-alarm\ipo_analyzer.py", line 334, in run_ipo_analysis_pipeline
-    all_upcoming_ipos = self.fetch_upcoming_ipos()
-                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\GitHub\stock-alarm\ipo_analyzer.py", line 22, in fetch_upcoming_ipos
-    from_date = (today - timedelta(days=7)).strftime('%Y-%m-%d')  # Look back 7 days
-                         ^^^^^^^^^
-NameError: name 'timedelta' is not defined
-2025-05-24 04:15:59,828 - root - INFO - --- Script execution finished. ---
-2025-05-24 04:16:56,870 - root - INFO - ===================================================================
-2025-05-24 04:16:56,871 - root - INFO - Starting Financial Analysis Script at 2025-05-24 04:16:56.871693
-2025-05-24 04:16:56,871 - root - INFO - ===================================================================
-2025-05-24 04:16:56,873 - root - INFO - --- Starting IPO Analysis Pipeline ---
-2025-05-24 04:16:56,874 - root - INFO - Fetching upcoming IPOs using Finnhub...
-2025-05-24 04:16:59,383 - root - INFO - Cached response for: GET:https://finnhub.io/api/v1/calendar/ipo?from=2025-05-17&to=2025-08-22&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390
-2025-05-24 04:16:59,385 - root - INFO - No IPOs found or returned by Finnhub for the current period.
-2025-05-24 04:16:59,386 - root - INFO - Total unique IPOs fetched after deduplication: 0
-2025-05-24 04:16:59,387 - root - INFO - No upcoming IPOs found from Finnhub to analyze.
-2025-05-24 04:16:59,388 - root - INFO - --- Script execution finished. ---
-2025-05-24 04:20:17,145 - root - INFO - ===================================================================
-2025-05-24 04:20:17,146 - root - INFO - Starting Financial Analysis Script at 2025-05-24 04:20:17.146507
-2025-05-24 04:20:17,146 - root - INFO - ===================================================================
-2025-05-24 04:20:17,149 - root - INFO - --- Starting IPO Analysis Pipeline ---
-2025-05-24 04:20:17,149 - root - INFO - Fetching upcoming IPOs using Finnhub...
-2025-05-24 04:20:18,741 - root - INFO - Cache hit for: GET:https://finnhub.io/api/v1/calendar/ipo?from=2025-05-17&to=2025-08-22&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390
-2025-05-24 04:20:18,832 - root - INFO - Successfully parsed 20 IPOs from Finnhub response.
-2025-05-24 04:20:18,833 - root - INFO - Total unique IPOs fetched after deduplication: 19
-2025-05-24 04:20:18,834 - root - INFO - Starting analysis for IPO: Vantage Corp (Singapore) from source Finnhub
-2025-05-24 04:20:19,095 - root - INFO - IPO 'Vantage Corp (Singapore)' not found in DB, creating new entry.
-2025-05-24 04:20:19,440 - root - INFO - Created and refreshed IPO entry for 'Vantage Corp (Singapore)' (ID: 1)
-2025-05-24 04:20:19,853 - root - WARNING - Gemini API HTTP error for key ...xcjY on attempt 1/3: 404 - {
-  "error": {
-    "code": 404,
-    "message": "models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.",
-    "status": "NOT_FOUND"
-  }
-}
-. Prompt: 'For the upcoming IPO of 'Vantage Corp (Singapore)', given: The company is named 'Vantage Corp (Singa...'
-2025-05-24 04:22:40,954 - root - INFO - ===================================================================
-2025-05-24 04:22:40,954 - root - INFO - Starting Financial Analysis Script at 2025-05-24 04:22:40.954412
-2025-05-24 04:22:40,954 - root - INFO - ===================================================================
-2025-05-24 04:22:40,956 - root - INFO - --- Starting IPO Analysis Pipeline ---
-2025-05-24 04:22:40,956 - root - INFO - Fetching upcoming IPOs using Finnhub...
-2025-05-24 04:22:42,517 - root - INFO - Cache hit for: GET:https://finnhub.io/api/v1/calendar/ipo?from=2025-05-17&to=2025-08-22&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390
-2025-05-24 04:22:42,602 - root - INFO - Successfully parsed 20 IPOs from Finnhub response.
-2025-05-24 04:22:42,602 - root - INFO - Total unique IPOs fetched after deduplication: 19
-2025-05-24 04:22:42,602 - root - INFO - Starting analysis for IPO: Vantage Corp (Singapore) from source Finnhub
-2025-05-24 04:22:42,771 - root - INFO - Found existing IPO entry for 'Vantage Corp (Singapore)' (ID: 1). Checking for updates.
-2025-05-24 04:23:47,070 - root - INFO - Creating new IPO analysis entry for Vantage Corp (Singapore)
-2025-05-24 04:23:47,709 - root - INFO - Successfully analyzed and saved IPO: Vantage Corp (Singapore) (Analysis ID: 1)
-2025-05-24 04:23:50,712 - root - INFO - Starting analysis for IPO: Fast Track Group from source Finnhub
-2025-05-24 04:23:50,885 - root - INFO - IPO 'Fast Track Group' not found in DB, creating new entry.
-2025-05-24 04:23:51,223 - root - INFO - Created and refreshed IPO entry for 'Fast Track Group' (ID: 2)
-2025-05-24 04:24:48,481 - root - INFO - Creating new IPO analysis entry for Fast Track Group
-2025-05-24 04:24:49,007 - root - INFO - Successfully analyzed and saved IPO: Fast Track Group (Analysis ID: 2)
-2025-05-24 04:24:52,009 - root - INFO - Starting analysis for IPO: Pelican Acquisition Corp from source Finnhub
-2025-05-24 04:24:52,182 - root - INFO - IPO 'Pelican Acquisition Corp' not found in DB, creating new entry.
-2025-05-24 04:24:52,519 - root - INFO - Created and refreshed IPO entry for 'Pelican Acquisition Corp' (ID: 3)
-2025-05-24 04:25:49,528 - root - INFO - Creating new IPO analysis entry for Pelican Acquisition Corp
-2025-05-24 04:25:50,047 - root - INFO - Successfully analyzed and saved IPO: Pelican Acquisition Corp (Analysis ID: 3)
-2025-05-24 04:25:53,050 - root - INFO - Starting analysis for IPO: Cal Redwood Acquisition Corp. from source Finnhub
-2025-05-24 04:25:53,219 - root - INFO - IPO 'Cal Redwood Acquisition Corp.' not found in DB, creating new entry.
-2025-05-24 04:25:53,557 - root - INFO - Created and refreshed IPO entry for 'Cal Redwood Acquisition Corp.' (ID: 4)
-2025-05-24 04:26:51,333 - root - INFO - Creating new IPO analysis entry for Cal Redwood Acquisition Corp.
-2025-05-24 04:26:51,855 - root - INFO - Successfully analyzed and saved IPO: Cal Redwood Acquisition Corp. (Analysis ID: 4)
-2025-05-24 04:26:54,857 - root - INFO - Starting analysis for IPO: Oyster Enterprises II Acquisition Corp from source Finnhub
-2025-05-24 04:26:55,031 - root - INFO - IPO 'Oyster Enterprises II Acquisition Corp' not found in DB, creating new entry.
-2025-05-24 04:26:55,364 - root - INFO - Created and refreshed IPO entry for 'Oyster Enterprises II Acquisition Corp' (ID: 5)
-2025-05-24 04:27:53,185 - root - INFO - Creating new IPO analysis entry for Oyster Enterprises II Acquisition Corp
-2025-05-24 04:27:53,705 - root - INFO - Successfully analyzed and saved IPO: Oyster Enterprises II Acquisition Corp (Analysis ID: 5)
-2025-05-24 04:27:56,707 - root - INFO - Starting analysis for IPO: Hinge Health, Inc. from source Finnhub
-2025-05-24 04:27:56,876 - root - INFO - IPO 'Hinge Health, Inc.' not found in DB, creating new entry.
-2025-05-24 04:27:57,213 - root - INFO - Created and refreshed IPO entry for 'Hinge Health, Inc.' (ID: 6)
-2025-05-24 04:29:04,738 - root - INFO - Creating new IPO analysis entry for Hinge Health, Inc.
-2025-05-24 04:29:05,264 - root - INFO - Successfully analyzed and saved IPO: Hinge Health, Inc. (Analysis ID: 6)
-2025-05-24 04:29:08,267 - root - INFO - Starting analysis for IPO: MNTN, Inc. from source Finnhub
-2025-05-24 04:29:08,435 - root - INFO - IPO 'MNTN, Inc.' not found in DB, creating new entry.
-2025-05-24 04:29:08,772 - root - INFO - Created and refreshed IPO entry for 'MNTN, Inc.' (ID: 7)
-2025-05-24 04:30:08,503 - root - INFO - Creating new IPO analysis entry for MNTN, Inc.
-2025-05-24 04:30:09,027 - root - INFO - Successfully analyzed and saved IPO: MNTN, Inc. (Analysis ID: 7)
-2025-05-24 04:30:12,029 - root - INFO - Starting analysis for IPO: AParadise Acquisition Corp. from source Finnhub
-2025-05-24 04:30:12,196 - root - INFO - IPO 'AParadise Acquisition Corp.' not found in DB, creating new entry.
-2025-05-24 04:30:12,529 - root - INFO - Created and refreshed IPO entry for 'AParadise Acquisition Corp.' (ID: 8)
-2025-05-24 04:31:10,647 - root - INFO - Creating new IPO analysis entry for AParadise Acquisition Corp.
-2025-05-24 04:31:11,170 - root - INFO - Successfully analyzed and saved IPO: AParadise Acquisition Corp. (Analysis ID: 8)
-2025-05-24 04:31:14,173 - root - INFO - Starting analysis for IPO: ProCap Acquisition Corp from source Finnhub
-2025-05-24 04:31:14,348 - root - INFO - IPO 'ProCap Acquisition Corp' not found in DB, creating new entry.
-2025-05-24 04:31:14,685 - root - INFO - Created and refreshed IPO entry for 'ProCap Acquisition Corp' (ID: 9)
-2025-05-24 04:32:14,061 - root - INFO - Creating new IPO analysis entry for ProCap Acquisition Corp
-2025-05-24 04:32:14,584 - root - INFO - Successfully analyzed and saved IPO: ProCap Acquisition Corp (Analysis ID: 9)
-2025-05-24 04:32:17,586 - root - INFO - Starting analysis for IPO: Armada Acquisition Corp. II from source Finnhub
-2025-05-24 04:32:17,755 - root - INFO - IPO 'Armada Acquisition Corp. II' not found in DB, creating new entry.
-2025-05-24 04:32:18,092 - root - INFO - Created and refreshed IPO entry for 'Armada Acquisition Corp. II' (ID: 10)
-2025-05-24 04:33:11,611 - root - INFO - Creating new IPO analysis entry for Armada Acquisition Corp. II
-2025-05-24 04:33:12,128 - root - INFO - Successfully analyzed and saved IPO: Armada Acquisition Corp. II (Analysis ID: 10)
-2025-05-24 04:33:15,131 - root - INFO - Starting analysis for IPO: OFA Group from source Finnhub
-2025-05-24 04:33:15,300 - root - INFO - IPO 'OFA Group' not found in DB, creating new entry.
-2025-05-24 04:33:15,636 - root - INFO - Created and refreshed IPO entry for 'OFA Group' (ID: 11)
-2025-05-24 04:34:17,301 - root - INFO - Creating new IPO analysis entry for OFA Group
-2025-05-24 04:34:17,817 - root - INFO - Successfully analyzed and saved IPO: OFA Group (Analysis ID: 11)
-2025-05-24 04:34:20,818 - root - INFO - Starting analysis for IPO: FIGX Capital Acquisition Corp. from source Finnhub
-2025-05-24 04:34:20,990 - root - INFO - IPO 'FIGX Capital Acquisition Corp.' not found in DB, creating new entry.
-2025-05-24 04:34:21,333 - root - INFO - Created and refreshed IPO entry for 'FIGX Capital Acquisition Corp.' (ID: 12)
-2025-05-24 04:35:26,062 - root - INFO - Creating new IPO analysis entry for FIGX Capital Acquisition Corp.
-2025-05-24 04:35:26,586 - root - INFO - Successfully analyzed and saved IPO: FIGX Capital Acquisition Corp. (Analysis ID: 12)
-2025-05-24 04:35:29,588 - root - INFO - Starting analysis for IPO: Jefferson Capital, Inc. / DE from source Finnhub
-2025-05-24 04:35:29,757 - root - INFO - IPO 'Jefferson Capital, Inc. / DE' not found in DB, creating new entry.
-2025-05-24 04:35:30,093 - root - INFO - Created and refreshed IPO entry for 'Jefferson Capital, Inc. / DE' (ID: 13)
-2025-05-24 04:36:33,155 - root - INFO - Creating new IPO analysis entry for Jefferson Capital, Inc. / DE
-2025-05-24 04:36:33,678 - root - INFO - Successfully analyzed and saved IPO: Jefferson Capital, Inc. / DE (Analysis ID: 13)
-2025-05-24 04:36:36,679 - root - INFO - Starting analysis for IPO: INFINT Acquisition Corp 2 from source Finnhub
-2025-05-24 04:36:36,765 - root - INFO - IPO 'INFINT Acquisition Corp 2' not found in DB, creating new entry.
-2025-05-24 04:36:37,101 - root - INFO - Created and refreshed IPO entry for 'INFINT Acquisition Corp 2' (ID: 14)
-2025-05-24 04:37:41,742 - root - INFO - Creating new IPO analysis entry for INFINT Acquisition Corp 2
-2025-05-24 04:37:42,262 - root - INFO - Successfully analyzed and saved IPO: INFINT Acquisition Corp 2 (Analysis ID: 14)
-2025-05-24 04:37:45,265 - root - INFO - Starting analysis for IPO: Uptrend Holdings Ltd from source Finnhub
-2025-05-24 04:37:45,436 - root - INFO - IPO 'Uptrend Holdings Ltd' not found in DB, creating new entry.
-2025-05-24 04:37:45,772 - root - INFO - Created and refreshed IPO entry for 'Uptrend Holdings Ltd' (ID: 15)
-2025-05-24 04:38:44,012 - root - INFO - Creating new IPO analysis entry for Uptrend Holdings Ltd
-2025-05-24 04:38:44,533 - root - INFO - Successfully analyzed and saved IPO: Uptrend Holdings Ltd (Analysis ID: 15)
-2025-05-24 04:38:47,535 - root - INFO - Starting analysis for IPO: LightWave Acquisition Corp. from source Finnhub
-2025-05-24 04:38:47,707 - root - INFO - IPO 'LightWave Acquisition Corp.' not found in DB, creating new entry.
-2025-05-24 04:38:48,046 - root - INFO - Created and refreshed IPO entry for 'LightWave Acquisition Corp.' (ID: 16)
-2025-05-24 04:39:45,196 - root - INFO - Creating new IPO analysis entry for LightWave Acquisition Corp.
-2025-05-24 04:39:45,728 - root - INFO - Successfully analyzed and saved IPO: LightWave Acquisition Corp. (Analysis ID: 16)
-2025-05-24 04:39:48,730 - root - INFO - Starting analysis for IPO: Ultra High Point Holdings Ltd from source Finnhub
-2025-05-24 04:39:48,911 - root - INFO - IPO 'Ultra High Point Holdings Ltd' not found in DB, creating new entry.
-2025-05-24 04:39:49,244 - root - INFO - Created and refreshed IPO entry for 'Ultra High Point Holdings Ltd' (ID: 17)
-2025-05-24 04:41:02,094 - root - INFO - Creating new IPO analysis entry for Ultra High Point Holdings Ltd
-2025-05-24 04:41:02,626 - root - INFO - Successfully analyzed and saved IPO: Ultra High Point Holdings Ltd (Analysis ID: 17)
-2025-05-24 04:41:05,629 - root - INFO - Skipping IPO 'Fitness Champs Holdings Ltd' with status 'withdrawn'.
-2025-05-24 04:41:05,629 - root - INFO - Starting analysis for IPO: K-TECH SOLUTIONS CO LTD from source Finnhub
-2025-05-24 04:41:05,804 - root - INFO - IPO 'K-TECH SOLUTIONS CO LTD' not found in DB, creating new entry.
-2025-05-24 04:41:06,140 - root - INFO - Created and refreshed IPO entry for 'K-TECH SOLUTIONS CO LTD' (ID: 18)
-2025-05-24 04:42:04,595 - root - INFO - Creating new IPO analysis entry for K-TECH SOLUTIONS CO LTD
-2025-05-24 04:42:05,116 - root - INFO - Successfully analyzed and saved IPO: K-TECH SOLUTIONS CO LTD (Analysis ID: 18)
-2025-05-24 04:42:08,119 - root - INFO - IPO analysis pipeline completed. Analyzed/Updated 18 IPOs.
-2025-05-24 04:42:08,203 - root - INFO - --- Script execution finished. ---
-2025-05-24 04:45:27,115 - root - INFO - ===================================================================
-2025-05-24 04:45:27,115 - root - INFO - Starting Financial Analysis Script at 2025-05-24 04:45:27.115061
-2025-05-24 04:45:27,116 - root - INFO - ===================================================================
-2025-05-24 04:45:27,118 - root - INFO - --- Generating Today's Email Summary ---
-2025-05-24 04:45:29,250 - root - INFO - Found 0 stock analyses, 18 IPO analyses, 0 news analyses for today's email.
-2025-05-24 04:45:31,841 - root - INFO - Email summary created. Sending is commented out in main.py for safety.
-2025-05-24 04:45:31,848 - root - INFO - Email HTML saved to a file.
-2025-05-24 04:45:31,932 - root - INFO - --- Script execution finished. ---
-2025-05-24 21:36:31,975 - root - INFO - ===================================================================
-2025-05-24 21:36:31,986 - root - INFO - Starting Financial Analysis Script at 2025-05-24 21:36:31.986802
-2025-05-24 21:36:31,987 - root - INFO - ===================================================================
-2025-05-24 21:36:31,989 - root - INFO - --- Generating Today's Email Summary ---
-2025-05-24 21:36:34,156 - root - INFO - Found 0 stock analyses, 18 IPO analyses, 0 news analyses for today's email.
-2025-05-24 21:36:36,203 - root - INFO - Email summary created. Sending is commented out in main.py for safety.
-2025-05-24 21:36:36,211 - root - INFO - Email HTML saved to a file.
-2025-05-24 21:36:36,298 - root - INFO - --- Script execution finished. ---
-2025-05-24 21:38:00,929 - root - INFO - ===================================================================
-2025-05-24 21:38:00,929 - root - INFO - Starting Financial Analysis Script at 2025-05-24 21:38:00.929641
-2025-05-24 21:38:00,930 - root - INFO - ===================================================================
-2025-05-24 21:38:00,932 - root - INFO - --- Generating Today's Email Summary ---
-2025-05-24 21:38:03,041 - root - INFO - Found 0 stock analyses, 18 IPO analyses, 0 news analyses for today's email.
-2025-05-24 21:38:08,500 - root - ERROR - Failed to send email: (450, b"Trial accounts can only send emails to the administrator's email. #MS42225 Trial accounts can only send emails to the administrator's email. #MS42225")
-Traceback (most recent call last):
-  File "C:\GitHub\stock-alarm\email_generator.py", line 253, in send_email
-    server.sendmail(EMAIL_SENDER, EMAIL_RECIPIENT, message.as_string())
-  File "C:\Python312\Lib\smtplib.py", line 897, in sendmail
-    raise SMTPDataError(code, resp)
-smtplib.SMTPDataError: (450, b"Trial accounts can only send emails to the administrator's email. #MS42225 Trial accounts can only send emails to the administrator's email. #MS42225")
-2025-05-24 21:38:08,556 - root - INFO - Email HTML saved to a file.
-2025-05-24 21:38:08,641 - root - INFO - --- Script execution finished. ---
-2025-05-24 21:38:29,217 - root - INFO - ===================================================================
-2025-05-24 21:38:29,218 - root - INFO - Starting Financial Analysis Script at 2025-05-24 21:38:29.217039
-2025-05-24 21:38:29,218 - root - INFO - ===================================================================
-2025-05-24 21:38:29,219 - root - INFO - --- Generating Today's Email Summary ---
-2025-05-24 21:38:31,327 - root - INFO - Found 0 stock analyses, 18 IPO analyses, 0 news analyses for today's email.
-2025-05-24 21:38:36,285 - root - INFO - Email sent successfully to daniprav@gmail.com
-2025-05-24 21:38:36,310 - root - INFO - Email HTML saved to a file.
-2025-05-24 21:38:36,394 - root - INFO - --- Script execution finished. ---
-2025-05-24 21:40:28,256 - root - INFO - ===================================================================
-2025-05-24 21:40:28,256 - root - INFO - Starting Financial Analysis Script at 2025-05-24 21:40:28.256004
-2025-05-24 21:40:28,256 - root - INFO - ===================================================================
-2025-05-24 21:40:28,258 - root - INFO - --- Generating Today's Email Summary ---
-2025-05-24 21:40:30,349 - root - INFO - Found 0 stock analyses, 18 IPO analyses, 0 news analyses for today's email.
-2025-05-24 21:40:35,419 - root - INFO - Email sent successfully to daniprav@gmail.com
-2025-05-24 21:40:35,507 - root - INFO - --- Script execution finished. ---
-2025-05-24 21:50:10,088 - root - INFO - ===================================================================
-2025-05-24 21:50:10,088 - root - INFO - Starting Financial Analysis Script at 2025-05-24 21:50:10.088553
-2025-05-24 21:50:10,089 - root - INFO - ===================================================================
-2025-05-24 21:50:10,091 - root - INFO - --- Generating Today's Email Summary ---
-2025-05-24 21:50:12,277 - root - INFO - Found 0 stock analyses, 18 IPO analyses, 0 news analyses for today's email.
-2025-05-24 21:50:17,454 - root - ERROR - Failed to send email: (450, b"Trial accounts can only send emails to the administrator's email. #MS42225 Trial accounts can only send emails to the administrator's email. #MS42225")
-Traceback (most recent call last):
-  File "C:\GitHub\stock-alarm\email_generator.py", line 253, in send_email
-    server.sendmail(EMAIL_SENDER, EMAIL_RECIPIENT, message.as_string())
-  File "C:\Python312\Lib\smtplib.py", line 897, in sendmail
-    raise SMTPDataError(code, resp)
-smtplib.SMTPDataError: (450, b"Trial accounts can only send emails to the administrator's email. #MS42225 Trial accounts can only send emails to the administrator's email. #MS42225")
-2025-05-24 21:50:17,538 - root - INFO - --- Script execution finished. ---
-2025-05-24 21:51:47,247 - root - INFO - ===================================================================
-2025-05-24 21:51:47,247 - root - INFO - Starting Financial Analysis Script at 2025-05-24 21:51:47.247485
-2025-05-24 21:51:47,247 - root - INFO - ===================================================================
-2025-05-24 21:51:47,250 - root - INFO - --- Generating Today's Email Summary ---
-2025-05-24 21:51:49,391 - root - INFO - Found 0 stock analyses, 18 IPO analyses, 0 news analyses for today's email.
-2025-05-24 21:51:54,790 - root - INFO - Email sent successfully to repof40843@betzenn.com
-2025-05-24 21:51:54,878 - root - INFO - --- Script execution finished. ---
-2025-05-24 21:58:01,824 - root - INFO - ===================================================================
-2025-05-24 21:58:01,825 - root - INFO - Starting Financial Analysis Script at 2025-05-24 21:58:01.825986
-2025-05-24 21:58:01,825 - root - INFO - ===================================================================
-2025-05-24 21:58:01,827 - root - INFO - --- Generating Today's Email Summary ---
-2025-05-24 21:58:03,940 - root - INFO - Found 0 stock analyses, 18 IPO analyses, 0 news analyses for today's email.
-2025-05-24 21:58:06,116 - root - ERROR - Failed to send email: [Errno 11001] getaddrinfo failed
-Traceback (most recent call last):
-  File "C:\GitHub\stock-alarm\email_generator.py", line 249, in send_email
-    with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Python312\Lib\smtplib.py", line 255, in __init__
-    (code, msg) = self.connect(host, port)
-                  ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Python312\Lib\smtplib.py", line 341, in connect
-    self.sock = self._get_socket(host, port, self.timeout)
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Python312\Lib\smtplib.py", line 312, in _get_socket
-    return socket.create_connection((host, port), timeout,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Python312\Lib\socket.py", line 828, in create_connection
-    for res in getaddrinfo(host, port, 0, SOCK_STREAM):
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Python312\Lib\socket.py", line 963, in getaddrinfo
-    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-socket.gaierror: [Errno 11001] getaddrinfo failed
-2025-05-24 21:58:06,279 - root - INFO - --- Script execution finished. ---
-2025-05-24 21:58:29,803 - root - INFO - ===================================================================
-2025-05-24 21:58:29,804 - root - INFO - Starting Financial Analysis Script at 2025-05-24 21:58:29.803391
-2025-05-24 21:58:29,804 - root - INFO - ===================================================================
-2025-05-24 21:58:29,806 - root - INFO - --- Generating Today's Email Summary ---
-2025-05-24 21:58:31,907 - root - INFO - Found 0 stock analyses, 18 IPO analyses, 0 news analyses for today's email.
-2025-05-24 21:58:37,230 - root - INFO - Email sent successfully to daniprav@gmail.com
-2025-05-24 21:58:37,315 - root - INFO - --- Script execution finished. ---
-2025-05-24 22:01:16,510 - root - INFO - ===================================================================
-2025-05-24 22:01:16,511 - root - INFO - Starting Financial Analysis Script at 2025-05-24 22:01:16.511342
-2025-05-24 22:01:16,511 - root - INFO - ===================================================================
-2025-05-24 22:01:16,513 - root - INFO - --- Generating Today's Email Summary ---
-2025-05-24 22:01:18,641 - root - INFO - Found 0 stock analyses, 18 IPO analyses, 0 news analyses for today's email.
-2025-05-24 22:01:23,666 - root - INFO - Email sent successfully to daniprav@gmail.com
-2025-05-24 22:01:23,756 - root - INFO - --- Script execution finished. ---
+  File "C:\GitHub\stock-alarm\ipo_analyzer.py", line 381, in run_ipo_analysis_pipeline
+    result = self.analyze_single_ipo(ipo_data)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\GitHub\stock-alarm\ipo_analyzer.py", line 236, in analyze_single_ipo
+    if existing_analysis and not significant_change and existing_analysis.analysis_date > one_day_ago:
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: can't compare offset-naive and offset-aware datetimes
+2025-05-24 22:17:51,249 - root - INFO - --- Starting News Analysis Pipeline (Category: general, Count: 3) ---
+2025-05-24 22:17:51,334 - root - INFO - Fetching latest market news for category: general (max 6)...
+2025-05-24 22:17:52,657 - root - INFO - Cached response for: GET:https://finnhub.io/api/v1/news?category=general&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390
+2025-05-24 22:17:52,659 - root - INFO - Fetched 100 news items from Finnhub.
+2025-05-24 22:17:52,849 - root - INFO - News event 'U.S. travelers say these are the 10 most popular summer destinations around the globe: 'People are craving relaxation'' is new. Storing and analyzing.
+2025-05-24 22:17:53,273 - root - INFO - Stored new news event: U.S. travelers say these are the 10 most popular summer destinations around the globe: 'People are craving relaxation'
+2025-05-24 22:17:53,275 - root - INFO - Analyzing news: U.S. travelers say these are the 10 most popular summer destinations around the globe: 'People are craving relaxation'
+2025-05-24 22:18:59,018 - root - INFO - Successfully analyzed and saved news: U.S. travelers say these are the 10 most popular summer destinations around the globe: 'People are craving relaxation'
+2025-05-24 22:19:01,188 - root - INFO - News event 'My wife and I are 73 and retired. Can we afford a $1.2 million home?' is new. Storing and analyzing.
+2025-05-24 22:19:01,609 - root - INFO - Stored new news event: My wife and I are 73 and retired. Can we afford a $1.2 million home?
+2025-05-24 22:19:01,609 - root - INFO - Analyzing news: My wife and I are 73 and retired. Can we afford a $1.2 million home?
+2025-05-24 22:20:15,883 - root - INFO - Successfully analyzed and saved news: My wife and I are 73 and retired. Can we afford a $1.2 million home?
+2025-05-24 22:20:18,052 - root - INFO - News event 'I published my first book at 38—here's exactly how I changed careers to make it happen' is new. Storing and analyzing.
+2025-05-24 22:20:18,472 - root - INFO - Stored new news event: I published my first book at 38—here's exactly how I changed careers to make it happen
+2025-05-24 22:20:18,474 - root - INFO - Analyzing news: I published my first book at 38—here's exactly how I changed careers to make it happen
+2025-05-24 22:21:16,792 - root - INFO - Successfully analyzed and saved news: I published my first book at 38—here's exactly how I changed careers to make it happen
+2025-05-24 22:21:18,795 - root - INFO - News analysis pipeline completed. Newly analyzed 3 items.
+2025-05-24 22:21:18,796 - root - INFO - --- Generating Today's Email Summary ---
+2025-05-24 22:21:19,503 - root - INFO - Found 3 stock analyses, 18 IPO analyses, 3 news analyses for today's email.
+2025-05-24 22:21:25,271 - root - INFO - Email sent successfully to daniprav@gmail.com
