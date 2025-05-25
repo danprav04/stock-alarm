@@ -1,151 +1,137 @@
-2025-05-25 01:07:18,750 - root - INFO - main:167 - ===================================================================
-2025-05-25 01:07:18,750 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-24 22:07:18 UTC
-2025-05-25 01:07:18,750 - root - INFO - main:169 - ===================================================================
-2025-05-25 01:07:18,753 - root - INFO - main:18 - --- Starting Individual Stock Analysis for: ['AAPL'] ---
-2025-05-25 01:07:20,498 - root - INFO - api_clients:42 - Cache hit for: GET:https://financialmodelingprep.com/api/v3/profile/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
-2025-05-25 01:07:21,584 - root - INFO - stock_analyzer:139 - Fetched profile from FMP for AAPL.
-2025-05-25 01:07:21,584 - root - INFO - stock_analyzer:195 - Stock entry for AAPL (ID: 1, CIK: 0000320193) ready.
-2025-05-25 01:07:21,584 - root - INFO - stock_analyzer:687 - Full analysis pipeline started for AAPL...
-2025-05-25 01:07:21,584 - root - WARNING - stock_analyzer:764 - Stock AAPL (ID: 1) DETACHED/DIFFERENT session. Session expected: 2086965833184, actual: None. Merging.
-2025-05-25 01:07:21,843 - root - INFO - stock_analyzer:199 - Fetching financial statements for AAPL...
-2025-05-25 01:07:21,931 - root - INFO - api_clients:42 - Cache hit for: GET:https://financialmodelingprep.com/api/v3/income-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVz...
-2025-05-25 01:07:23,772 - root - INFO - api_clients:42 - Cache hit for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxR...
-2025-05-25 01:07:25,616 - root - INFO - api_clients:42 - Cache hit for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91...
-2025-05-25 01:07:27,200 - root - INFO - stock_analyzer:221 - FMP Annuals: Income(5), Balance(5), Cashflow(5).
-2025-05-25 01:07:27,897 - root - INFO - api_clients:42 - Cache hit for: GET:https://finnhub.io/api/v1/stock/financials-reported?freq=quarterly&symbol=AAPL&token=d0o7hphr01q...
-2025-05-25 01:07:29,481 - root - INFO - stock_analyzer:228 - Fetched 46 quarterly reports from Finnhub.
-2025-05-25 01:07:29,906 - root - INFO - api_clients:42 - Cache hit for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=INCOME_STATEMENT&symbol=AAPL...
-2025-05-25 01:07:44,991 - root - INFO - stock_analyzer:234 - Fetched 81 quarterly income reports from Alpha Vantage.
-2025-05-25 01:07:45,493 - root - INFO - api_clients:42 - Cache hit for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=BALANCE_SHEET&symbol=AAPL...
-2025-05-25 01:08:00,578 - root - INFO - stock_analyzer:241 - Fetched 81 quarterly balance reports from Alpha Vantage.
-2025-05-25 01:08:01,082 - root - INFO - api_clients:42 - Cache hit for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=CASH_FLOW&symbol=AAPL...
-2025-05-25 01:08:16,165 - root - INFO - stock_analyzer:248 - Fetched 81 quarterly cash flow reports from Alpha Vantage.
-2025-05-25 01:08:16,166 - root - INFO - stock_analyzer:256 - Fetching key metrics and profile for AAPL.
-2025-05-25 01:08:16,426 - root - INFO - api_clients:42 - Cache hit for: GET:https://financialmodelingprep.com/api/v3/key-metrics/AAPL?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61u...
-2025-05-25 01:08:19,046 - root - WARNING - api_clients:122 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/key-metrics/AAPL (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVz******', 'period': 'quarterly', 'limit': 8}, Headers: Default): 403 - {
+2025-05-25 15:16:42,103 - root - INFO - main:167 - ===================================================================
+2025-05-25 15:16:42,103 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-25 12:16:42 UTC
+2025-05-25 15:16:42,104 - root - INFO - main:169 - ===================================================================
+2025-05-25 15:16:42,105 - root - INFO - main:59 - --- Generating Today's Email Summary ---
+2025-05-25 15:16:43,420 - root - INFO - main:72 - Found 0 stock analyses, 0 IPO analyses, 0 news analyses since 2025-05-25 00:00:00 UTC for email.
+2025-05-25 15:16:43,420 - root - INFO - main:78 - No new analyses performed recently to include in the email summary.
+2025-05-25 15:16:43,482 - root - INFO - main:157 - --- Main script execution finished. ---
+2025-05-25 15:16:43,482 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-25 12:16:43 UTC
+2025-05-25 15:16:43,483 - root - INFO - main:175 - Total execution time: 0:00:01.379016
+2025-05-25 15:16:43,483 - root - INFO - main:176 - ===================================================================
+2025-05-25 15:18:02,652 - root - INFO - main:167 - ===================================================================
+2025-05-25 15:18:02,653 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-25 12:18:02 UTC
+2025-05-25 15:18:02,653 - root - INFO - main:169 - ===================================================================
+2025-05-25 15:18:02,655 - root - INFO - main:18 - --- Starting Individual Stock Analysis for: ['NKE'] ---
+2025-05-25 15:18:05,017 - root - INFO - api_clients:68 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-25 15:18:06,019 - root - INFO - stock_analyzer:139 - Fetched profile from FMP for NKE.
+2025-05-25 15:18:06,019 - root - INFO - stock_analyzer:173 - Stock NKE not found in DB, creating new entry.
+2025-05-25 15:18:06,489 - root - INFO - stock_analyzer:195 - Stock entry for NKE (ID: 1, CIK: 0000320187) ready.
+2025-05-25 15:18:06,489 - root - INFO - stock_analyzer:687 - Full analysis pipeline started for NKE...
+2025-05-25 15:18:06,490 - root - INFO - stock_analyzer:199 - Fetching financial statements for NKE...
+2025-05-25 15:18:07,565 - root - INFO - api_clients:68 - Cached response for: GET:https://financialmodelingprep.com/api/v3/income-statement/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91TVzf...
+2025-05-25 15:18:10,262 - root - INFO - api_clients:68 - Cached response for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/NKE?apikey=62ERGmJoqQgGD0nSGxRZ...
+2025-05-25 15:18:12,968 - root - INFO - api_clients:68 - Cached response for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91T...
+2025-05-25 15:18:14,471 - root - INFO - stock_analyzer:221 - FMP Annuals: Income(5), Balance(5), Cashflow(5).
+2025-05-25 15:18:15,879 - root - INFO - api_clients:68 - Cached response for: GET:https://finnhub.io/api/v1/stock/financials-reported?freq=quarterly&symbol=NKE&token=d0o7hphr01qq...
+2025-05-25 15:18:17,383 - root - INFO - stock_analyzer:228 - Fetched 45 quarterly reports from Finnhub.
+2025-05-25 15:18:18,922 - root - INFO - api_clients:68 - Cached response for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=INCOME_STATEMENT&symbol=NKE...
+2025-05-25 15:18:33,924 - root - INFO - stock_analyzer:234 - Fetched 81 quarterly income reports from Alpha Vantage.
+2025-05-25 15:18:35,318 - root - INFO - api_clients:68 - Cached response for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=BALANCE_SHEET&symbol=NKE...
+2025-05-25 15:18:50,321 - root - INFO - stock_analyzer:241 - Fetched 81 quarterly balance reports from Alpha Vantage.
+2025-05-25 15:18:52,288 - root - INFO - api_clients:68 - Cached response for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=CASH_FLOW&symbol=NKE...
+2025-05-25 15:19:07,290 - root - INFO - stock_analyzer:248 - Fetched 81 quarterly cash flow reports from Alpha Vantage.
+2025-05-25 15:19:07,290 - root - INFO - stock_analyzer:256 - Fetching key metrics and profile for NKE.
+2025-05-25 15:19:08,601 - root - INFO - api_clients:68 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-25 15:19:10,961 - root - WARNING - api_clients:122 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/key-metrics/NKE (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVz******', 'period': 'quarterly', 'limit': 8}, Headers: Default): 403 - {
   "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
-2025-05-25 01:08:19,047 - root - ERROR - api_clients:143 - Non-retryable client error for https://financialmodelingprep.com/api/v3/key-metrics/AAPL: 403 Forbidden
-2025-05-25 01:08:20,548 - root - WARNING - stock_analyzer:262 - FMP quarterly key metrics failed for AAPL.
-2025-05-25 01:08:21,143 - root - INFO - api_clients:42 - Cache hit for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=AAPL&token=d0o7hphr01qqr9alj38gd0o7hphr...
-2025-05-25 01:08:22,729 - root - INFO - stock_analyzer:272 - FMP KM Annual: 5, FMP KM Quarterly: 0. Finnhub Basic Financials: OK.
-2025-05-25 01:08:22,729 - root - INFO - stock_analyzer:276 - Calculating derived metrics for AAPL...
-2025-05-25 01:08:22,730 - root - INFO - stock_analyzer:452 - Calculated metrics for AAPL: {'pe_ratio': 37.287278415656736, 'pb_ratio': 61.37243774486391, 'ps_ratio': 7.3029, 'ev_to_sales': None, 'ev_to_ebitda': None, 'dividend_yield': 0.0043585983369965175, 'eps': 6.11, 'net_profit_margin': None, 'gross_profit_margin': None, 'operating_profit_margin': 0.3151022287, 'roe': 1.6459350307287095, 'roa': 0.25682503150857583, 'debt_to_equity': 1.872326602282704, 'current_ratio': 0.8673125765340832, 'quick_ratio': 0.7450111116150392, 'debt_to_ebitda': 0.791832824648562, 'revenue_growth_yoy': 0.020219940775141214, 'eps_growth_yoy': -0.008116883116883088, 'revenue_growth_cagr_3yr': -0.004184211808589633, 'eps_growth_cagr_3yr': -0.0032573376445905744, 'revenue_growth_cagr_5yr': 0.09247721446491397, 'eps_growth_cagr_5yr': 0.16561010585382685, 'revenue_growth_qoq': -0.07869318181818181, 'free_cash_flow_per_share': 7.284979713172378, 'free_cash_flow_yield': 0.03730721418124842, 'free_cash_flow_trend': 'Mixed/Stable', 'retained_earnings_trend': 'Mixed/Stable', 'roic': 0.6998997671891681}
-2025-05-25 01:08:22,731 - root - INFO - stock_analyzer:457 - Performing simplified DCF analysis for AAPL...
-2025-05-25 01:08:22,731 - root - INFO - stock_analyzer:519 - DCF for AAPL: Intrinsic Value/Share: 124.1281093830387, Upside: -0.3643257572436181
-2025-05-25 01:08:22,731 - root - INFO - stock_analyzer:525 - Fetching and attempting to summarize latest 10-K for AAPL
-2025-05-25 01:08:23,245 - root - INFO - api_clients:42 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0000320193.json?...
-2025-05-25 01:08:23,837 - root - INFO - api_clients:368 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/320193/000032019324000123/aapl-20240928.htm
-2025-05-25 01:08:24,534 - root - INFO - api_clients:42 - Cache hit for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/320193/000032019324000123/aapl-20240928.htm...
-2025-05-25 01:08:24,621 - root - INFO - stock_analyzer:539 - Fetched 10-K text (length: 1503780) for AAPL. Extracting sections.
-2025-05-25 01:08:56,555 - root - INFO - stock_analyzer:605 - 10-K qualitative summaries generated for AAPL.
-2025-05-25 01:08:56,555 - root - INFO - stock_analyzer:610 - Synthesizing investment thesis for AAPL...
-2025-05-25 01:09:04,174 - root - INFO - stock_analyzer:683 - Generated thesis for AAPL. Decision: Review AI Output
-2025-05-25 01:09:04,920 - root - INFO - stock_analyzer:719 - Successfully analyzed and saved stock: AAPL (Analysis ID: 2)
-2025-05-25 01:09:10,005 - root - INFO - main:157 - --- Main script execution finished. ---
-2025-05-25 01:09:10,006 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-24 22:09:10 UTC
-2025-05-25 01:09:10,006 - root - INFO - main:175 - Total execution time: 0:01:51.255857
-2025-05-25 01:09:10,006 - root - INFO - main:176 - ===================================================================
-2025-05-25 01:09:27,494 - root - INFO - main:167 - ===================================================================
-2025-05-25 01:09:27,494 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-24 22:09:27 UTC
-2025-05-25 01:09:27,495 - root - INFO - main:169 - ===================================================================
-2025-05-25 01:09:27,496 - root - INFO - main:59 - --- Generating Today's Email Summary ---
-2025-05-25 01:09:38,855 - root - INFO - main:167 - ===================================================================
-2025-05-25 01:09:38,855 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-24 22:09:38 UTC
-2025-05-25 01:09:38,856 - root - INFO - main:169 - ===================================================================
-2025-05-25 01:09:38,858 - root - INFO - main:59 - --- Generating Today's Email Summary ---
-2025-05-25 01:09:40,807 - root - INFO - main:72 - Found 2 stock analyses, 0 IPO analyses, 0 news analyses since 2025-05-24 00:00:00 UTC for email.
-2025-05-25 01:09:40,860 - root - ERROR - main:94 - Error generating or sending email summary: name 'math' is not defined
-Traceback (most recent call last):
-  File "C:\GitHub\stock-alarm\main.py", line 82, in generate_and_send_todays_email_summary
-    email_message = email_gen.create_summary_email(
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\GitHub\stock-alarm\email_generator.py", line 298, in create_summary_email
-    html_body += self._format_stock_analysis_html(sa)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\GitHub\stock-alarm\email_generator.py", line 72, in _format_stock_analysis_html
-    <li>P/E Ratio: {fmt_num(analysis.pe_ratio)}</li>
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\GitHub\stock-alarm\email_generator.py", line 37, in fmt_num
-    if val is None or (isinstance(val, float) and (math.isnan(val) or math.isinf(val))): return na_val
-                                                   ^^^^
-NameError: name 'math' is not defined. Did you forget to import 'math'
-2025-05-25 01:09:40,951 - root - INFO - main:157 - --- Main script execution finished. ---
-2025-05-25 01:09:40,952 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-24 22:09:40 UTC
-2025-05-25 01:09:40,953 - root - INFO - main:175 - Total execution time: 0:00:02.096646
-2025-05-25 01:09:40,954 - root - INFO - main:176 - ===================================================================
-2025-05-25 01:10:20,033 - root - INFO - main:167 - ===================================================================
-2025-05-25 01:10:20,034 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-24 22:10:20 UTC
-2025-05-25 01:10:20,034 - root - INFO - main:169 - ===================================================================
-2025-05-25 01:10:20,036 - root - INFO - main:59 - --- Generating Today's Email Summary ---
-2025-05-25 01:10:21,944 - root - INFO - main:72 - Found 2 stock analyses, 0 IPO analyses, 0 news analyses since 2025-05-24 00:00:00 UTC for email.
-2025-05-25 01:10:24,422 - root - INFO - email_generator:340 - Email sent successfully to daniprav@gmail.com
-2025-05-25 01:10:24,509 - root - INFO - main:157 - --- Main script execution finished. ---
-2025-05-25 01:10:24,510 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-24 22:10:24 UTC
-2025-05-25 01:10:24,511 - root - INFO - main:175 - Total execution time: 0:00:04.476988
-2025-05-25 01:10:24,512 - root - INFO - main:176 - ===================================================================
-2025-05-25 01:14:23,123 - root - INFO - main:167 - ===================================================================
-2025-05-25 01:14:23,123 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-24 22:14:23 UTC
-2025-05-25 01:14:23,123 - root - INFO - main:169 - ===================================================================
-2025-05-25 01:14:23,125 - root - INFO - main:118 - Initializing database as per command line argument...
-2025-05-25 01:14:23,125 - root - INFO - database:21 - Initializing database and creating tables...
-2025-05-25 01:14:27,540 - root - INFO - database:26 - Database tables created successfully (if they didn't exist).
-2025-05-25 01:14:27,541 - root - INFO - main:121 - Database initialization complete.
-2025-05-25 01:14:27,542 - root - INFO - main:157 - --- Main script execution finished. ---
-2025-05-25 01:14:27,543 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-24 22:14:27 UTC
-2025-05-25 01:14:27,544 - root - INFO - main:175 - Total execution time: 0:00:04.420167
-2025-05-25 01:14:27,545 - root - INFO - main:176 - ===================================================================
-2025-05-25 01:14:44,623 - root - INFO - main:167 - ===================================================================
-2025-05-25 01:14:44,623 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-24 22:14:44 UTC
-2025-05-25 01:14:44,624 - root - INFO - main:169 - ===================================================================
-2025-05-25 01:14:44,626 - root - INFO - main:48 - --- Starting News Analysis Pipeline (Category: general, Max to Analyze: 5) ---
-2025-05-25 01:14:44,626 - root - INFO - news_analyzer:33 - Fetching latest market news for category: general (max 10 from API)...
-2025-05-25 01:14:47,267 - root - INFO - api_clients:68 - Cached response for: GET:https://finnhub.io/api/v1/news?category=general&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390...
-2025-05-25 01:14:47,269 - root - INFO - news_analyzer:40 - Fetched 100 news items from Finnhub.
-2025-05-25 01:14:47,528 - root - INFO - news_analyzer:59 - Attempting to scrape full article for: https://www.cnbc.com/2025/05/24/tripadvisor-top-global-summer-destinations-us-travelers.html
-2025-05-25 01:14:48,343 - root - INFO - api_clients:535 - Successfully scraped ~35231 chars from https://www.cnbc.com/2025/05/24/tripadvisor-top-global-summer-destinations-us-travelers.html
-2025-05-25 01:14:49,344 - root - INFO - news_analyzer:63 - Scraped ~35231 chars for https://www.cnbc.com/2025/05/24/tripadvisor-top-global-summer-destinations-us-travelers.html
-2025-05-25 01:14:49,861 - root - INFO - news_analyzer:101 - Stored new news event: U.S. travelers say these are the 10 most popular summer destinations a... (ID: 1)
-2025-05-25 01:14:49,957 - root - INFO - news_analyzer:351 - News 'U.S. travelers say these are the 10 most popular s...' (ID: 1) requires new analysis (never analyzed).
-2025-05-25 01:14:49,958 - root - INFO - news_analyzer:138 - Analyzing news: 'U.S. travelers say these are the 10 most popular summer destinations a...' (using full article)
-2025-05-25 01:14:49,959 - root - WARNING - api_clients:409 - Gemini prompt length 35618 very long. Truncating to 30000 chars.
-2025-05-25 01:14:54,065 - root - WARNING - api_clients:409 - Gemini prompt length 36746 very long. Truncating to 30000 chars.
-2025-05-25 01:14:59,858 - root - INFO - news_analyzer:240 - Successfully analyzed and saved news: 'U.S. travelers say these are the 10 most popular summer destinations a...' (Analysis ID: 1)
-2025-05-25 01:15:02,944 - root - INFO - news_analyzer:59 - Attempting to scrape full article for: https://www.marketwatch.com/story/my-wife-and-i-are-73-and-retired-can-we-afford-a-1-2-million-home-5ac8de41
-2025-05-25 01:15:03,188 - root - ERROR - api_clients:538 - Request error scraping https://www.marketwatch.com/story/my-wife-and-i-are-73-and-retired-can-we-afford-a-1-2-million-home-5ac8de41: 401 Client Error: HTTP Forbidden for url: https://www.marketwatch.com/story/my-wife-and-i-are-73-and-retired-can-we-afford-a-1-2-million-home-5ac8de41
-2025-05-25 01:15:04,189 - root - WARNING - news_analyzer:65 - Failed to scrape full article for https://www.marketwatch.com/story/my-wife-and-i-are-73-and-retired-can-we-afford-a-1-2-million-home-5ac8de41. Analysis will use summary if available.
-2025-05-25 01:15:04,607 - root - INFO - news_analyzer:101 - Stored new news event: My wife and I are 73 and retired. Can we afford a $1.2 million home?... (ID: 2)
-2025-05-25 01:15:04,693 - root - INFO - news_analyzer:351 - News 'My wife and I are 73 and retired. Can we afford a ...' (ID: 2) requires new analysis (never analyzed).
-2025-05-25 01:15:04,695 - root - WARNING - news_analyzer:128 - No full article text for 'My wife and I are 73 and retired. Can we afford a $1.2 million home?'. Analyzing based on headline only.
-2025-05-25 01:15:04,696 - root - INFO - news_analyzer:138 - Analyzing news: 'My wife and I are 73 and retired. Can we afford a $1.2 million home?...' (using headline only)
-2025-05-25 01:15:13,998 - root - INFO - news_analyzer:240 - Successfully analyzed and saved news: 'My wife and I are 73 and retired. Can we afford a $1.2 million home?...' (Analysis ID: 2)
-2025-05-25 01:15:17,083 - root - INFO - news_analyzer:59 - Attempting to scrape full article for: https://www.cnbc.com/2025/05/24/i-published-my-first-novel-at-38-heres-exactly-how-i-changed-careers-to-make-it-happen.html
-2025-05-25 01:15:17,846 - root - INFO - api_clients:535 - Successfully scraped ~68525 chars from https://www.cnbc.com/2025/05/24/i-published-my-first-novel-at-38-heres-exactly-how-i-changed-careers-to-make-it-happen.html
-2025-05-25 01:15:18,848 - root - INFO - news_analyzer:63 - Scraped ~68525 chars for https://www.cnbc.com/2025/05/24/i-published-my-first-novel-at-38-heres-exactly-how-i-changed-careers-to-make-it-happen.html
-2025-05-25 01:15:19,529 - root - INFO - news_analyzer:101 - Stored new news event: I published my first book at 38—here's exactly how I changed careers t... (ID: 3)
-2025-05-25 01:15:19,618 - root - INFO - news_analyzer:351 - News 'I published my first book at 38—here's exactly how...' (ID: 3) requires new analysis (never analyzed).
-2025-05-25 01:15:19,619 - root - INFO - news_analyzer:138 - Analyzing news: 'I published my first book at 38—here's exactly how I changed careers t...' (using full article)
-2025-05-25 01:15:19,619 - root - WARNING - api_clients:409 - Gemini prompt length 68880 very long. Truncating to 30000 chars.
-2025-05-25 01:15:23,636 - root - WARNING - api_clients:409 - Gemini prompt length 70008 very long. Truncating to 30000 chars.
-2025-05-25 01:15:30,296 - root - INFO - news_analyzer:240 - Successfully analyzed and saved news: 'I published my first book at 38—here's exactly how I changed careers t...' (Analysis ID: 3)
-2025-05-25 01:15:33,383 - root - INFO - news_analyzer:59 - Attempting to scrape full article for: https://www.marketwatch.com/story/rising-bond-yields-give-stock-market-investors-the-yips-watch-these-levels-d8e99584
-2025-05-25 01:15:33,554 - root - ERROR - api_clients:538 - Request error scraping https://www.marketwatch.com/story/rising-bond-yields-give-stock-market-investors-the-yips-watch-these-levels-d8e99584: 401 Client Error: HTTP Forbidden for url: https://www.marketwatch.com/story/rising-bond-yields-give-stock-market-investors-the-yips-watch-these-levels-d8e99584
-2025-05-25 01:15:34,557 - root - WARNING - news_analyzer:65 - Failed to scrape full article for https://www.marketwatch.com/story/rising-bond-yields-give-stock-market-investors-the-yips-watch-these-levels-d8e99584. Analysis will use summary if available.
-2025-05-25 01:15:34,976 - root - INFO - news_analyzer:101 - Stored new news event: Rising bond yields give stock-market investors the yips. Watch these l... (ID: 4)
-2025-05-25 01:15:35,064 - root - INFO - news_analyzer:351 - News 'Rising bond yields give stock-market investors the...' (ID: 4) requires new analysis (never analyzed).
-2025-05-25 01:15:35,064 - root - WARNING - news_analyzer:128 - No full article text for 'Rising bond yields give stock-market investors the yips. Watch these levels.'. Analyzing based on headline only.
-2025-05-25 01:15:35,065 - root - INFO - news_analyzer:138 - Analyzing news: 'Rising bond yields give stock-market investors the yips. Watch these l...' (using headline only)
-2025-05-25 01:15:44,887 - root - INFO - news_analyzer:240 - Successfully analyzed and saved news: 'Rising bond yields give stock-market investors the yips. Watch these l...' (Analysis ID: 4)
-2025-05-25 01:15:47,973 - root - INFO - news_analyzer:59 - Attempting to scrape full article for: https://www.marketwatch.com/story/apple-has-been-the-worst-big-tech-stock-lately-heres-why-investors-are-missing-the-big-picture-3fdfa582
-2025-05-25 01:15:48,133 - root - ERROR - api_clients:538 - Request error scraping https://www.marketwatch.com/story/apple-has-been-the-worst-big-tech-stock-lately-heres-why-investors-are-missing-the-big-picture-3fdfa582: 401 Client Error: HTTP Forbidden for url: https://www.marketwatch.com/story/apple-has-been-the-worst-big-tech-stock-lately-heres-why-investors-are-missing-the-big-picture-3fdfa582
-2025-05-25 01:15:49,134 - root - WARNING - news_analyzer:65 - Failed to scrape full article for https://www.marketwatch.com/story/apple-has-been-the-worst-big-tech-stock-lately-heres-why-investors-are-missing-the-big-picture-3fdfa582. Analysis will use summary if available.
-2025-05-25 01:15:49,554 - root - INFO - news_analyzer:101 - Stored new news event: Apple has been the worst Big Tech stock lately. Here’s why investors a... (ID: 5)
-2025-05-25 01:15:49,643 - root - INFO - news_analyzer:351 - News 'Apple has been the worst Big Tech stock lately. He...' (ID: 5) requires new analysis (never analyzed).
-2025-05-25 01:15:49,644 - root - WARNING - news_analyzer:128 - No full article text for 'Apple has been the worst Big Tech stock lately. Here’s why investors are missing the big picture.'. Analyzing based on headline only.
-2025-05-25 01:15:49,648 - root - INFO - news_analyzer:138 - Analyzing news: 'Apple has been the worst Big Tech stock lately. Here’s why investors a...' (using headline only)
-2025-05-25 01:15:59,251 - root - INFO - news_analyzer:240 - Successfully analyzed and saved news: 'Apple has been the worst Big Tech stock lately. Here’s why investors a...' (Analysis ID: 5)
-2025-05-25 01:16:02,253 - root - INFO - news_analyzer:325 - Reached analysis limit of 5 new/re-analyzed items for this run.
-2025-05-25 01:16:02,254 - root - INFO - news_analyzer:389 - News analysis pipeline completed. Newly analyzed/re-analyzed 5 items.
-2025-05-25 01:16:02,336 - root - INFO - main:157 - --- Main script execution finished. ---
-2025-05-25 01:16:02,337 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-24 22:16:02 UTC
-2025-05-25 01:16:02,339 - root - INFO - main:175 - Total execution time: 0:01:17.714128
-2025-05-25 01:16:02,339 - root - INFO - main:176 - ===================================================================
+2025-05-25 15:19:10,963 - root - ERROR - api_clients:143 - Non-retryable client error for https://financialmodelingprep.com/api/v3/key-metrics/NKE: 403 Forbidden
+2025-05-25 15:19:12,466 - root - WARNING - stock_analyzer:262 - FMP quarterly key metrics failed for NKE.
+2025-05-25 15:19:13,719 - root - INFO - api_clients:68 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=NKE&token=d0o7hphr01qqr9alj38gd0o7hphr0...
+2025-05-25 15:19:15,221 - root - INFO - stock_analyzer:272 - FMP KM Annual: 5, FMP KM Quarterly: 0. Finnhub Basic Financials: OK.
+2025-05-25 15:19:15,223 - root - INFO - stock_analyzer:276 - Calculating derived metrics for NKE...
+2025-05-25 15:19:15,224 - root - INFO - stock_analyzer:452 - Calculated metrics for NKE: {'pe_ratio': 25.306645614035087, 'pb_ratio': 9.996388080388082, 'ps_ratio': 1.8526, 'ev_to_sales': None, 'ev_to_ebitda': None, 'dividend_yield': 0.015036616136056905, 'eps': 3.76, 'net_profit_margin': None, 'gross_profit_margin': None, 'operating_profit_margin': 0.1302519372, 'roe': 0.39501039501039503, 'roa': 0.14956704277092628, 'debt_to_equity': 0.8282744282744283, 'current_ratio': 2.3961106391012934, 'quick_ratio': 1.5112810346455205, 'debt_to_ebitda': 1.6704402515723271, 'revenue_growth_yoy': 0.0028310912392369722, 'eps_growth_yoy': 0.14984709480122316, 'revenue_growth_cagr_3yr': 0.04861491256483208, 'eps_growth_cagr_3yr': -0.009180522194930263, 'revenue_growth_cagr_5yr': 0.08251487385466705, 'eps_growth_cagr_5yr': 0.23239537592729897, 'revenue_growth_qoq': -0.1110334820228946, 'free_cash_flow_per_share': 4.475599946941684, 'free_cash_flow_yield': 0.07456847629026464, 'free_cash_flow_trend': 'Growing', 'retained_earnings_trend': 'Declining', 'roic': 0.3444796354747266}
+2025-05-25 15:19:15,227 - root - INFO - stock_analyzer:457 - Performing simplified DCF analysis for NKE...
+2025-05-25 15:19:15,228 - root - INFO - stock_analyzer:519 - DCF for NKE: Intrinsic Value/Share: 72.57462873131917, Upside: 0.20917408749282176
+2025-05-25 15:19:15,229 - root - INFO - stock_analyzer:525 - Fetching and attempting to summarize latest 10-K for NKE
+2025-05-25 15:19:16,594 - root - INFO - api_clients:68 - Cached response for: GET:https://data.sec.gov/submissions/CIK0000320187.json?...
+2025-05-25 15:19:17,097 - root - INFO - api_clients:368 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/320187/000032018724000044/nke-20240531.htm
+2025-05-25 15:19:18,417 - root - INFO - api_clients:68 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/320187/000032018724000044/nke-20240531.htm...
+2025-05-25 15:19:18,419 - root - INFO - stock_analyzer:539 - Fetched 10-K text (length: 2651098) for NKE. Extracting sections.
+2025-05-25 15:20:02,563 - root - INFO - stock_analyzer:605 - 10-K qualitative summaries generated for NKE.
+2025-05-25 15:20:02,564 - root - INFO - stock_analyzer:610 - Synthesizing investment thesis for NKE...
+2025-05-25 15:20:09,361 - root - INFO - stock_analyzer:683 - Generated thesis for NKE. Decision: Review AI Output
+2025-05-25 15:20:09,925 - root - INFO - stock_analyzer:719 - Successfully analyzed and saved stock: NKE (Analysis ID: 1)
+2025-05-25 15:20:14,993 - root - INFO - main:157 - --- Main script execution finished. ---
+2025-05-25 15:20:14,995 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-25 12:20:14 UTC
+2025-05-25 15:20:14,996 - root - INFO - main:175 - Total execution time: 0:02:12.342937
+2025-05-25 15:20:14,997 - root - INFO - main:176 - ===================================================================
+2025-05-25 15:21:09,056 - root - INFO - main:167 - ===================================================================
+2025-05-25 15:21:09,057 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-25 12:21:09 UTC
+2025-05-25 15:21:09,057 - root - INFO - main:169 - ===================================================================
+2025-05-25 15:21:09,060 - root - INFO - main:59 - --- Generating Today's Email Summary ---
+2025-05-25 15:21:10,460 - root - INFO - main:72 - Found 1 stock analyses, 0 IPO analyses, 0 news analyses since 2025-05-25 00:00:00 UTC for email.
+2025-05-25 15:21:12,444 - root - INFO - email_generator:340 - Email sent successfully to daniprav@gmail.com
+2025-05-25 15:21:12,506 - root - INFO - main:157 - --- Main script execution finished. ---
+2025-05-25 15:21:12,507 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-25 12:21:12 UTC
+2025-05-25 15:21:12,508 - root - INFO - main:175 - Total execution time: 0:00:03.450668
+2025-05-25 15:21:12,508 - root - INFO - main:176 - ===================================================================
+2025-05-25 15:33:28,302 - root - INFO - main:167 - ===================================================================
+2025-05-25 15:33:28,302 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-25 12:33:28 UTC
+2025-05-25 15:33:28,302 - root - INFO - main:169 - ===================================================================
+2025-05-25 15:33:28,304 - root - INFO - main:118 - Initializing database as per command line argument...
+2025-05-25 15:33:28,305 - root - INFO - database:21 - Initializing database and creating tables...
+2025-05-25 15:33:31,545 - root - INFO - database:26 - Database tables created successfully (if they didn't exist).
+2025-05-25 15:33:31,545 - root - INFO - main:121 - Database initialization complete.
+2025-05-25 15:33:31,546 - root - INFO - main:157 - --- Main script execution finished. ---
+2025-05-25 15:33:31,546 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-25 12:33:31 UTC
+2025-05-25 15:33:31,546 - root - INFO - main:175 - Total execution time: 0:00:03.243735
+2025-05-25 15:33:31,547 - root - INFO - main:176 - ===================================================================
+2025-05-25 15:33:38,385 - root - INFO - main:167 - ===================================================================
+2025-05-25 15:33:38,385 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-25 12:33:38 UTC
+2025-05-25 15:33:38,386 - root - INFO - main:169 - ===================================================================
+2025-05-25 15:33:38,388 - root - INFO - main:18 - --- Starting Individual Stock Analysis for: ['NKE'] ---
+2025-05-25 15:33:40,755 - root - INFO - api_clients:68 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-25 15:33:41,757 - root - INFO - stock_analyzer:158 - Fetched profile from FMP for NKE.
+2025-05-25 15:33:41,758 - root - INFO - stock_analyzer:195 - Stock NKE not found in DB, creating new entry.
+2025-05-25 15:33:42,220 - root - INFO - stock_analyzer:226 - Stock entry for NKE (ID: 1, CIK: 0000320187) ready.
+2025-05-25 15:33:42,221 - root - INFO - stock_analyzer:976 - Full analysis pipeline started for NKE...
+2025-05-25 15:33:42,223 - root - INFO - stock_analyzer:230 - Fetching financial statements for NKE...
+2025-05-25 15:33:43,480 - root - INFO - api_clients:68 - Cached response for: GET:https://financialmodelingprep.com/api/v3/income-statement/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91TVzf...
+2025-05-25 15:33:46,191 - root - INFO - api_clients:68 - Cached response for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/NKE?apikey=62ERGmJoqQgGD0nSGxRZ...
+2025-05-25 15:33:48,887 - root - INFO - api_clients:68 - Cached response for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91T...
+2025-05-25 15:33:50,389 - root - INFO - stock_analyzer:253 - FMP Annuals for NKE: Income(5 records), Balance(5 records), Cashflow(5 records).
+2025-05-25 15:33:51,941 - root - INFO - api_clients:68 - Cached response for: GET:https://finnhub.io/api/v1/stock/financials-reported?freq=quarterly&symbol=NKE&token=d0o7hphr01qq...
+2025-05-25 15:33:53,444 - root - INFO - stock_analyzer:261 - Fetched 45 quarterly reports from Finnhub for NKE.
+2025-05-25 15:33:54,887 - root - INFO - api_clients:68 - Cached response for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=INCOME_STATEMENT&symbol=NKE...
+2025-05-25 15:34:09,890 - root - INFO - stock_analyzer:270 - Fetched 81 quarterly income reports from Alpha Vantage for NKE.
+2025-05-25 15:34:11,392 - root - INFO - api_clients:68 - Cached response for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=BALANCE_SHEET&symbol=NKE...
+2025-05-25 15:34:26,395 - root - INFO - stock_analyzer:279 - Fetched 81 quarterly balance reports from Alpha Vantage for NKE.
+2025-05-25 15:34:27,793 - root - INFO - api_clients:68 - Cached response for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=CASH_FLOW&symbol=NKE...
+2025-05-25 15:34:42,796 - root - INFO - stock_analyzer:288 - Fetched 81 quarterly cash flow reports from Alpha Vantage for NKE.
+2025-05-25 15:34:42,797 - root - INFO - stock_analyzer:299 - Fetching key metrics and profile for NKE.
+2025-05-25 15:34:44,112 - root - INFO - api_clients:68 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-25 15:34:46,461 - root - WARNING - api_clients:133 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/key-metrics/NKE (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVz******', 'period': 'quarterly', 'limit': 8}, Headers: {}): 403 - {
+  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
+2025-05-25 15:34:46,462 - root - ERROR - api_clients:154 - Non-retryable client error for https://financialmodelingprep.com/api/v3/key-metrics/NKE: 403 Forbidden
+2025-05-25 15:34:47,964 - root - WARNING - stock_analyzer:310 - FMP quarterly key metrics API call failed or returned None for NKE. Data will be empty.
+2025-05-25 15:34:49,204 - root - INFO - api_clients:68 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=NKE&token=d0o7hphr01qqr9alj38gd0o7hphr0...
+2025-05-25 15:34:50,706 - root - INFO - stock_analyzer:328 - FMP KM Annual for NKE: 5 records. FMP KM Quarterly for NKE: 0 records. Finnhub Basic Financials for NKE: OK.
+2025-05-25 15:34:50,707 - root - INFO - stock_analyzer:334 - Calculating derived metrics for NKE...
+2025-05-25 15:34:50,709 - root - INFO - stock_analyzer:589 - Calculated metrics for NKE: {'pe_ratio': 25.306645614035087, 'pb_ratio': 9.996388080388082, 'ps_ratio': 1.8526, 'ev_to_sales': None, 'ev_to_ebitda': None, 'dividend_yield': 0.015036616136056905, 'eps': 3.76, 'net_profit_margin': None, 'gross_profit_margin': None, 'operating_profit_margin': 0.1302519372, 'roe': 0.39501039501039503, 'roa': 0.14956704277092628, 'debt_to_equity': 0.8282744282744283, 'current_ratio': 2.3961106391012934, 'quick_ratio': 1.5112810346455205, 'debt_to_ebitda': 1.6704402515723271, 'revenue_growth_yoy': 0.0028310912392369722, 'eps_growth_yoy': 0.14984709480122316, 'revenue_growth_cagr_3yr': 0.04861491256483208, 'eps_growth_cagr_3yr': -0.009180522194930263, 'revenue_growth_cagr_5yr': 0.08251487385466705, 'eps_growth_cagr_5yr': 0.23239537592729897, 'revenue_growth_qoq': -0.1110334820228946, 'free_cash_flow_per_share': 4.475599946941684, 'free_cash_flow_yield': 0.07456847629026464, 'free_cash_flow_trend': 'Growing', 'retained_earnings_trend': 'Declining', 'roic': 0.3444796354747266}
+2025-05-25 15:34:50,712 - root - INFO - stock_analyzer:594 - Performing simplified DCF analysis for NKE...
+2025-05-25 15:34:50,713 - root - INFO - stock_analyzer:680 - DCF for NKE: Intrinsic Value/Share: 72.57462873131917, Upside: 20.917408749282178%
+2025-05-25 15:34:50,714 - root - INFO - stock_analyzer:687 - Fetching and attempting to summarize latest 10-K for NKE
+2025-05-25 15:34:51,823 - root - INFO - api_clients:68 - Cached response for: GET:https://data.sec.gov/submissions/CIK0000320187.json?...
+2025-05-25 15:34:52,327 - root - INFO - api_clients:391 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/320187/000032018724000044/nke-20240531.htm
+2025-05-25 15:34:53,644 - root - INFO - api_clients:68 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/320187/000032018724000044/nke-20240531.htm...
+2025-05-25 15:34:53,646 - root - INFO - stock_analyzer:710 - Fetched 10-K text (length: 2651098) for NKE. Extracting sections.
+2025-05-25 15:34:59,103 - root - INFO - api_clients:529 - Truncated text for Gemini summary to length: 200000
+2025-05-25 15:34:59,104 - root - WARNING - api_clients:439 - Gemini prompt length 200359 very long. Truncating to 30000 chars for safety.
+2025-05-25 15:35:34,062 - root - INFO - stock_analyzer:798 - 10-K qualitative summaries generated for NKE.
+2025-05-25 15:35:34,064 - root - INFO - stock_analyzer:884 - Synthesizing investment thesis for NKE...
+2025-05-25 15:35:37,653 - root - INFO - stock_analyzer:971 - Generated thesis for NKE. Parsed Decision: Buy, Strategy: GARP (Growth at a Reasonable Price), Confidence: Medium
+2025-05-25 15:35:38,203 - root - INFO - stock_analyzer:1035 - Successfully analyzed and saved stock data: NKE (Analysis ID: 1)
+2025-05-25 15:35:43,271 - root - INFO - main:157 - --- Main script execution finished. ---
+2025-05-25 15:35:43,271 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-25 12:35:43 UTC
+2025-05-25 15:35:43,272 - root - INFO - main:175 - Total execution time: 0:02:04.886489
+2025-05-25 15:35:43,272 - root - INFO - main:176 - ===================================================================
+2025-05-25 15:35:48,381 - root - INFO - main:167 - ===================================================================
+2025-05-25 15:35:48,382 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-25 12:35:48 UTC
+2025-05-25 15:35:48,382 - root - INFO - main:169 - ===================================================================
+2025-05-25 15:35:48,384 - root - INFO - main:59 - --- Generating Today's Email Summary ---
+2025-05-25 15:35:49,844 - root - INFO - main:72 - Found 1 stock analyses, 0 IPO analyses, 0 news analyses since 2025-05-25 00:00:00 UTC for email.
+2025-05-25 15:35:51,801 - root - INFO - email_generator:340 - Email sent successfully to daniprav@gmail.com
+2025-05-25 15:35:51,866 - root - INFO - main:157 - --- Main script execution finished. ---
+2025-05-25 15:35:51,867 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-25 12:35:51 UTC
+2025-05-25 15:35:51,867 - root - INFO - main:175 - Total execution time: 0:00:03.485198
+2025-05-25 15:35:51,868 - root - INFO - main:176 - ===================================================================
