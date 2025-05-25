@@ -114,3 +114,129 @@
 2025-05-26 00:10:49,183 - root - INFO - main:118 - Financial Analysis Script finished at 2025-05-25 21:10:49 UTC
 2025-05-26 00:10:49,183 - root - INFO - main:119 - Total execution time: 0:00:04.152365
 2025-05-26 00:10:49,184 - root - INFO - main:120 - ===================================================================
+2025-05-26 00:12:44,205 - root - INFO - main:113 - ===================================================================
+2025-05-26 00:12:44,205 - root - INFO - main:114 - Starting Financial Analysis Script at 2025-05-25 21:12:44 UTC
+2025-05-26 00:12:44,205 - root - INFO - main:115 - ===================================================================
+2025-05-26 00:12:44,207 - root - INFO - main:89 - Initializing database as per command line argument...
+2025-05-26 00:12:44,208 - root - INFO - connection:19 - Initializing database and creating tables...
+2025-05-26 00:12:48,485 - root - INFO - connection:23 - Database tables created successfully (if they didn't exist).
+2025-05-26 00:12:48,486 - root - INFO - main:90 - Database initialization complete.
+2025-05-26 00:12:48,487 - root - INFO - main:108 - --- Main script execution finished. ---
+2025-05-26 00:12:48,488 - root - INFO - main:118 - Financial Analysis Script finished at 2025-05-25 21:12:48 UTC
+2025-05-26 00:12:48,489 - root - INFO - main:119 - Total execution time: 0:00:04.283441
+2025-05-26 00:12:48,490 - root - INFO - main:120 - ===================================================================
+2025-05-26 00:12:53,404 - root - INFO - main:113 - ===================================================================
+2025-05-26 00:12:53,404 - root - INFO - main:114 - Starting Financial Analysis Script at 2025-05-25 21:12:53 UTC
+2025-05-26 00:12:53,405 - root - INFO - main:115 - ===================================================================
+2025-05-26 00:12:53,406 - root - INFO - main:16 - --- Starting Individual Stock Analysis for: ['NKE'] ---
+2025-05-26 00:12:56,266 - root - INFO - base_client:64 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-26 00:12:57,768 - root - INFO - stock_analyzer:83 - Fetched profile from FMP for NKE.
+2025-05-26 00:12:57,768 - root - INFO - stock_analyzer:124 - Stock NKE not found in DB, creating new entry.
+2025-05-26 00:12:58,386 - root - INFO - stock_analyzer:168 - Stock entry for NKE (ID: 1, CIK: 0000320187) ready.
+2025-05-26 00:12:58,387 - root - INFO - stock_analyzer:220 - Full analysis pipeline started for NKE...
+2025-05-26 00:12:58,388 - root - INFO - data_fetcher:9 - Fetching financial statements for NKE...
+2025-05-26 00:12:59,596 - root - INFO - base_client:64 - Cached response for: GET:https://financialmodelingprep.com/api/v3/income-statement/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91TVzf...
+2025-05-26 00:13:02,516 - root - INFO - base_client:64 - Cached response for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/NKE?apikey=62ERGmJoqQgGD0nSGxRZ...
+2025-05-26 00:13:05,388 - root - INFO - base_client:64 - Cached response for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91T...
+2025-05-26 00:13:06,891 - root - INFO - data_fetcher:26 - FMP Annuals for NKE: Income(5), Balance(5), Cashflow(5).
+2025-05-26 00:13:07,881 - root - WARNING - base_client:122 - HTTP error on attempt 1/3 for GET https://financialmodelingprep.com/api/v3/income-statement/NKE (Params: {'apikey': '62ER******61uB', 'period': 'quarter', 'limit': 8}, Headers: {}): 403 - {
+  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
+2025-05-26 00:13:07,882 - root - ERROR - base_client:140 - Client error 403 (Unauthorized/Forbidden) for https://financialmodelingprep.com/api/v3/income-statement/NKE. API key may be invalid or permissions lacking. No retry. Params: {'apikey': '62ER******61uB', 'period': 'quarter', 'limit': 8}
+2025-05-26 00:13:09,385 - root - INFO - data_fetcher:31 - FMP Quarterly Income for NKE: 0 records.
+2025-05-26 00:13:10,996 - root - INFO - base_client:64 - Cached response for: GET:https://finnhub.io/api/v1/stock/financials-reported?count=8&freq=quarterly&symbol=NKE&token=d0o7...
+2025-05-26 00:13:12,499 - root - INFO - data_fetcher:38 - Fetched 45 quarterly reports from Finnhub for NKE.
+2025-05-26 00:13:14,724 - root - INFO - base_client:64 - Cached response for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=INCOME_STATEMENT&symbol=NKE...
+2025-05-26 00:13:29,727 - root - INFO - data_fetcher:47 - Fetched 81 quarterly income reports from Alpha Vantage for NKE.
+2025-05-26 00:13:31,374 - root - INFO - base_client:64 - Cached response for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=BALANCE_SHEET&symbol=NKE...
+2025-05-26 00:13:46,375 - root - INFO - data_fetcher:55 - Fetched 81 quarterly balance reports from Alpha Vantage for NKE.
+2025-05-26 00:13:48,612 - root - INFO - base_client:64 - Cached response for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=CASH_FLOW&symbol=NKE...
+2025-05-26 00:14:03,614 - root - INFO - data_fetcher:63 - Fetched 81 quarterly cash flow reports from Alpha Vantage for NKE.
+2025-05-26 00:14:03,615 - root - INFO - data_fetcher:76 - Fetching key metrics and profile for NKE.
+2025-05-26 00:14:05,107 - root - INFO - base_client:64 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-26 00:14:07,605 - root - WARNING - base_client:122 - HTTP error on attempt 1/3 for GET https://financialmodelingprep.com/api/v3/key-metrics/NKE (Params: {'apikey': '62ER******61uB', 'period': 'quarterly', 'limit': 8}, Headers: {}): 403 - {
+  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
+2025-05-26 00:14:07,607 - root - ERROR - base_client:140 - Client error 403 (Unauthorized/Forbidden) for https://financialmodelingprep.com/api/v3/key-metrics/NKE. API key may be invalid or permissions lacking. No retry. Params: {'apikey': '62ER******61uB', 'period': 'quarterly', 'limit': 8}
+2025-05-26 00:14:10,333 - root - INFO - base_client:64 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=NKE&token=d0o7hphr01qqr9alj38gd0o7hphr0...
+2025-05-26 00:14:11,836 - root - INFO - data_fetcher:95 - FMP KM Annual for NKE: 5. FMP KM Quarterly for NKE: 0. Finnhub Basic Financials for NKE: OK.
+2025-05-26 00:14:11,837 - root - INFO - metrics_calculator:348 - Calculating derived metrics for NKE...
+2025-05-26 00:14:11,839 - root - INFO - metrics_calculator:211 - Using latest quarterly revenue: 35,212,000,000 (Source: Finnhub) for NKE.
+2025-05-26 00:14:11,840 - root - INFO - metrics_calculator:398 - Calculated metrics for NKE: {
+  "pe_ratio": 25.306645614035087,
+  "pb_ratio": 9.996388080388082,
+  "ps_ratio": 1.8526,
+  "ev_to_sales": null,
+  "ev_to_ebitda": null,
+  "dividend_yield": 0.015036616136056905,
+  "eps": 3.76,
+  "net_profit_margin": null,
+  "gross_profit_margin": null,
+  "operating_profit_margin": 0.1302519372,
+  "roe": 0.39501039501039503,
+  "roa": 0.14956704277092628,
+  "roic": 0.3444796354747266,
+  "debt_to_equity": 0.8282744282744283,
+  "current_ratio": 2.3961106391012934,
+  "quick_ratio": 1.5112810346455205,
+  "debt_to_ebitda": 1.6704402515723271,
+  "revenue_growth_yoy": 0.0028310912392369722,
+  "eps_growth_yoy": 0.14984709480122316,
+  "revenue_growth_cagr_3yr": 0.04861491256483208,
+  "eps_growth_cagr_3yr": -0.009180522194930263,
+  "revenue_growth_cagr_5yr": 0.08251487385466705,
+  "eps_growth_cagr_5yr": 0.23239537592729897,
+  "revenue_growth_qoq": 0.47065948293864596,
+  "free_cash_flow_per_share": 4.475599946941684,
+  "free_cash_flow_yield": 0.07456847629026464,
+  "free_cash_flow_trend": "Growing",
+  "retained_earnings_trend": "Declining"
+}
+2025-05-26 00:14:11,846 - root - INFO - metrics_calculator:401 - Key metrics snapshot for NKE: {
+  "q_revenue_source": "Finnhub",
+  "latest_q_revenue": 35212000000.0,
+  "avg_historical_q_revenue_for_check": 25153750000.0
+}
+2025-05-26 00:14:11,848 - root - INFO - dcf_analyzer:55 - Performing simplified DCF analysis for NKE...
+2025-05-26 00:14:11,849 - root - INFO - dcf_analyzer:181 - DCF for NKE: Base IV/Share: 72.57, Upside: 20.92%
+2025-05-26 00:14:11,850 - root - INFO - qualitative_analyzer:88 - Fetching and attempting to summarize latest 10-K for NKE
+2025-05-26 00:14:13,120 - root - INFO - base_client:64 - Cached response for: GET:https://data.sec.gov/submissions/CIK0000320187.json?...
+2025-05-26 00:14:13,632 - root - INFO - sec_edgar_client:127 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/320187/000032018724000044/nke-20240531.htm
+2025-05-26 00:14:14,259 - root - WARNING - base_client:122 - HTTP error on attempt 1/3 for GET https://data.sec.gov/submissions/https://www.sec.gov/Archives/edgar/data/320187/000032018724000044/nke-20240531.htm (Params: {}, Headers: {'User-Agent': 'FinancialAnalysisBot/1.0 YourCompanyName YourContactEmail@example.com', 'Accept-Encoding': 'gzip, deflate'}): 404 - <?xml version="1.0" encoding="UTF-8"?>
+<Error><Code>NoSuchKey</Code><Message>The specified key does not exist.</Message><Key>submissions/https:/www.sec.gov/Archives/edgar/data/320187/00003201872400004...
+2025-05-26 00:14:14,261 - root - ERROR - base_client:143 - Non-retryable client error 404 for https://data.sec.gov/submissions/https://www.sec.gov/Archives/edgar/data/320187/000032018724000044/nke-20240531.htm: Unknown reason
+2025-05-26 00:14:14,263 - root - WARNING - qualitative_analyzer:111 - Failed to fetch/load 10-K text from https://www.sec.gov/Archives/edgar/data/320187/000032018724000044/nke-20240531.htm
+2025-05-26 00:14:14,264 - root - INFO - qualitative_analyzer:206 - Fetching and analyzing competitor data for NKE...
+2025-05-26 00:14:15,276 - root - INFO - base_client:64 - Cached response for: GET:https://finnhub.io/api/v1/stock/peers?symbol=NKE&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390...
+2025-05-26 00:14:16,778 - root - INFO - qualitative_analyzer:231 - Identified peers for NKE: ['DECK', 'SKX', 'CROX', 'SHOO', 'WWW']. Fetching basic data for comparison.
+2025-05-26 00:14:18,290 - root - INFO - base_client:64 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/DECK?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-26 00:14:21,245 - root - INFO - base_client:64 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/DECK?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61u...
+2025-05-26 00:14:23,897 - root - INFO - base_client:64 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=DECK&token=d0o7hphr01qqr9alj38gd0o7hphr...
+2025-05-26 00:14:26,860 - root - INFO - base_client:64 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/SKX?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-26 00:14:29,812 - root - INFO - base_client:64 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/SKX?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-26 00:14:32,693 - root - INFO - base_client:64 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=SKX&token=d0o7hphr01qqr9alj38gd0o7hphr0...
+2025-05-26 00:14:35,626 - root - INFO - base_client:64 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/CROX?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-26 00:14:38,568 - root - INFO - base_client:64 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/CROX?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61u...
+2025-05-26 00:14:41,220 - root - INFO - base_client:64 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=CROX&token=d0o7hphr01qqr9alj38gd0o7hphr...
+2025-05-26 00:14:44,165 - root - INFO - base_client:64 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/SHOO?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-26 00:14:47,081 - root - INFO - base_client:64 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/SHOO?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61u...
+2025-05-26 00:14:49,734 - root - INFO - base_client:64 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=SHOO&token=d0o7hphr01qqr9alj38gd0o7hphr...
+2025-05-26 00:14:52,705 - root - INFO - base_client:64 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/WWW?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-26 00:14:55,647 - root - INFO - base_client:64 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/WWW?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-26 00:14:58,319 - root - INFO - base_client:64 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=WWW&token=d0o7hphr01qqr9alj38gd0o7hphr0...
+2025-05-26 00:15:13,097 - root - INFO - qualitative_analyzer:317 - Competitor analysis summary generated for NKE.
+2025-05-26 00:15:13,097 - root - INFO - ai_synthesis:80 - Synthesizing investment thesis for NKE...
+2025-05-26 00:15:31,434 - root - INFO - ai_synthesis:204 - Generated thesis for NKE. Decision: Buy, Strategy: GARP (Growth At a Reasonable Price), Confidence: Medium
+2025-05-26 00:15:32,090 - root - INFO - stock_analyzer:279 - Successfully analyzed and saved stock data: NKE (Analysis ID: 1)
+2025-05-26 00:15:37,183 - root - INFO - main:108 - --- Main script execution finished. ---
+2025-05-26 00:15:37,184 - root - INFO - main:118 - Financial Analysis Script finished at 2025-05-25 21:15:37 UTC
+2025-05-26 00:15:37,185 - root - INFO - main:119 - Total execution time: 0:02:43.780191
+2025-05-26 00:15:37,186 - root - INFO - main:120 - ===================================================================
+2025-05-26 00:28:33,795 - root - INFO - main:113 - ===================================================================
+2025-05-26 00:28:33,795 - root - INFO - main:114 - Starting Financial Analysis Script at 2025-05-25 21:28:33 UTC
+2025-05-26 00:28:33,796 - root - INFO - main:115 - ===================================================================
+2025-05-26 00:28:33,797 - root - INFO - main:54 - --- Generating Today's Email Summary ---
+2025-05-26 00:28:35,644 - root - INFO - main:61 - Found 1 stock analyses, 0 IPO analyses, 0 news analyses since 2025-05-25 00:00:00 UTC for email.
+2025-05-26 00:28:37,921 - root - INFO - email_service:250 - Email sent successfully to daniprav@gmail.com
+2025-05-26 00:28:38,008 - root - INFO - main:108 - --- Main script execution finished. ---
+2025-05-26 00:28:38,009 - root - INFO - main:118 - Financial Analysis Script finished at 2025-05-25 21:28:38 UTC
+2025-05-26 00:28:38,010 - root - INFO - main:119 - Total execution time: 0:00:04.213747
+2025-05-26 00:28:38,011 - root - INFO - main:120 - ===================================================================
