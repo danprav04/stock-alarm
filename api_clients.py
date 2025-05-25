@@ -435,10 +435,10 @@ class GeminiAPIClient:
 
         # Prompt length check (crude character count, Gemini has token limits)
         # This is a safeguard, actual token limits are more complex.
-        if len(prompt) > 150000:  # Using a general large char limit
-            logger.warning(f"Gemini prompt length {len(prompt)} very long. Truncating to 30000 chars for safety.")
+        if len(prompt) > 250000:  # Using a general large char limit
+            logger.warning(f"Gemini prompt length {len(prompt)} very long. Truncating to 250000 chars for safety.")
             # Truncate in a way that keeps the structure if possible, or just head + tail
-            prompt = prompt[:150000] + "\n...[PROMPT TRUNCATED DUE TO EXCESSIVE LENGTH]..."
+            prompt = prompt[:250000] + "\n...[PROMPT TRUNCATED DUE TO EXCESSIVE LENGTH]..."
 
         # Total attempts will be total_keys * max_attempts_per_key
         for overall_attempt_num in range(total_keys * max_attempts_per_key):
