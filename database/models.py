@@ -1,9 +1,7 @@
-# models.py
 from sqlalchemy import Column, Integer, String, Float, DateTime, Text, JSON, ForeignKey, Boolean, Date, UniqueConstraint
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func  # For server-side SQL functions like func.now() if needed
-from database import Base
 from datetime import datetime, timezone
+from .connection import Base  # Import Base from connection.py
 
 
 class Stock(Base):
@@ -13,8 +11,6 @@ class Stock(Base):
     company_name = Column(String)
     industry = Column(String, nullable=True)
     sector = Column(String, nullable=True)
-    # Use default for Python-side default value generation
-    # Use onupdate for Python-side value generation on update
     last_analysis_date = Column(DateTime(timezone=True),
                                 default=lambda: datetime.now(timezone.utc),
                                 onupdate=lambda: datetime.now(timezone.utc))
@@ -31,7 +27,6 @@ class StockAnalysis(Base):
                            default=lambda: datetime.now(timezone.utc),
                            onupdate=lambda: datetime.now(timezone.utc))
 
-    # Quantitative
     pe_ratio = Column(Float, nullable=True)
     pb_ratio = Column(Float, nullable=True)
     ps_ratio = Column(Float, nullable=True)
@@ -47,7 +42,6 @@ class StockAnalysis(Base):
     interest_coverage_ratio = Column(Float, nullable=True)
     current_ratio = Column(Float, nullable=True)
     quick_ratio = Column(Float, nullable=True)
-
     revenue_growth_yoy = Column(Float, nullable=True)
     revenue_growth_qoq = Column(Float, nullable=True)
     revenue_growth_cagr_3yr = Column(Float, nullable=True)
@@ -62,26 +56,20 @@ class StockAnalysis(Base):
     free_cash_flow_yield = Column(Float, nullable=True)
     free_cash_flow_trend = Column(String, nullable=True)
     retained_earnings_trend = Column(String, nullable=True)
-
     dcf_intrinsic_value = Column(Float, nullable=True)
     dcf_upside_percentage = Column(Float, nullable=True)
     dcf_assumptions = Column(JSON, nullable=True)
-
-    # Qualitative
     business_summary = Column(Text, nullable=True)
     economic_moat_summary = Column(Text, nullable=True)
     industry_trends_summary = Column(Text, nullable=True)
     competitive_landscape_summary = Column(Text, nullable=True)
     management_assessment_summary = Column(Text, nullable=True)
     risk_factors_summary = Column(Text, nullable=True)
-
-    # Conclusion
     investment_thesis_full = Column(Text, nullable=True)
     investment_decision = Column(String, nullable=True)
     reasoning = Column(Text, nullable=True)
     strategy_type = Column(String, nullable=True)
     confidence_level = Column(String, nullable=True)
-
     key_metrics_snapshot = Column(JSON, nullable=True)
     qualitative_sources_summary = Column(JSON, nullable=True)
 
@@ -109,7 +97,6 @@ class IPO(Base):
     s1_filing_url = Column(String, nullable=True)
 
     analyses = relationship("IPOAnalysis", back_populates="ipo", cascade="all, delete-orphan")
-
     __table_args__ = (UniqueConstraint('company_name', 'ipo_date_str', 'symbol', name='uq_ipo_name_date_symbol'),)
 
 
@@ -125,18 +112,15 @@ class IPOAnalysis(Base):
     s1_risk_factors_summary = Column(Text, nullable=True)
     s1_mda_summary = Column(Text, nullable=True)
     s1_financial_health_summary = Column(Text, nullable=True)
-
     competitive_landscape_summary = Column(Text, nullable=True)
     industry_outlook_summary = Column(Text, nullable=True)
     management_team_assessment = Column(Text, nullable=True)
     use_of_proceeds_summary = Column(Text, nullable=True)
     underwriter_quality_assessment = Column(String, nullable=True)
-
     business_model_summary = Column(Text, nullable=True)
     risk_factors_summary = Column(Text, nullable=True)
     pre_ipo_financials_summary = Column(Text, nullable=True)
     valuation_comparison_summary = Column(Text, nullable=True)
-
     investment_decision = Column(String, nullable=True)
     reasoning = Column(Text, nullable=True)
     key_data_snapshot = Column(JSON, nullable=True)
@@ -160,7 +144,6 @@ class NewsEvent(Base):
     full_article_text = Column(Text, nullable=True)
 
     analyses = relationship("NewsEventAnalysis", back_populates="news_event", cascade="all, delete-orphan")
-
     __table_args__ = (UniqueConstraint('source_url', name='uq_news_source_url'),)
 
 
@@ -174,20 +157,16 @@ class NewsEventAnalysis(Base):
 
     sentiment = Column(String, nullable=True)
     sentiment_reasoning = Column(Text, nullable=True)
-
     affected_stocks_explicit = Column(JSON, nullable=True)
     affected_sectors_explicit = Column(JSON, nullable=True)
-
     news_summary_detailed = Column(Text, nullable=True)
     potential_impact_on_market = Column(Text, nullable=True)
     potential_impact_on_companies = Column(Text, nullable=True)
     potential_impact_on_sectors = Column(Text, nullable=True)
-
     mechanism_of_impact = Column(Text, nullable=True)
     estimated_timing_duration = Column(String, nullable=True)
     estimated_magnitude_direction = Column(String, nullable=True)
     confidence_of_assessment = Column(String, nullable=True)
-
     summary_for_email = Column(Text, nullable=True)
     key_news_snippets = Column(JSON, nullable=True)
 
@@ -201,5 +180,5 @@ class CachedAPIData(Base):
     request_url_or_params = Column(String, unique=True, nullable=False, index=True)
     response_data = Column(JSON, nullable=False)
     timestamp = Column(DateTime(timezone=True),
-                       default=lambda: datetime.now(timezone.utc))  # default for Python-side timestamp
+                       default=lambda: datetime.now(timezone.utc))
     expires_at = Column(DateTime(timezone=True), nullable=False, index=True)

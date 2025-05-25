@@ -1,20 +1,20 @@
-# email_generator.py
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from config import (
+from datetime import datetime, timezone
+import json
+import math
+from markdown2 import Markdown
+
+from core.config import (
     EMAIL_HOST, EMAIL_PORT, EMAIL_USE_TLS, EMAIL_HOST_USER,
     EMAIL_HOST_PASSWORD, EMAIL_SENDER, EMAIL_RECIPIENT
 )
-from error_handler import logger
-from models import StockAnalysis, IPOAnalysis, NewsEventAnalysis
-from datetime import datetime, timezone
-import json
-from markdown2 import Markdown
-import math
+from core.logging_setup import logger
+from database.models import StockAnalysis, IPOAnalysis, NewsEventAnalysis
 
 
-class EmailGenerator:
+class EmailService:
     def __init__(self):
         self.markdowner = Markdown(extras=["tables", "fenced-code-blocks", "break-on-newline"])
 
@@ -46,7 +46,6 @@ class EmailGenerator:
         investment_thesis_html = self._md_to_html(analysis.investment_thesis_full)
         reasoning_points_html = self._md_to_html(analysis.reasoning)
 
-        # Format DCF assumptions for display
         dcf_assumptions_html = "<ul>"
         if analysis.dcf_assumptions and isinstance(analysis.dcf_assumptions, dict):
             assumptions_data = analysis.dcf_assumptions
@@ -61,7 +60,6 @@ class EmailGenerator:
             dcf_assumptions_html += "<li>N/A</li>"
         dcf_assumptions_html += "</ul>"
 
-
         html = f"""
         <div class="analysis-block stock-analysis">
             <h2>Stock Analysis: {stock.company_name} ({stock.ticker})</h2>
@@ -70,13 +68,11 @@ class EmailGenerator:
             <p><strong>Investment Decision:</strong> {analysis.investment_decision or 'N/A'}</p>
             <p><strong>Strategy Type:</strong> {analysis.strategy_type or 'N/A'}</p>
             <p><strong>Confidence Level:</strong> {analysis.confidence_level or 'N/A'}</p>
-
             <details>
                 <summary><strong>Investment Thesis & Reasoning (Click to expand)</strong></summary>
                 <h4>Full Thesis:</h4><div class="markdown-content">{investment_thesis_html}</div>
                 <h4>Key Reasoning Points:</h4><div class="markdown-content">{reasoning_points_html}</div>
             </details>
-
             <details>
                 <summary><strong>Key Financial Metrics (Click to expand)</strong></summary>
                 <ul>
@@ -99,7 +95,6 @@ class EmailGenerator:
                     <li>FCF Trend: {analysis.free_cash_flow_trend or 'N/A'}</li><li>Retained Earnings Trend: {analysis.retained_earnings_trend or 'N/A'}</li>
                 </ul>
             </details>
-
             <details>
                 <summary><strong>DCF Analysis (Simplified) (Click to expand)</strong></summary>
                 <ul>
@@ -109,7 +104,6 @@ class EmailGenerator:
                 <p><em>Key Assumptions Used:</em></p>
                 {dcf_assumptions_html}
             </details>
-
             <details>
                 <summary><strong>Qualitative Analysis (from 10-K/Profile & AI) (Click to expand)</strong></summary>
                 <p><strong>Business Summary:</strong></p><div class="markdown-content">{business_summary_html}</div>
@@ -119,7 +113,6 @@ class EmailGenerator:
                 <p><strong>Management Discussion Highlights (MD&A/Assessment):</strong></p><div class="markdown-content">{management_assessment_html}</div>
                 <p><strong>Key Risk Factors:</strong></p><div class="markdown-content">{risk_factors_html}</div>
             </details>
-
             <details>
                 <summary><strong>Supporting Data Snapshots (Click to expand)</strong></summary>
                 <p><em>Key Metrics Data Points Used:</em></p><div class="markdown-content">{self._md_to_html(analysis.key_metrics_snapshot)}</div>
@@ -259,25 +252,21 @@ class EmailGenerator:
         except Exception as e: logger.error(f"General error sending email: {e}", exc_info=True); return False
 
 if __name__ == '__main__':
-    logger.info("Starting email generator test...")
-    # Mock data classes (simplified for brevity)
+    logger.info("Starting email service test...")
     class MockStock: __init__ = lambda self, ticker, company_name, industry="Tech", sector="Software": setattr(self, 'ticker', ticker) or setattr(self, 'company_name', company_name) or setattr(self, 'industry', industry) or setattr(self, 'sector', sector)
     class MockIPO: __init__ = lambda self, company_name, symbol, ipo_date_str="2025-07-15": setattr(self, 'company_name', company_name) or setattr(self, 'symbol', symbol) or setattr(self, 'ipo_date_str', ipo_date_str) or setattr(self, 'ipo_date', datetime.strptime(ipo_date_str, "%Y-%m-%d").date() if ipo_date_str else None) or setattr(self, 'expected_price_range_low', 18.00) or setattr(self, 'expected_price_range_high', 22.00) or setattr(self, 'expected_price_currency', "USD") or setattr(self, 'exchange', "NASDAQ") or setattr(self, 'status', "Filed") or setattr(self, 's1_filing_url', "http://example.com/s1")
     class MockNewsEvent: __init__ = lambda self, title, url, event_date_str="2025-05-25 10:00:00": setattr(self, 'event_title', title) or setattr(self, 'source_url', url) or setattr(self, 'source_name', "Mock News") or setattr(self, 'event_date', datetime.strptime(event_date_str, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)) or setattr(self, 'full_article_text', "Full article text...")
-    # Mock Analysis classes (simplified)
     class MockStockAnalysis:
-        def __init__(self, stock): self.stock, self.analysis_date, self.investment_decision, self.strategy_type, self.confidence_level, self.investment_thesis_full, self.reasoning = stock, datetime.now(timezone.utc), "Buy", "GARP", "Medium", "Thesis...", "Reasons..." # Add all fields as needed for full test
-        # Populate other fields like pe_ratio, dcf_assumptions, etc.
+        def __init__(self, stock): self.stock, self.analysis_date, self.investment_decision, self.strategy_type, self.confidence_level, self.investment_thesis_full, self.reasoning = stock, datetime.now(timezone.utc), "Buy", "GARP", "Medium", "Thesis...", "Reasons..."
         self.dcf_assumptions = {"discount_rate": 0.095, "perpetual_growth_rate": 0.025, "projection_years": 5, "start_fcf": 1.2e9, "fcf_growth_rates_projection": [0.08, 0.07, 0.06, 0.05, 0.04]}
         self.pe_ratio, self.pb_ratio, self.ps_ratio, self.ev_to_sales, self.ev_to_ebitda, self.eps, self.roe, self.roa, self.roic, self.dividend_yield, self.debt_to_equity, self.debt_to_ebitda, self.interest_coverage_ratio, self.current_ratio, self.quick_ratio, self.gross_profit_margin, self.operating_profit_margin, self.net_profit_margin, self.revenue_growth_yoy, self.revenue_growth_qoq, self.revenue_growth_cagr_3yr, self.revenue_growth_cagr_5yr, self.eps_growth_yoy, self.eps_growth_cagr_3yr, self.eps_growth_cagr_5yr, self.free_cash_flow_per_share, self.free_cash_flow_yield, self.free_cash_flow_trend, self.retained_earnings_trend, self.dcf_intrinsic_value, self.dcf_upside_percentage, self.business_summary, self.economic_moat_summary, self.industry_trends_summary, self.competitive_landscape_summary, self.management_assessment_summary, self.risk_factors_summary, self.key_metrics_snapshot, self.qualitative_sources_summary = (18.5, 3.2, 2.5, 2.8, 12.0, 2.50, 0.22, 0.10, 0.15, 0.015, 0.5, 2.1, 8.0, 1.8, 1.2, 0.60, 0.20, 0.12, 0.15, 0.04, 0.12, 0.10, 0.20, 0.18, 0.15, 1.80, 0.05, "Growing", "Growing", 120.50, 0.205, "Biz Sum.", "Moat Sum.", "Ind Sum.", "Comp Sum.", "Mgmt Sum.", "Risk Sum.", {"price": 100}, {"10k_url": "url"})
-
-    class MockIPOAnalysis: __init__ = lambda self, ipo: setattr(self, 'ipo', ipo) or setattr(self, 'analysis_date', datetime.now(timezone.utc)) # Add fields...
-    class MockNewsEventAnalysis: __init__ = lambda self, news_event: setattr(self, 'news_event', news_event) or setattr(self, 'analysis_date', datetime.now(timezone.utc)) # Add fields...
+    class MockIPOAnalysis: __init__ = lambda self, ipo: setattr(self, 'ipo', ipo) or setattr(self, 'analysis_date', datetime.now(timezone.utc))
+    class MockNewsEventAnalysis: __init__ = lambda self, news_event: setattr(self, 'news_event', news_event) or setattr(self, 'analysis_date', datetime.now(timezone.utc))
     mock_sa = MockStockAnalysis(MockStock("MOCK", "MockCorp Inc."))
     mock_ipo_a = MockIPOAnalysis(MockIPO("NewIPO Inc.", "NIPO"))
     mock_news_a = MockNewsEventAnalysis(MockNewsEvent("Major Tech Breakthrough", "http://example.com/news1"))
-    email_gen = EmailGenerator()
-    email_message = email_gen.create_summary_email(stock_analyses=[mock_sa], ipo_analyses=[mock_ipo_a], news_analyses=[mock_news_a])
+    email_svc = EmailService()
+    email_message = email_svc.create_summary_email(stock_analyses=[mock_sa], ipo_analyses=[mock_ipo_a], news_analyses=[mock_news_a])
     if email_message:
         logger.info("Email message created successfully.")
         output_filename = f"test_email_summary_refactored_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html"
@@ -289,5 +278,5 @@ if __name__ == '__main__':
             else: payload_html = email_message.get_payload(decode=True).decode(email_message.get_content_charset() or 'utf-8')
             if payload_html: f.write(payload_html); logger.info(f"Test email HTML saved to {output_filename}")
             else: logger.error("Could not extract HTML payload.")
-        # if email_gen.send_email(email_message): logger.info("Test email sent.") else: logger.error("Failed to send test email.")
+        # if email_svc.send_email(email_message): logger.info("Test email sent.") else: logger.error("Failed to send test email.")
     else: logger.error("Failed to create email message.")

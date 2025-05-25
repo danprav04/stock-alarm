@@ -1,4 +1,4 @@
-# config.py
+# core/config.py
 
 GOOGLE_API_KEYS = [
     "AIzaSyDLkwkVYBTUjabShS7VfdLkQTe7vZkxcjY", # Replace with your actual key
@@ -38,46 +38,41 @@ API_RETRY_ATTEMPTS = 3
 API_RETRY_DELAY = 10  # seconds
 
 # Gemini API Configuration
-# Max chars for the entire prompt string sent to Gemini. Gemini 1.5 Flash has a 128k token input context window (approx 512k chars).
-# Setting this lower provides a buffer and helps manage costs/latency.
 GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE = 400000
 
-# Chunking for Summarization (e.g., 10-K sections)
-# Target char size for text chunks. Aim for well under model's token limit per chunk.
-# (e.g., 80k chars ~ 20k tokens, leaving ample room for prompt instructions within a 128k token limit model like Gemini Flash)
+# Chunking for Summarization
 SUMMARIZATION_CHUNK_SIZE_CHARS = 80000
-SUMMARIZATION_CHUNK_OVERLAP_CHARS = 5000 # Overlap for context continuity
-# Max char length of concatenated chunk summaries before a final "summary of summaries" pass.
+SUMMARIZATION_CHUNK_OVERLAP_CHARS = 5000
 SUMMARIZATION_MAX_CONCAT_SUMMARIES_CHARS = 100000
 
 # Analysis Settings
 MAX_NEWS_ARTICLES_PER_QUERY = 10
 MAX_NEWS_TO_ANALYZE_PER_RUN = 5
-MIN_MARKET_CAP = 1000000000  # 1 Billion
-STOCK_FINANCIAL_YEARS = 7 # For fetching annual historical data
+MIN_MARKET_CAP = 1000000000
+STOCK_FINANCIAL_YEARS = 7
 IPO_ANALYSIS_REANALYZE_DAYS = 7
 
 # Cache Settings
-CACHE_EXPIRY_SECONDS = 3600 * 6  # 6 hours for general API data
+CACHE_EXPIRY_SECONDS = 3600 * 6
 
-# DCF Analysis Defaults (Stock Analyzer)
+# DCF Analysis Defaults
 DEFAULT_DISCOUNT_RATE = 0.09
 DEFAULT_PERPETUAL_GROWTH_RATE = 0.025
 DEFAULT_FCF_PROJECTION_YEARS = 5
 
 # News Analysis
-NEWS_ARTICLE_MAX_LENGTH_FOR_GEMINI_SUMMARIZATION = GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE - 10000 # Reserve for prompt
+NEWS_ARTICLE_MAX_LENGTH_FOR_GEMINI_SUMMARIZATION = GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE - 10000
 
-# IPO Analysis S-1/F-1 sections (also used for 10-K)
+# IPO/10-K Sections
 S1_KEY_SECTIONS = {
     "business": ["Item 1.", "Business"],
     "risk_factors": ["Item 1A.", "Risk Factors"],
-    "mda": ["Item 7.", "Management's Discussion and Analysis of Financial Condition and Results of Operations"], # More complete name
+    "mda": ["Item 7.", "Management's Discussion and Analysis of Financial Condition and Results of Operations"],
     "financial_statements": ["Item 8.", "Financial Statements and Supplementary Data"]
 }
 TEN_K_KEY_SECTIONS = S1_KEY_SECTIONS
 
 # Stock Analyzer specific settings
 MAX_COMPETITORS_TO_ANALYZE = 5
-Q_REVENUE_SANITY_CHECK_DEVIATION_THRESHOLD = 0.75 # Warn if quarterly revenue deviates >75% from recent quarterly avg
-PRIORITY_REVENUE_SOURCES = ["fmp_quarterly", "finnhub_quarterly", "alphavantage_quarterly"] # Order of preference
+Q_REVENUE_SANITY_CHECK_DEVIATION_THRESHOLD = 0.75
+PRIORITY_REVENUE_SOURCES = ["fmp_quarterly", "finnhub_quarterly", "alphavantage_quarterly"]
