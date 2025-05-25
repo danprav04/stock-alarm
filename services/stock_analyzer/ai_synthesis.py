@@ -138,7 +138,8 @@ def synthesize_investment_thesis(analyzer_instance):
         prompt += "- DCF Sensitivity Highlights:\n"
         for s_idx, s_data in enumerate(dcf_results["dcf_assumptions"]["sensitivity_analysis"]):
             if s_idx < 2:  # Limit to a few examples for brevity
-                prompt += f"  - {s_data['scenario']}: IV {s_data['intrinsic_value']:.2f} (Upside: {s_data['upside']:.2% if s_data['upside'] is not None else 'N/A'})\n"
+                upside_str = f"{s_data['upside']:.2%}" if s_data['upside'] is not None else "N/A"
+                prompt += f"  - {s_data['scenario']}: IV {s_data['intrinsic_value']:.2f} (Upside: {upside_str})\n"
 
     prompt += "\nQualitative Summaries (from 10-K & AI analysis):\n"
     qual_for_prompt = {
