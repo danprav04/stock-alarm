@@ -12,7 +12,7 @@ from core.logging_setup import logger
 class GeminiAPIClient:
     def __init__(self):
         self.base_url = "https://generativelanguage.googleapis.com/v1beta/models"
-        self.model_name = "gemini-1.5-flash-latest"
+        self.model_name = "gemini-2.5-flash-preview-05-20"
 
     def _get_next_api_key_for_attempt(self, overall_attempt_num, max_attempts_per_key, total_keys):
         if total_keys == 0: return None, 0
