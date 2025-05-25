@@ -135,3 +135,444 @@
 2025-05-25 15:35:51,867 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-25 12:35:51 UTC
 2025-05-25 15:35:51,867 - root - INFO - main:175 - Total execution time: 0:00:03.485198
 2025-05-25 15:35:51,868 - root - INFO - main:176 - ===================================================================
+2025-05-25 16:17:13,863 - root - INFO - main:167 - ===================================================================
+2025-05-25 16:17:13,863 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-25 13:17:13 UTC
+2025-05-25 16:17:13,864 - root - INFO - main:169 - ===================================================================
+2025-05-25 16:17:13,867 - root - INFO - main:118 - Initializing database as per command line argument...
+2025-05-25 16:17:13,867 - root - INFO - database:21 - Initializing database and creating tables...
+2025-05-25 16:17:17,089 - root - INFO - database:26 - Database tables created successfully (if they didn't exist).
+2025-05-25 16:17:17,089 - root - INFO - main:121 - Database initialization complete.
+2025-05-25 16:17:17,090 - root - INFO - main:157 - --- Main script execution finished. ---
+2025-05-25 16:17:17,090 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-25 13:17:17 UTC
+2025-05-25 16:17:17,091 - root - INFO - main:175 - Total execution time: 0:00:03.226066
+2025-05-25 16:17:17,091 - root - INFO - main:176 - ===================================================================
+2025-05-25 16:17:24,968 - root - INFO - main:167 - ===================================================================
+2025-05-25 16:17:24,969 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-25 13:17:24 UTC
+2025-05-25 16:17:24,969 - root - INFO - main:169 - ===================================================================
+2025-05-25 16:17:24,972 - root - INFO - main:18 - --- Starting Individual Stock Analysis for: ['NKE'] ---
+2025-05-25 16:17:26,883 - root - WARNING - api_clients:124 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/profile/NKE (Params: {'apikey': 'YOUR_FMP_A******'}, Headers: {}): 401 - {
+  "Error Message": "Invalid API KEY. Feel free to create a Free API Key or visit https://site.financialmodelingprep.com/faqs?search=why-is-my-api-key-invalid for more information."
+}...
+2025-05-25 16:17:26,884 - root - ERROR - api_clients:144 - Non-retryable client error for https://financialmodelingprep.com/api/v3/profile/NKE: 401 Unauthorized
+2025-05-25 16:17:27,886 - root - WARNING - stock_analyzer:132 - FMP profile failed for NKE. Trying Finnhub.
+2025-05-25 16:17:28,510 - root - WARNING - api_clients:124 - HTTP error on attempt 1/3 for https://finnhub.io/api/v1/stock/profile2 (Params: {'token': 'YOUR_FINNHUB_A******', 'symbol': 'NKE'}, Headers: {}): 401 - {"error":"Invalid API key"}...
+2025-05-25 16:17:28,511 - root - ERROR - api_clients:144 - Non-retryable client error for https://finnhub.io/api/v1/stock/profile2: 401 Unauthorized
+2025-05-25 16:17:29,513 - root - WARNING - stock_analyzer:140 - Finnhub profile failed for NKE. Trying Alpha Vantage Overview.
+2025-05-25 16:17:30,670 - root - INFO - api_clients:66 - Cached response for: GET:https://www.alphavantage.co/query?apikey=YOUR_ALPHA_VANTAGE_KEY&function=OVERVIEW&symbol=NKE...
+2025-05-25 16:17:32,672 - root - INFO - stock_analyzer:147 - Fetched overview from Alpha Vantage for NKE.
+2025-05-25 16:17:32,672 - root - INFO - stock_analyzer:160 - Stock NKE not found in DB, creating new entry.
+2025-05-25 16:17:33,104 - root - INFO - stock_analyzer:183 - Stock entry for NKE (ID: 1, CIK: 320187) ready.
+2025-05-25 16:17:33,105 - root - INFO - stock_analyzer:827 - Full analysis pipeline started for NKE...
+2025-05-25 16:17:33,106 - root - INFO - stock_analyzer:187 - Fetching financial statements for NKE...
+2025-05-25 16:17:33,866 - root - WARNING - api_clients:124 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/income-statement/NKE (Params: {'apikey': 'YOUR_FMP_A******', 'period': 'annual', 'limit': 7}, Headers: {}): 401 - {
+  "Error Message": "Invalid API KEY. Feel free to create a Free API Key or visit https://site.financialmodelingprep.com/faqs?search=why-is-my-api-key-invalid for more information."
+}...
+2025-05-25 16:17:33,866 - root - ERROR - api_clients:144 - Non-retryable client error for https://financialmodelingprep.com/api/v3/income-statement/NKE: 401 Unauthorized
+2025-05-25 16:17:36,212 - root - WARNING - api_clients:124 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/balance-sheet-statement/NKE (Params: {'apikey': 'YOUR_FMP_A******', 'period': 'annual', 'limit': 7}, Headers: {}): 401 - {
+  "Error Message": "Invalid API KEY. Feel free to create a Free API Key or visit https://site.financialmodelingprep.com/faqs?search=why-is-my-api-key-invalid for more information."
+}...
+2025-05-25 16:17:36,213 - root - ERROR - api_clients:144 - Non-retryable client error for https://financialmodelingprep.com/api/v3/balance-sheet-statement/NKE: 401 Unauthorized
+2025-05-25 16:17:38,562 - root - WARNING - api_clients:124 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/cash-flow-statement/NKE (Params: {'apikey': 'YOUR_FMP_A******', 'period': 'annual', 'limit': 7}, Headers: {}): 401 - {
+  "Error Message": "Invalid API KEY. Feel free to create a Free API Key or visit https://site.financialmodelingprep.com/faqs?search=why-is-my-api-key-invalid for more information."
+}...
+2025-05-25 16:17:38,564 - root - ERROR - api_clients:144 - Non-retryable client error for https://financialmodelingprep.com/api/v3/cash-flow-statement/NKE: 401 Unauthorized
+2025-05-25 16:17:40,066 - root - INFO - stock_analyzer:209 - FMP Annuals for NKE: Income(0), Balance(0), Cashflow(0).
+2025-05-25 16:17:40,703 - root - WARNING - api_clients:124 - HTTP error on attempt 1/3 for https://finnhub.io/api/v1/stock/financials-reported (Params: {'token': 'YOUR_FINNHUB_A******', 'symbol': 'NKE', 'freq': 'quarterly'}, Headers: {}): 401 - {"error":"Invalid API key"}...
+2025-05-25 16:17:40,704 - root - ERROR - api_clients:144 - Non-retryable client error for https://finnhub.io/api/v1/stock/financials-reported: 401 Unauthorized
+2025-05-25 16:17:42,205 - root - WARNING - stock_analyzer:217 - Finnhub quarterly financials reported data missing or malformed for NKE.
+2025-05-25 16:17:43,668 - root - INFO - api_clients:66 - Cached response for: GET:https://www.alphavantage.co/query?apikey=YOUR_ALPHA_VANTAGE_KEY&function=INCOME_STATEMENT&symbol...
+2025-05-25 16:17:58,670 - root - INFO - stock_analyzer:222 - Fetched 81 quarterly income reports from Alpha Vantage for NKE.
+2025-05-25 16:17:59,887 - root - INFO - api_clients:66 - Cached response for: GET:https://www.alphavantage.co/query?apikey=YOUR_ALPHA_VANTAGE_KEY&function=BALANCE_SHEET&symbol=NK...
+2025-05-25 16:18:14,889 - root - INFO - stock_analyzer:230 - Fetched 81 quarterly balance reports from Alpha Vantage for NKE.
+2025-05-25 16:18:16,256 - root - INFO - api_clients:66 - Cached response for: GET:https://www.alphavantage.co/query?apikey=YOUR_ALPHA_VANTAGE_KEY&function=CASH_FLOW&symbol=NKE...
+2025-05-25 16:18:31,258 - root - INFO - stock_analyzer:238 - Fetched 81 quarterly cash flow reports from Alpha Vantage for NKE.
+2025-05-25 16:18:31,259 - root - INFO - stock_analyzer:248 - Fetching key metrics and profile for NKE.
+2025-05-25 16:18:32,186 - root - WARNING - api_clients:124 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/key-metrics/NKE (Params: {'apikey': 'YOUR_FMP_A******', 'period': 'annual', 'limit': 9}, Headers: {}): 401 - {
+  "Error Message": "Invalid API KEY. Feel free to create a Free API Key or visit https://site.financialmodelingprep.com/faqs?search=why-is-my-api-key-invalid for more information."
+}...
+2025-05-25 16:18:32,187 - root - ERROR - api_clients:144 - Non-retryable client error for https://financialmodelingprep.com/api/v3/key-metrics/NKE: 401 Unauthorized
+2025-05-25 16:18:34,538 - root - WARNING - api_clients:124 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/key-metrics/NKE (Params: {'apikey': 'YOUR_FMP_A******', 'period': 'quarterly', 'limit': 8}, Headers: {}): 401 - {
+  "Error Message": "Invalid API KEY. Feel free to create a Free API Key or visit https://site.financialmodelingprep.com/faqs?search=why-is-my-api-key-invalid for more information."
+}...
+2025-05-25 16:18:34,539 - root - ERROR - api_clients:144 - Non-retryable client error for https://financialmodelingprep.com/api/v3/key-metrics/NKE: 401 Unauthorized
+2025-05-25 16:18:36,040 - root - WARNING - stock_analyzer:255 - FMP quarterly key metrics API call failed for NKE. Data will be empty.
+2025-05-25 16:18:36,702 - root - WARNING - api_clients:124 - HTTP error on attempt 1/3 for https://finnhub.io/api/v1/stock/metric (Params: {'token': 'YOUR_FINNHUB_A******', 'symbol': 'NKE', 'metric': 'all'}, Headers: {}): 401 - {"error":"Invalid API key"}...
+2025-05-25 16:18:36,702 - root - ERROR - api_clients:144 - Non-retryable client error for https://finnhub.io/api/v1/stock/metric: 401 Unauthorized
+2025-05-25 16:18:39,088 - root - WARNING - api_clients:124 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/profile/NKE (Params: {'apikey': 'YOUR_FMP_A******'}, Headers: {}): 401 - {
+  "Error Message": "Invalid API KEY. Feel free to create a Free API Key or visit https://site.financialmodelingprep.com/faqs?search=why-is-my-api-key-invalid for more information."
+}...
+2025-05-25 16:18:39,089 - root - ERROR - api_clients:144 - Non-retryable client error for https://financialmodelingprep.com/api/v3/profile/NKE: 401 Unauthorized
+2025-05-25 16:18:40,591 - root - INFO - stock_analyzer:266 - FMP KM Annual for NKE: 0. FMP KM Quarterly for NKE: 0. Finnhub Basic Financials for NKE: Data missing.
+2025-05-25 16:18:40,591 - root - INFO - stock_analyzer:448 - Calculating derived metrics for NKE...
+2025-05-25 16:18:40,591 - root - INFO - stock_analyzer:485 - Calculated metrics for NKE: {'pe_ratio': None, 'pb_ratio': None, 'ps_ratio': None, 'ev_to_sales': None, 'ev_to_ebitda': None, 'dividend_yield': None, 'revenue_growth_yoy': None, 'eps_growth_yoy': None, 'revenue_growth_qoq': -0.1110334820228946, 'retained_earnings_trend': 'Data N/A (<3 yrs)'}
+2025-05-25 16:18:40,591 - root - INFO - stock_analyzer:490 - Performing simplified DCF analysis for NKE...
+2025-05-25 16:18:40,591 - root - WARNING - stock_analyzer:506 - Insufficient data for DCF for NKE.
+2025-05-25 16:18:40,592 - root - INFO - stock_analyzer:618 - Fetching and attempting to summarize latest 10-K for NKE
+2025-05-25 16:18:41,795 - root - INFO - api_clients:66 - Cached response for: GET:https://data.sec.gov/submissions/CIK0000320187.json?...
+2025-05-25 16:18:42,298 - root - INFO - api_clients:367 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/320187/000032018724000044/nke-20240531.htm
+2025-05-25 16:18:43,514 - root - INFO - api_clients:66 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/320187/000032018724000044/nke-20240531.htm...
+2025-05-25 16:18:43,515 - root - INFO - stock_analyzer:640 - Fetched 10-K text (length: 2651098) for NKE. Extracting and summarizing sections.
+2025-05-25 16:18:44,039 - root - INFO - stock_analyzer:562 - Summarizing section for Nike Inc (NKE), original length: 5607 chars.
+2025-05-25 16:18:44,040 - root - INFO - stock_analyzer:566 - Section length 5607 is within single-pass limit. Summarizing directly.
+2025-05-25 16:18:44,206 - root - WARNING - api_clients:458 - Gemini API HTTP error key ...EY_1 attempt 1: 400 - {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/googl. Prompt: 'Context: Business for Nike Inc (NKE).
+
+Text to Analyze:
+"""
+GENERAL
+NIKE, Inc. was incorporated in 1...'
+2025-05-25 16:18:44,207 - root - ERROR - api_clients:461 - Gemini API Bad Request (400). Aborting for this prompt. Response: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        
+2025-05-25 16:18:46,210 - root - INFO - stock_analyzer:664 - Summary for 'Business' (length 5607): AI summary error or no content....
+2025-05-25 16:18:46,210 - root - INFO - stock_analyzer:562 - Summarizing section for Nike Inc (NKE), original length: 215573 chars.
+2025-05-25 16:18:46,211 - root - INFO - stock_analyzer:575 - Section length 215573 exceeds single-pass limit. Applying chunked summarization.
+2025-05-25 16:18:46,212 - root - INFO - stock_analyzer:585 - Summarizing chunk 1/3 for Nike Inc (NKE) (length: 100000 chars).
+2025-05-25 16:18:46,416 - root - WARNING - api_clients:458 - Gemini API HTTP error key ...EY_1 attempt 1: 400 - {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/googl. Prompt: 'Context: Risk Factors for Nike Inc (NKE) (this is chunk 1 of 3).
+
+Text to Analyze:
+"""
+, within Part...'
+2025-05-25 16:18:46,418 - root - ERROR - api_clients:461 - Gemini API Bad Request (400). Aborting for this prompt. Response: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        
+2025-05-25 16:18:48,422 - root - INFO - stock_analyzer:585 - Summarizing chunk 2/3 for Nike Inc (NKE) (length: 100000 chars).
+2025-05-25 16:18:48,705 - root - WARNING - api_clients:458 - Gemini API HTTP error key ...EY_1 attempt 1: 400 - {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/googl. Prompt: 'Context: Risk Factors for Nike Inc (NKE) (this is chunk 2 of 3).
+
+Text to Analyze:
+"""
+ions, except ...'
+2025-05-25 16:18:48,705 - root - ERROR - api_clients:461 - Gemini API Bad Request (400). Aborting for this prompt. Response: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        
+2025-05-25 16:18:50,707 - root - INFO - stock_analyzer:585 - Summarizing chunk 3/3 for Nike Inc (NKE) (length: 35573 chars).
+2025-05-25 16:18:51,173 - root - WARNING - api_clients:458 - Gemini API HTTP error key ...EY_1 attempt 1: 400 - {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/googl. Prompt: 'Context: Risk Factors for Nike Inc (NKE) (this is chunk 3 of 3).
+
+Text to Analyze:
+"""
+cted product ...'
+2025-05-25 16:18:51,174 - root - ERROR - api_clients:461 - Gemini API Bad Request (400). Aborting for this prompt. Response: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        
+2025-05-25 16:18:53,178 - root - INFO - stock_analyzer:597 - Concatenated chunk summaries length: 112 chars for Nike Inc (NKE).
+2025-05-25 16:18:53,178 - root - INFO - stock_analyzer:664 - Summary for 'Risk Factors' (length 215573): Failed to generate summaries for any chunk....
+2025-05-25 16:18:53,179 - root - INFO - stock_analyzer:562 - Summarizing section for Nike Inc (NKE), original length: 3494 chars.
+2025-05-25 16:18:53,180 - root - INFO - stock_analyzer:566 - Section length 3494 is within single-pass limit. Summarizing directly.
+2025-05-25 16:18:53,326 - root - WARNING - api_clients:458 - Gemini API HTTP error key ...EY_1 attempt 1: 400 - {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/googl. Prompt: 'Context: Management's Discussion and Analysis for Nike Inc (NKE).
+
+Text to Analyze:
+"""
+OF FINANCIAL...'
+2025-05-25 16:18:53,327 - root - ERROR - api_clients:461 - Gemini API Bad Request (400). Aborting for this prompt. Response: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        
+2025-05-25 16:18:55,330 - root - INFO - stock_analyzer:664 - Summary for 'Management's Discussion and Analysis' (length 3494): AI summary error or no content....
+2025-05-25 16:18:55,472 - root - WARNING - api_clients:458 - Gemini API HTTP error key ...EY_1 attempt 1: 400 - {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/googl. Prompt: 'Based on the business description and MD&A for Nike Inc (NKE):
+"""
+AI summary error or no content.
+A...'
+2025-05-25 16:18:55,473 - root - ERROR - api_clients:461 - Gemini API Bad Request (400). Aborting for this prompt. Response: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        
+2025-05-25 16:18:58,601 - root - WARNING - api_clients:458 - Gemini API HTTP error key ...EY_1 attempt 1: 400 - {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/googl. Prompt: 'Analyze the primary economic moats (e.g., brand, network effects, switching costs, intangible assets...'
+2025-05-25 16:18:58,602 - root - ERROR - api_clients:461 - Gemini API Bad Request (400). Aborting for this prompt. Response: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        
+2025-05-25 16:19:01,763 - root - WARNING - api_clients:458 - Gemini API HTTP error key ...EY_1 attempt 1: 400 - {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/googl. Prompt: 'For Nike Inc (NKE), operating in the 'RUBBER & PLASTICS FOOTWEAR' industry, consider the following c...'
+2025-05-25 16:19:01,763 - root - ERROR - api_clients:461 - Gemini API Bad Request (400). Aborting for this prompt. Response: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        
+2025-05-25 16:19:04,766 - root - INFO - stock_analyzer:715 - 10-K qualitative summaries generated for NKE.
+2025-05-25 16:19:04,766 - root - INFO - stock_analyzer:772 - Synthesizing investment thesis for NKE...
+2025-05-25 16:19:04,912 - root - WARNING - api_clients:458 - Gemini API HTTP error key ...EY_1 attempt 1: 400 - {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/googl. Prompt: 'Company: Nike Inc (NKE)
+Industry: RUBBER & PLASTICS FOOTWEAR, Sector: MANUFACTURING
+
+Key Financial M...'
+2025-05-25 16:19:04,913 - root - ERROR - api_clients:461 - Gemini API Bad Request (400). Aborting for this prompt. Response: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        
+2025-05-25 16:19:04,915 - root - INFO - stock_analyzer:822 - Generated thesis for NKE. Parsed Decision: AI Error, Strategy: AI Error, Confidence: AI Error
+2025-05-25 16:19:05,379 - root - INFO - stock_analyzer:862 - Successfully analyzed and saved stock data: NKE (Analysis ID: 1)
+2025-05-25 16:19:10,441 - root - INFO - main:157 - --- Main script execution finished. ---
+2025-05-25 16:19:10,441 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-25 13:19:10 UTC
+2025-05-25 16:19:10,442 - root - INFO - main:175 - Total execution time: 0:01:45.472908
+2025-05-25 16:19:10,442 - root - INFO - main:176 - ===================================================================
+2025-05-25 16:20:44,904 - root - INFO - main:167 - ===================================================================
+2025-05-25 16:20:44,904 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-25 13:20:44 UTC
+2025-05-25 16:20:44,905 - root - INFO - main:169 - ===================================================================
+2025-05-25 16:20:44,907 - root - INFO - main:59 - --- Generating Today's Email Summary ---
+2025-05-25 16:20:46,284 - root - INFO - main:72 - Found 1 stock analyses, 0 IPO analyses, 0 news analyses since 2025-05-25 00:00:00 UTC for email.
+2025-05-25 16:20:47,990 - root - ERROR - email_generator:258 - SMTP error sending email: (535, b'5.7.8 Authentication failed')
+Traceback (most recent call last):
+  File "C:\Users\Moshe\Documents\GitHub\stock-alarm\email_generator.py", line 255, in send_email
+    smtp_server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+  File "C:\Python312\Lib\smtplib.py", line 750, in login
+    raise last_exception
+  File "C:\Python312\Lib\smtplib.py", line 739, in login
+    (code, resp) = self.auth(
+                   ^^^^^^^^^^
+  File "C:\Python312\Lib\smtplib.py", line 662, in auth
+    raise SMTPAuthenticationError(code, resp)
+smtplib.SMTPAuthenticationError: (535, b'5.7.8 Authentication failed')
+2025-05-25 16:20:48,057 - root - INFO - main:157 - --- Main script execution finished. ---
+2025-05-25 16:20:48,057 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-25 13:20:48 UTC
+2025-05-25 16:20:48,058 - root - INFO - main:175 - Total execution time: 0:00:03.152171
+2025-05-25 16:20:48,058 - root - INFO - main:176 - ===================================================================
+2025-05-25 16:24:16,676 - root - INFO - main:167 - ===================================================================
+2025-05-25 16:24:16,676 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-25 13:24:16 UTC
+2025-05-25 16:24:16,677 - root - INFO - main:169 - ===================================================================
+2025-05-25 16:24:16,679 - root - INFO - main:118 - Initializing database as per command line argument...
+2025-05-25 16:24:16,679 - root - INFO - database:21 - Initializing database and creating tables...
+2025-05-25 16:24:20,511 - root - INFO - database:26 - Database tables created successfully (if they didn't exist).
+2025-05-25 16:24:20,512 - root - INFO - main:121 - Database initialization complete.
+2025-05-25 16:24:20,512 - root - INFO - main:157 - --- Main script execution finished. ---
+2025-05-25 16:24:20,513 - root - INFO - main:174 - Financial Analysis Script finished at 2025-05-25 13:24:20 UTC
+2025-05-25 16:24:20,513 - root - INFO - main:175 - Total execution time: 0:00:03.835974
+2025-05-25 16:24:20,513 - root - INFO - main:176 - ===================================================================
+2025-05-25 16:24:28,244 - root - INFO - main:167 - ===================================================================
+2025-05-25 16:24:28,244 - root - INFO - main:168 - Starting Financial Analysis Script at 2025-05-25 13:24:28 UTC
+2025-05-25 16:24:28,245 - root - INFO - main:169 - ===================================================================
+2025-05-25 16:24:28,248 - root - INFO - main:18 - --- Starting Individual Stock Analysis for: ['NKE'] ---
+2025-05-25 16:24:30,562 - root - INFO - api_clients:66 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-25 16:24:31,564 - root - INFO - stock_analyzer:130 - Fetched profile from FMP for NKE.
+2025-05-25 16:24:31,564 - root - INFO - stock_analyzer:160 - Stock NKE not found in DB, creating new entry.
+2025-05-25 16:24:32,001 - root - INFO - stock_analyzer:183 - Stock entry for NKE (ID: 1, CIK: 0000320187) ready.
+2025-05-25 16:24:32,002 - root - INFO - stock_analyzer:827 - Full analysis pipeline started for NKE...
+2025-05-25 16:24:32,003 - root - INFO - stock_analyzer:187 - Fetching financial statements for NKE...
+2025-05-25 16:24:33,052 - root - INFO - api_clients:66 - Cached response for: GET:https://financialmodelingprep.com/api/v3/income-statement/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91TVzf...
+2025-05-25 16:24:35,728 - root - INFO - api_clients:66 - Cached response for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/NKE?apikey=62ERGmJoqQgGD0nSGxRZ...
+2025-05-25 16:24:38,413 - root - INFO - api_clients:66 - Cached response for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91T...
+2025-05-25 16:24:39,915 - root - INFO - stock_analyzer:209 - FMP Annuals for NKE: Income(5), Balance(5), Cashflow(5).
+2025-05-25 16:24:41,487 - root - INFO - api_clients:66 - Cached response for: GET:https://finnhub.io/api/v1/stock/financials-reported?freq=quarterly&symbol=NKE&token=d0o7hphr01qq...
+2025-05-25 16:24:42,989 - root - INFO - stock_analyzer:215 - Fetched 45 quarterly reports from Finnhub for NKE.
+2025-05-25 16:24:44,399 - root - INFO - api_clients:66 - Cached response for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=INCOME_STATEMENT&symbol=NKE...
+2025-05-25 16:24:59,401 - root - INFO - stock_analyzer:222 - Fetched 81 quarterly income reports from Alpha Vantage for NKE.
+2025-05-25 16:25:00,798 - root - INFO - api_clients:66 - Cached response for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=BALANCE_SHEET&symbol=NKE...
+2025-05-25 16:25:15,800 - root - INFO - stock_analyzer:230 - Fetched 81 quarterly balance reports from Alpha Vantage for NKE.
+2025-05-25 16:25:17,168 - root - INFO - api_clients:66 - Cached response for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=CASH_FLOW&symbol=NKE...
+2025-05-25 16:25:32,170 - root - INFO - stock_analyzer:238 - Fetched 81 quarterly cash flow reports from Alpha Vantage for NKE.
+2025-05-25 16:25:32,170 - root - INFO - stock_analyzer:248 - Fetching key metrics and profile for NKE.
+2025-05-25 16:25:33,399 - root - INFO - api_clients:66 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
+2025-05-25 16:25:35,781 - root - WARNING - api_clients:124 - HTTP error on attempt 1/3 for https://financialmodelingprep.com/api/v3/key-metrics/NKE (Params: {'apikey': '62ERGmJoqQgGD0nSGxRZS91TVz******', 'period': 'quarterly', 'limit': 8}, Headers: {}): 403 - {
+  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
+2025-05-25 16:25:35,781 - root - ERROR - api_clients:144 - Non-retryable client error for https://financialmodelingprep.com/api/v3/key-metrics/NKE: 403 Forbidden
+2025-05-25 16:25:37,283 - root - WARNING - stock_analyzer:255 - FMP quarterly key metrics API call failed for NKE. Data will be empty.
+2025-05-25 16:25:38,703 - root - INFO - api_clients:66 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=NKE&token=d0o7hphr01qqr9alj38gd0o7hphr0...
+2025-05-25 16:25:40,205 - root - INFO - stock_analyzer:266 - FMP KM Annual for NKE: 5. FMP KM Quarterly for NKE: 0. Finnhub Basic Financials for NKE: OK.
+2025-05-25 16:25:40,205 - root - INFO - stock_analyzer:448 - Calculating derived metrics for NKE...
+2025-05-25 16:25:40,206 - root - INFO - stock_analyzer:485 - Calculated metrics for NKE: {'pe_ratio': 25.306645614035087, 'pb_ratio': 9.996388080388082, 'ps_ratio': 1.8526, 'ev_to_sales': None, 'ev_to_ebitda': None, 'dividend_yield': 0.015036616136056905, 'eps': 3.76, 'net_profit_margin': None, 'gross_profit_margin': None, 'operating_profit_margin': 0.1302519372, 'roe': 0.39501039501039503, 'roa': 0.14956704277092628, 'roic': 0.3444796354747266, 'debt_to_equity': 0.8282744282744283, 'current_ratio': 2.3961106391012934, 'quick_ratio': 1.5112810346455205, 'debt_to_ebitda': 1.6704402515723271, 'revenue_growth_yoy': 0.0028310912392369722, 'eps_growth_yoy': 0.14984709480122316, 'revenue_growth_cagr_3yr': 0.04861491256483208, 'eps_growth_cagr_3yr': -0.009180522194930263, 'revenue_growth_cagr_5yr': 0.08251487385466705, 'eps_growth_cagr_5yr': 0.23239537592729897, 'revenue_growth_qoq': -0.1110334820228946, 'free_cash_flow_per_share': 4.475599946941684, 'free_cash_flow_yield': 0.07456847629026464, 'free_cash_flow_trend': 'Growing', 'retained_earnings_trend': 'Declining'}
+2025-05-25 16:25:40,206 - root - INFO - stock_analyzer:490 - Performing simplified DCF analysis for NKE...
+2025-05-25 16:25:40,206 - root - INFO - stock_analyzer:550 - DCF for NKE: IV/Share: 72.57462873131917, Upside: 20.917408749282178%
+2025-05-25 16:25:40,207 - root - INFO - stock_analyzer:618 - Fetching and attempting to summarize latest 10-K for NKE
+2025-05-25 16:25:41,429 - root - INFO - api_clients:66 - Cached response for: GET:https://data.sec.gov/submissions/CIK0000320187.json?...
+2025-05-25 16:25:41,932 - root - INFO - api_clients:367 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/320187/000032018724000044/nke-20240531.htm
+2025-05-25 16:25:43,213 - root - INFO - api_clients:66 - Cached response for: GET_SEC_DOC:https://www.sec.gov/Archives/edgar/data/320187/000032018724000044/nke-20240531.htm...
+2025-05-25 16:25:43,221 - root - INFO - stock_analyzer:640 - Fetched 10-K text (length: 2651098) for NKE. Extracting and summarizing sections.
+2025-05-25 16:25:44,024 - root - INFO - stock_analyzer:562 - Summarizing section for NIKE, Inc. (NKE), original length: 5607 chars.
+2025-05-25 16:25:44,024 - root - INFO - stock_analyzer:566 - Section length 5607 is within single-pass limit. Summarizing directly.
+2025-05-25 16:25:54,520 - root - INFO - stock_analyzer:664 - Summary for 'Business' (length 5607): NIKE, Inc.'s core business operation is the design, development, worldwide marketing, and selling of...
+2025-05-25 16:25:54,521 - root - INFO - stock_analyzer:562 - Summarizing section for NIKE, Inc. (NKE), original length: 215573 chars.
+2025-05-25 16:25:54,521 - root - INFO - stock_analyzer:566 - Section length 215573 is within single-pass limit. Summarizing directly.
+2025-05-25 16:26:09,125 - root - INFO - stock_analyzer:664 - Summary for 'Risk Factors' (length 215573): Here are 3-5 significant risk factors for NIKE, Inc. based on the provided text:
+
+1.  **Foreign Curr...
+2025-05-25 16:26:09,125 - root - INFO - stock_analyzer:562 - Summarizing section for NIKE, Inc. (NKE), original length: 3494 chars.
+2025-05-25 16:26:09,127 - root - INFO - stock_analyzer:566 - Section length 3494 is within single-pass limit. Summarizing directly.
+2025-05-25 16:26:23,168 - root - INFO - stock_analyzer:664 - Summary for 'Management's Discussion and Analysis' (length 3494): NIKE, Inc. reported a slight revenue increase to $51.4 billion for fiscal 2024, with both NIKE Direc...
