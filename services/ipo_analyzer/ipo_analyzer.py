@@ -74,7 +74,8 @@ class IPOAnalyzer:
 
         s1_text, s1_url = fetch_s1_filing_data(self, db_session, ipo_db_entry)
 
-        analysis_payload = perform_ai_analysis_for_ipo(self, ipo_db_entry, s1_text,
+        # Pass s1_url to the AI analysis function
+        analysis_payload = perform_ai_analysis_for_ipo(self, ipo_db_entry, s1_text, s1_url,
                                                        ipo_data_from_fetch.get("raw_data", {}))
 
         current_time = datetime.now(timezone.utc)

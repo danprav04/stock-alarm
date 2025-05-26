@@ -1,11 +1,54 @@
-2025-05-26 13:39:54,864 - root - INFO - main:149 - ===================================================================
-2025-05-26 13:39:54,865 - root - INFO - main:150 - Starting Financial Analysis Script at 2025-05-26 10:39:54 UTC
-2025-05-26 13:39:54,865 - root - INFO - main:151 - ===================================================================
-2025-05-26 13:39:54,867 - root - INFO - main:111 - Initializing database as per command line argument...
-2025-05-26 13:39:54,868 - root - INFO - connection:19 - Initializing database and creating tables...
-2025-05-26 13:39:56,479 - root - INFO - connection:23 - Database tables created successfully (if they didn't exist).
-2025-05-26 13:39:56,481 - root - INFO - main:114 - Database initialization complete.
-2025-05-26 13:39:56,482 - root - INFO - main:143 - --- Main script execution finished. ---
-2025-05-26 13:39:56,482 - root - INFO - main:156 - Financial Analysis Script finished at 2025-05-26 10:39:56 UTC
-2025-05-26 13:39:56,482 - root - INFO - main:157 - Total execution time: 0:00:01.617590
-2025-05-26 13:39:56,483 - root - INFO - main:158 - ===================================================================
+2025-05-26 13:52:29,930 - root - INFO - main:152 - ===================================================================
+2025-05-26 13:52:29,931 - root - INFO - main:153 - Starting Financial Analysis Script at 2025-05-26 10:52:29 UTC
+2025-05-26 13:52:29,931 - root - INFO - main:154 - ===================================================================
+2025-05-26 13:52:29,934 - root - INFO - main:114 - Initializing database as per command line argument...
+2025-05-26 13:52:29,934 - root - INFO - connection:19 - Initializing database and creating tables...
+2025-05-26 13:52:33,559 - root - INFO - connection:23 - Database tables created successfully (if they didn't exist).
+2025-05-26 13:52:33,561 - root - INFO - main:117 - Database initialization complete.
+2025-05-26 13:52:33,561 - root - INFO - main:146 - --- Main script execution finished. ---
+2025-05-26 13:52:33,562 - root - INFO - main:159 - Financial Analysis Script finished at 2025-05-26 10:52:33 UTC
+2025-05-26 13:52:33,562 - root - INFO - main:160 - Total execution time: 0:00:03.632473
+2025-05-26 13:52:33,563 - root - INFO - main:161 - ===================================================================
+2025-05-26 13:52:34,938 - root - INFO - main:152 - ===================================================================
+2025-05-26 13:52:34,938 - root - INFO - main:153 - Starting Financial Analysis Script at 2025-05-26 10:52:34 UTC
+2025-05-26 13:52:34,939 - root - INFO - main:154 - ===================================================================
+2025-05-26 13:52:34,941 - root - INFO - main:35 - --- Starting IPO Analysis Pipeline (Upcoming only: True, Max to analyze: 1) ---
+2025-05-26 13:52:34,942 - root - INFO - data_fetcher:11 - Fetching upcoming IPOs using Finnhub...
+2025-05-26 13:52:37,058 - root - INFO - base_client:65 - Cached response for: GET:https://finnhub.io/api/v1/calendar/ipo?from=2025-03-27&to=2025-11-22&token=d0o7hphr01qqr9alj38gd...
+2025-05-26 13:52:37,068 - root - INFO - data_fetcher:71 - Successfully parsed 150 IPOs from Finnhub API response.
+2025-05-26 13:52:37,069 - root - INFO - data_fetcher:90 - Total unique IPOs fetched after deduplication: 150
+2025-05-26 13:52:37,069 - root - INFO - ipo_analyzer:149 - Filtered for upcoming IPOs only: 1 IPOs remain for potential analysis.
+2025-05-26 13:52:37,069 - root - INFO - ipo_analyzer:171 - Number of relevant IPOs (1) is within or equal to max_to_analyze (1). Analyzing all 1.
+2025-05-26 13:52:37,071 - root - INFO - ipo_analyzer:36 - Task: Starting analysis for IPO: Vantage Corp (Singapore) from source Finnhub
+2025-05-26 13:52:37,335 - root - INFO - sec_edgar_client:20 - Fetching CIK map from SEC...
+2025-05-26 13:52:38,457 - root - INFO - base_client:65 - Cached response for: GET:https://www.sec.gov/files/company_tickers.json...
+2025-05-26 13:52:38,459 - root - INFO - sec_edgar_client:35 - CIK map fetched and cached with 10046 entries.
+2025-05-26 13:52:38,963 - root - INFO - db_handler:35 - IPO 'Vantage Corp (Singapore)' not found in DB, creating new entry.
+2025-05-26 13:52:39,407 - root - INFO - db_handler:53 - Created IPO entry for 'Vantage Corp (Singapore)' (ID: 1, CIK: 0002027160)
+2025-05-26 13:52:39,481 - root - INFO - data_fetcher:120 - Attempting to fetch S-1/F-1 for Vantage Corp (Singapore) (CIK: 0002027160)
+2025-05-26 13:52:40,387 - root - INFO - base_client:65 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002027160.json?...
+2025-05-26 13:52:40,389 - root - INFO - sec_edgar_client:115 - No 'S-1' filings found for CIK 0002027160 matching criteria.
+2025-05-26 13:52:41,336 - root - INFO - base_client:39 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002027160.json?...
+2025-05-26 13:52:41,399 - root - INFO - sec_edgar_client:115 - No 'S-1/A' filings found for CIK 0002027160 matching criteria.
+2025-05-26 13:52:42,089 - root - INFO - base_client:39 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002027160.json?...
+2025-05-26 13:52:42,658 - root - INFO - data_fetcher:127 - Found F-1 URL for Vantage Corp (Singapore): https://www.sec.gov/Archives/edgar/data/2027160/000149315224040628/formf-1.htm
+2025-05-26 13:52:42,658 - root - INFO - sec_edgar_client:127 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2027160/000149315224040628/formf-1.htm
+2025-05-26 13:52:44,056 - root - INFO - base_client:65 - Cached response for: GET:https://www.sec.gov/Archives/edgar/data/2027160/000149315224040628/formf-1.htm?...
+2025-05-26 13:52:44,059 - root - INFO - data_fetcher:142 - Fetched S-1/F-1 text (length: 2016965) for Vantage Corp (Singapore)
+2025-05-26 13:53:24,670 - root - INFO - ipo_analyzer:90 - Task: Creating new analysis for Vantage Corp (Singapore)
+2025-05-26 13:53:25,128 - root - INFO - ipo_analyzer:102 - Task: Saved IPO analysis for Vantage Corp (Singapore) (Analysis ID: 1)
+2025-05-26 13:53:25,189 - root - INFO - ipo_analyzer:193 - IPO analysis pipeline completed. Processed 1 IPOs that required new/updated analysis from the filtered set.
+2025-05-26 13:53:25,190 - root - INFO - main:146 - --- Main script execution finished. ---
+2025-05-26 13:53:25,191 - root - INFO - main:159 - Financial Analysis Script finished at 2025-05-26 10:53:25 UTC
+2025-05-26 13:53:25,191 - root - INFO - main:160 - Total execution time: 0:00:50.253712
+2025-05-26 13:53:25,191 - root - INFO - main:161 - ===================================================================
+2025-05-26 13:53:39,798 - root - INFO - main:152 - ===================================================================
+2025-05-26 13:53:39,798 - root - INFO - main:153 - Starting Financial Analysis Script at 2025-05-26 10:53:39 UTC
+2025-05-26 13:53:39,799 - root - INFO - main:154 - ===================================================================
+2025-05-26 13:53:39,802 - root - INFO - main:57 - --- Generating Today's Email Summary ---
+2025-05-26 13:53:41,366 - root - INFO - main:69 - Found 0 stock analyses, 1 IPO analyses, 0 news analyses since 2025-05-26 00:00:00 UTC for email.
+2025-05-26 13:53:43,416 - root - INFO - email_service:250 - Email sent successfully to daniprav@gmail.com
+2025-05-26 13:53:43,482 - root - INFO - main:146 - --- Main script execution finished. ---
+2025-05-26 13:53:43,482 - root - INFO - main:159 - Financial Analysis Script finished at 2025-05-26 10:53:43 UTC
+2025-05-26 13:53:43,483 - root - INFO - main:160 - Total execution time: 0:00:03.684326
+2025-05-26 13:53:43,484 - root - INFO - main:161 - ===================================================================

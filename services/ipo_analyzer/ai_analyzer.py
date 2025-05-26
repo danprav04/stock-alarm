@@ -55,18 +55,28 @@ def _parse_generic_ai_json_response(ai_response_data, expected_keys_map,
     return parsed_output
 
 
-def perform_ai_analysis_for_ipo(analyzer_instance, ipo_db_entry, s1_text, ipo_api_data_raw):
+def perform_ai_analysis_for_ipo(analyzer_instance, ipo_db_entry, s1_text, s1_url, ipo_api_data_raw):
     analysis_payload = {
-        "key_data_snapshot": ipo_api_data_raw,
+        "key_data_snapshot": ipo_api_data_raw.copy() if ipo_api_data_raw else {},  # Make a copy to modify
         "s1_sections_used": {}
     }
 
+    # Add s1_url to key_data_snapshot if available
+    if s1_url:
+        analysis_payload["key_data_snapshot"]["s1_filing_url_from_analysis"] = s1_url
+
+    # Ensure all S1_KEY_SECTIONS are reported in s1_sections_used
+    analysis_payload["s1_sections_used"] = {key_name: False for key_name in S1_KEY_SECTIONS.keys()}
     s1_sections = {}
     if s1_text:
-        s1_sections = extract_S1_text_sections(s1_text, S1_KEY_SECTIONS)
-        analysis_payload["s1_sections_used"] = {k: bool(v) for k, v in s1_sections.items()}
+        extracted_s1_data = extract_S1_text_sections(s1_text, S1_KEY_SECTIONS)
+        s1_sections = extracted_s1_data # Keep the extracted text for use in prompts
+        for key_name in S1_KEY_SECTIONS.keys():
+            analysis_payload["s1_sections_used"][key_name] = bool(extracted_s1_data.get(key_name))
     else:
-        analysis_payload["s1_sections_used"] = {k: False for k in S1_KEY_SECTIONS.keys()}
+        # Already initialized to False above
+        pass
+
 
     company_prompt_id = f"{ipo_db_entry.company_name} ({ipo_db_entry.symbol or 'N/A'})"
     max_section_len_for_prompt = SUMMARIZATION_CHUNK_SIZE_CHARS // 3  # Divide among sections
@@ -82,11 +92,12 @@ def perform_ai_analysis_for_ipo(analyzer_instance, ipo_db_entry, s1_text, ipo_ap
         f"S-1 Risk Factors Extract (truncated):\n {risk_text_for_prompt}...")
     if mda_text_for_prompt: prompt_context_parts.append(f"S-1 MD&A Extract (truncated):\n {mda_text_for_prompt}...")
 
-    context_ipo_data = {k: ipo_api_data_raw.get(k) for k in
-                        ["name", "symbol", "date", "price", "exchange", "status", "numberOfShares", "totalSharesValue"]
-                        if ipo_api_data_raw.get(k)}
+    # Use the modified key_data_snapshot (which might now include s1_filing_url_from_analysis)
+    context_ipo_data = {k: analysis_payload["key_data_snapshot"].get(k) for k in
+                        ["name", "symbol", "date", "price", "exchange", "status", "numberOfShares", "totalSharesValue", "s1_filing_url_from_analysis"]
+                        if analysis_payload["key_data_snapshot"].get(k)}
     if context_ipo_data:
-        prompt_context_parts.append(f"IPO Calendar Data: {json.dumps(context_ipo_data)}")
+        prompt_context_parts.append(f"IPO Calendar Data (and S-1 URL if found): {json.dumps(context_ipo_data)}")
     full_prompt_context = "\n\n".join(prompt_context_parts)
 
     # --- Prompt 1: Business, Competition, Industry ---
@@ -119,7 +130,7 @@ def perform_ai_analysis_for_ipo(analyzer_instance, ipo_db_entry, s1_text, ipo_ap
     {
       "keyRiskFactors": {"summary": "Top 3-5 specific risks from S-1, not generic ones. Explain potential impact."},
       "useOfIPOProceeds": {"summary": "How the company plans to use the funds raised."},
-      "financialHealthSummary": {"summary": "Key financial performance trends (revenue, profit, burn rate), profitability, debt, liquidity from MD&A or inferred."}
+      "financialHealthSummary": {"summary": "Key financial performance trends (revenue, profit, burn rate), profitability, debt, liquidity from MD&A or inferred. If financials are missing from S-1, explicitly state this and the implications."}
     }
     """
     prompt2_instruction = (
@@ -139,7 +150,7 @@ def perform_ai_analysis_for_ipo(analyzer_instance, ipo_db_entry, s1_text, ipo_ap
     analysis_payload.update(parsed_response2)
     analysis_payload["risk_factors_summary"] = parsed_response2.get("s1_risk_factors_summary", "AI Error")
     analysis_payload["pre_ipo_financials_summary"] = parsed_response2.get("s1_financial_health_summary", "AI Error")
-    analysis_payload["s1_mda_summary"] = parsed_response2.get("s1_financial_health_summary", "AI Error")
+    analysis_payload["s1_mda_summary"] = parsed_response2.get("s1_financial_health_summary", "AI Error") # Often combined
 
     # --- Synthesis Prompt: Investment Decision and Reasoning ---
     synthesis_context_parts = [
@@ -149,7 +160,7 @@ def perform_ai_analysis_for_ipo(analyzer_instance, ipo_db_entry, s1_text, ipo_ap
     for key, display_name in [
         ("s1_business_summary", "Business Model Snippet"),
         ("s1_risk_factors_summary", "Key Risks Snippet"),
-        ("s1_financial_health_summary", "Financial Health Snippet")]:
+        ("s1_financial_health_summary", "Financial Health Snippet (MD&A based)")]: # Clarified source
         summary_text = analysis_payload.get(key)
         if summary_text and not isinstance(summary_text,
                                            dict) and "AI Error" not in summary_text and "not found" not in summary_text:
@@ -159,7 +170,7 @@ def perform_ai_analysis_for_ipo(analyzer_instance, ipo_db_entry, s1_text, ipo_ap
     {
       "investmentStance": "Monitor Closely|Potentially Attractive (with caveats)|High Risk/Speculative|Avoid|Further Diligence Required",
       "reasoning": ["Bullet point 1 explaining the stance...", "Bullet point 2..."],
-      "criticalVerificationPoints": ["Specific item 1 to verify...", "Specific item 2..."]
+      "criticalVerificationPoints": ["Specific item 1 to verify (e.g., if financials were missing, point this out as critical)...", "Specific item 2..."]
     }
     """
     synthesis_prompt_instruction = (
@@ -188,6 +199,9 @@ def perform_ai_analysis_for_ipo(analyzer_instance, ipo_db_entry, s1_text, ipo_ap
             "Reasoning:\n" + "\n".join([f"- {p}" for p in parsed_synthesis["reasoning_points_list"]]))
     elif parsed_synthesis.get("reasoning_points_list", "").startswith("AI Error"):  # If it's an error string
         reasoning_str_parts.append(f"Reasoning: {parsed_synthesis['reasoning_points_list']}")
+    elif parsed_synthesis.get("reasoning_points_list"): # If it's just a string
+        reasoning_str_parts.append(f"Reasoning:\n- {parsed_synthesis['reasoning_points_list']}")
+
 
     if isinstance(parsed_synthesis.get("critical_verification_points_list"), list):
         reasoning_str_parts.append("\nCritical Verification Points:\n" + "\n".join(
@@ -195,6 +209,9 @@ def perform_ai_analysis_for_ipo(analyzer_instance, ipo_db_entry, s1_text, ipo_ap
     elif parsed_synthesis.get("critical_verification_points_list", "").startswith("AI Error"):
         reasoning_str_parts.append(
             f"\nCritical Verification Points: {parsed_synthesis['critical_verification_points_list']}")
+    elif parsed_synthesis.get("critical_verification_points_list"): # If it's just a string
+        reasoning_str_parts.append(f"\nCritical Verification Points:\n- {parsed_synthesis['critical_verification_points_list']}")
+
 
     analysis_payload["reasoning"] = "\n".join(reasoning_str_parts).strip()
     if not analysis_payload["reasoning"]:  # Fallback if parsing fails badly
