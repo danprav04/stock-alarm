@@ -1,4 +1,5 @@
 # services/ipo_analyzer/ipo_analyzer.py
+# services/ipo_analyzer/ipo_analyzer.py
 import time
 from sqlalchemy import inspect as sa_inspect
 from datetime import datetime, timedelta, timezone
@@ -48,41 +49,43 @@ class IPOAnalyzer:
 
         significant_change_detected = False
         if existing_analysis and existing_analysis.key_data_snapshot:
-            # Compare key fields from the snapshot with current ipo_db_entry
-            snap = existing_analysis.key_data_snapshot  # This is the raw_data from previous fetch
-            snap_parsed_date = parse_ipo_date_string(snap.get("date"))  # Parse date from snapshot for comparison
+            snap = existing_analysis.key_data_snapshot
+            snap_parsed_date = parse_ipo_date_string(snap.get("date"))
 
+            # Compare key fields for significant changes
             if (ipo_db_entry.ipo_date != snap_parsed_date or
                     ipo_db_entry.status != snap.get("status") or
-                    ipo_db_entry.expected_price_range_low != snap.get(
-                        "price_range_low") or  # Assuming snapshot keys match
-                    ipo_db_entry.expected_price_range_high != snap.get("price_range_high")):
+                    ipo_db_entry.expected_price_range_low != (
+                            parse_ipo_date_string(snap.get("price").split('-')[0]) if isinstance(snap.get("price"),
+                                                                                                 str) and '-' in snap.get(
+                                "price") else snap.get("price")) or
+                    # Crude price parsing for snapshot; assumes a simple number or "low-high"
+                    ipo_db_entry.expected_price_range_high != (
+                            parse_ipo_date_string(snap.get("price").split('-')[1]) if isinstance(snap.get("price"),
+                                                                                                 str) and '-' in snap.get(
+                                "price") and len(snap.get("price").split('-')) > 1 else snap.get("price"))):
                 significant_change_detected = True
                 logger.info(f"Task: Significant data change detected for {ipo_identifier}. Re-analyzing.")
 
         if existing_analysis and not significant_change_detected and existing_analysis.analysis_date >= reanalyze_threshold:
             logger.info(
                 f"Task: Recent analysis for {ipo_identifier} exists (Date: {existing_analysis.analysis_date}) and no significant changes. Skipping re-analysis.")
-            return existing_analysis  # Return existing analysis if up-to-date and no major changes
+            return existing_analysis
 
-        # Fetch S-1 data
         s1_text, s1_url = fetch_s1_filing_data(self, db_session, ipo_db_entry)
-        # s1_url is already saved to ipo_db_entry by fetch_s1_filing_data if found
 
-        # Perform AI analysis
-        # ipo_data_from_fetch contains 'raw_data' which is the original API response
         analysis_payload = perform_ai_analysis_for_ipo(self, ipo_db_entry, s1_text,
                                                        ipo_data_from_fetch.get("raw_data", {}))
 
         current_time = datetime.now(timezone.utc)
 
-        if existing_analysis:  # Update existing analysis entry
+        if existing_analysis:
             logger.info(f"Task: Updating existing analysis for {ipo_identifier} (ID: {existing_analysis.id})")
             for key, value in analysis_payload.items():
                 setattr(existing_analysis, key, value)
             existing_analysis.analysis_date = current_time
             entry_to_save = existing_analysis
-        else:  # Create new analysis entry
+        else:
             logger.info(f"Task: Creating new analysis for {ipo_identifier}")
             entry_to_save = IPOAnalysis(
                 ipo_id=ipo_db_entry.id,
@@ -91,7 +94,7 @@ class IPOAnalyzer:
             )
             db_session.add(entry_to_save)
 
-        ipo_db_entry.last_analysis_date = current_time  # Update parent IPO's last analysis date
+        ipo_db_entry.last_analysis_date = current_time
 
         try:
             db_session.commit()
@@ -99,39 +102,87 @@ class IPOAnalyzer:
         except SQLAlchemyError as e:
             db_session.rollback()
             logger.error(f"Task: DB error saving IPO analysis for {ipo_identifier}: {e}", exc_info=True)
-            return None  # Indicate failure
+            return None
 
         return entry_to_save
 
-    def run_ipo_analysis_pipeline(self):
-        all_upcoming_ipos_from_api = fetch_upcoming_ipo_data(self)
+    def run_ipo_analysis_pipeline(self, upcoming_only=False, max_to_analyze=None):
+        all_ipos_from_api = fetch_upcoming_ipo_data(self)
         analyzed_results = []
 
-        if not all_upcoming_ipos_from_api:
-            logger.info("No upcoming IPOs found to analyze.")
+        if not all_ipos_from_api:
+            logger.info("No upcoming IPOs found from data fetcher to analyze.")
             return []
+
+        # 1. Pre-filter for essential data (e.g., company name)
+        pre_filtered_ipos = []
+        for ipo_data in all_ipos_from_api:
+            if not ipo_data.get("company_name"):
+                logger.debug(f"Skipping IPO due to missing company name: {ipo_data.get('symbol', 'N/A')}")
+                continue
+            pre_filtered_ipos.append(ipo_data)
+
+        if not pre_filtered_ipos:
+            logger.info("No IPOs remain after pre-filtering for essential data.")
+            return []
+
+        # 2. Sort by IPO date (earliest first). Parsed 'ipo_date' (date object) is used.
+        #    None dates or unparseable dates are pushed to the end.
+        pre_filtered_ipos.sort(key=lambda x: x.get("ipo_date") or datetime.max.date())
+
+        # 3. Apply 'upcoming_only' and status filtering
+        relevant_ipos_to_process = []
+        today_date = datetime.now(timezone.utc).date()
+        # Finnhub statuses: "Expected", "Priced", "Filed", "Withdrawn"
+        # "Priced" can be upcoming if its date is in the future.
+        # "Filed" and "Expected" are generally upcoming.
+        valid_statuses_for_analysis = ["expected", "filed", "priced", "upcoming", "active"]  # Generic upcoming statuses
+
+        if upcoming_only:
+            for ipo_data in pre_filtered_ipos:
+                ipo_date_obj = ipo_data.get("ipo_date")  # This is a date object
+                status = ipo_data.get("status", "").lower()
+                if ipo_date_obj and ipo_date_obj >= today_date and \
+                        status in valid_statuses_for_analysis and status != "withdrawn":
+                    relevant_ipos_to_process.append(ipo_data)
+            logger.info(
+                f"Filtered for upcoming IPOs only: {len(relevant_ipos_to_process)} IPOs remain for potential analysis.")
+        else:
+            # If not 'upcoming_only', still filter out "withdrawn" and ensure a valid status
+            for ipo_data in pre_filtered_ipos:
+                status = ipo_data.get("status", "").lower()
+                if status in valid_statuses_for_analysis and status != "withdrawn":
+                    relevant_ipos_to_process.append(ipo_data)
+            logger.info(
+                f"Not filtering for upcoming only. {len(relevant_ipos_to_process)} IPOs with valid status remain for potential analysis.")
+
+        if not relevant_ipos_to_process:
+            logger.info("No IPOs left after upcoming/status filtering.")
+            return []
+
+        # 4. Apply 'max_to_analyze' limit
+        if max_to_analyze is not None and isinstance(max_to_analyze, int) and max_to_analyze > 0:
+            if len(relevant_ipos_to_process) > max_to_analyze:
+                logger.info(
+                    f"Limiting IPOs to analyze to the earliest {max_to_analyze} from {len(relevant_ipos_to_process)} relevant IPOs.")
+                relevant_ipos_to_process = relevant_ipos_to_process[:max_to_analyze]
+            else:
+                logger.info(
+                    f"Number of relevant IPOs ({len(relevant_ipos_to_process)}) is within or equal to max_to_analyze ({max_to_analyze}). Analyzing all {len(relevant_ipos_to_process)}.")
+        else:
+            logger.info(
+                f"No limit set for max_to_analyze, proceeding with {len(relevant_ipos_to_process)} relevant IPOs.")
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_IPO_ANALYSIS_WORKERS) as executor:
             future_to_ipo_data = {}
-            for ipo_data in all_upcoming_ipos_from_api:
-                # Filter IPOs that are relevant for analysis (e.g., not withdrawn, has a name)
-                status = ipo_data.get("status", "").lower()
-                # Define statuses that are worth analyzing
-                relevant_statuses = ["expected", "filed", "priced", "upcoming", "active"]  # Adjust as needed
-
-                if status not in relevant_statuses or not ipo_data.get("company_name"):
-                    logger.debug(
-                        f"Skipping IPO '{ipo_data.get('company_name', 'N/A')}' due to status '{status}' or missing name.")
-                    continue
-
-                # Submit the task to the executor
-                future = executor.submit(self._thread_worker_analyze_ipo, ipo_data)
-                future_to_ipo_data[future] = ipo_data.get("company_name", "Unknown IPO")
+            for ipo_data_for_task in relevant_ipos_to_process:  # Use the filtered list
+                future = executor.submit(self._thread_worker_analyze_ipo, ipo_data_for_task)
+                future_to_ipo_data[future] = ipo_data_for_task.get("company_name", "Unknown IPO")
 
             for future in concurrent.futures.as_completed(future_to_ipo_data):
                 ipo_name = future_to_ipo_data[future]
                 try:
-                    result = future.result()  # This will block until the future is complete
+                    result = future.result()
                     if result:
                         analyzed_results.append(result)
                 except Exception as exc:
@@ -139,15 +190,15 @@ class IPOAnalyzer:
                                  exc_info=True)
 
         logger.info(
-            f"IPO analysis pipeline completed. Processed {len(analyzed_results)} IPOs that required new/updated analysis.")
+            f"IPO analysis pipeline completed. Processed {len(analyzed_results)} IPOs that required new/updated analysis from the filtered set.")
         return analyzed_results
 
     def _thread_worker_analyze_ipo(self, ipo_data_from_fetch):
         """
         Worker function for each thread. Manages its own DB session.
         """
-        db_session = SessionLocal()  # Create a new session for this thread
+        db_session = SessionLocal()
         try:
             return self._analyze_single_ipo_task(db_session, ipo_data_from_fetch)
         finally:
-            SessionLocal.remove()  # Remove the session, effectively closing it for this thread
+            SessionLocal.remove()

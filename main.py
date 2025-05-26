@@ -31,11 +31,11 @@ def run_stock_analysis(tickers):
     return results
 
 
-def run_ipo_analysis():
-    logger.info("--- Starting IPO Analysis Pipeline ---")
+def run_ipo_analysis(upcoming_only=False, max_to_analyze=None):
+    logger.info(f"--- Starting IPO Analysis Pipeline (Upcoming only: {upcoming_only}, Max to analyze: {max_to_analyze or 'All relevant'}) ---")
     try:
         analyzer = IPOAnalyzer()
-        results = analyzer.run_ipo_analysis_pipeline()
+        results = analyzer.run_ipo_analysis_pipeline(upcoming_only=upcoming_only, max_to_analyze=max_to_analyze)
         return results
     except Exception as e:
         logger.error(f"Error during IPO analysis pipeline: {e}", exc_info=True)
@@ -94,6 +94,9 @@ def main():
     parser.add_argument("--analyze-stocks", nargs="+", metavar="TICKER",
                         help="List of stock tickers to analyze (e.g., AAPL MSFT)")
     parser.add_argument("--analyze-ipos", action="store_true", help="Run IPO analysis pipeline.")
+    parser.add_argument("--upcoming-ipos-only", action="store_true", help="When analyzing IPOs, process only those with future dates and relevant statuses.")
+    parser.add_argument("--max-ipos-to-analyze", type=int, default=None, metavar="N",
+                        help="Maximum number of IPOs to analyze in a run (applies after filtering, e.g., for upcoming). Default: all relevant.")
     parser.add_argument("--analyze-news", action="store_true", help="Run news analysis pipeline.")
     parser.add_argument("--news-category", default="general",
                         help="Category for news analysis (e.g., general, forex, crypto, merger).")
@@ -103,7 +106,7 @@ def main():
                         help="Generate and send email summary of today's/recent analyses.")
     parser.add_argument("--init-db", action="store_true", help="Initialize the database (create tables).")
     parser.add_argument("--all", action="store_true",
-                        help="Run all analyses (stocks from a predefined list, IPOs, News) and send email.")
+                        help="Run all analyses (stocks from default list, IPOs with --upcoming-ipos-only and --max-ipos-to-analyze if specified, News) and send email.")
 
     args = parser.parse_args()
 
@@ -118,10 +121,10 @@ def main():
 
     if args.all:
         logger.info(
-            f"Running all analyses for default stocks: {DEFAULT_STOCKS_FOR_ALL_MODE}, IPOs, and News (max {args.news_count_analyze} items).")
+            f"Running all analyses for default stocks: {DEFAULT_STOCKS_FOR_ALL_MODE}, IPOs (Upcoming only: {args.upcoming_ipos_only}, Max: {args.max_ipos_to_analyze or 'All'}), and News (max {args.news_count_analyze} items).")
         if DEFAULT_STOCKS_FOR_ALL_MODE:
             run_stock_analysis(DEFAULT_STOCKS_FOR_ALL_MODE)
-        run_ipo_analysis()
+        run_ipo_analysis(upcoming_only=args.upcoming_ipos_only, max_to_analyze=args.max_ipos_to_analyze)
         run_news_analysis(category=args.news_category, count_to_analyze=args.news_count_analyze)
         generate_and_send_todays_email_summary()
         logger.info("--- '--all' tasks finished. ---")
@@ -130,7 +133,7 @@ def main():
     if args.analyze_stocks:
         run_stock_analysis(args.analyze_stocks)
     if args.analyze_ipos:
-        run_ipo_analysis()
+        run_ipo_analysis(upcoming_only=args.upcoming_ipos_only, max_to_analyze=args.max_ipos_to_analyze)
     if args.analyze_news:
         run_news_analysis(category=args.news_category, count_to_analyze=args.news_count_analyze)
     if args.send_email:

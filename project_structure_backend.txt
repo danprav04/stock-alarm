@@ -73,9 +73,10 @@ __all__ = [
 
 
 ---------- alphavantage_client.py ----------
+# api_clients/alphavantage_client.py
 from .base_client import APIClient
 from core.config import ALPHA_VANTAGE_API_KEY
-
+# Removed time module as hardcoded sleep is removed
 
 class AlphaVantageClient(APIClient):
     def __init__(self):
@@ -83,13 +84,14 @@ class AlphaVantageClient(APIClient):
 
     def get_company_overview(self, ticker):
         params = {"function": "OVERVIEW", "symbol": ticker}
+        # Base client handles retries and delays, including for rate limits (429)
         return self.request("GET", "/query", params=params, api_source_name="alphavantage_overview")
 
     def get_income_statement_quarterly(self, ticker):
         params = {"function": "INCOME_STATEMENT", "symbol": ticker}
         data = self.request("GET", "/query", params=params, api_source_name="alphavantage_income_quarterly")
         if data and isinstance(data.get("quarterlyReports"), list):
-            data["quarterlyReports"].reverse()
+            data["quarterlyReports"].reverse() # Keep this logic if it's desired
         return data
 
     def get_balance_sheet_quarterly(self, ticker):
@@ -607,13 +609,15 @@ class FinancialModelingPrepClient(APIClient):
 
 
 ---------- gemini_client.py ----------
+# api_clients/gemini_client.py
 import requests
 import time
 import json
 
 from core.config import (
     GOOGLE_API_KEYS, API_REQUEST_TIMEOUT, API_RETRY_ATTEMPTS,
-    API_RETRY_DELAY, GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE
+    API_RETRY_DELAY, GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE,
+    GEMINI_MODEL_NAME, AI_JSON_OUTPUT_INSTRUCTION, GEMINI_MAX_OUTPUT_TOKENS
 )
 from core.logging_setup import logger
 
@@ -621,36 +625,74 @@ from core.logging_setup import logger
 class GeminiAPIClient:
     def __init__(self):
         self.base_url = "https://generativelanguage.googleapis.com/v1beta/models"
-        self.model_name = "gemini-2.5-flash-preview-05-20"
+        self.model_name = GEMINI_MODEL_NAME
 
     def _get_next_api_key_for_attempt(self, overall_attempt_num, max_attempts_per_key, total_keys):
         if total_keys == 0: return None, 0
         key_group_index = (overall_attempt_num // max_attempts_per_key) % total_keys
         api_key = GOOGLE_API_KEYS[key_group_index]
         current_retry_for_this_key = (overall_attempt_num % max_attempts_per_key) + 1
-        logger.debug(f"Gemini: Using key ...{api_key[-4:]} (Index {key_group_index}), Attempt {current_retry_for_this_key}/{max_attempts_per_key}")
+        logger.debug(
+            f"Gemini: Using key ...{api_key[-4:]} (Index {key_group_index}), Attempt {current_retry_for_this_key}/{max_attempts_per_key}")
         return api_key, current_retry_for_this_key
 
-    def generate_text(self, prompt, model=None):
+    def _clean_json_string(self, raw_json_str):
+        """Attempts to clean common issues in AI-generated JSON strings."""
+        if not isinstance(raw_json_str, str):
+            return raw_json_str  # Not a string, can't clean
+
+        # Remove leading/trailing markdown code block fences if present
+        cleaned_str = raw_json_str.strip()
+        if cleaned_str.startswith("```json"):
+            cleaned_str = cleaned_str[len("```json"):].strip()
+        elif cleaned_str.startswith("```"):
+            cleaned_str = cleaned_str[len("```"):].strip()
+
+        if cleaned_str.endswith("```"):
+            cleaned_str = cleaned_str[:-len("```")].strip()
+
+        # Sometimes AI might wrap output in an outer quote, try to remove if it looks like it.
+        if (cleaned_str.startswith('"') and cleaned_str.endswith('"')) or \
+                (cleaned_str.startswith("'") and cleaned_str.endswith("'")):
+            try_unquote = cleaned_str[1:-1]
+            # Basic check: if unquoting makes it look like valid JSON (starts with { or [)
+            if try_unquote.strip().startswith(("{", "[")):
+                cleaned_str = try_unquote
+
+        # Ensure newlines and tabs within strings are escaped (common AI mistake)
+        # This is tricky. A more robust solution would be a proper parser that can handle some errors,
+        # but for now, basic replacements for common patterns.
+        # cleaned_str = cleaned_str.replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
+        # The above is too aggressive. Let's rely on the LLM to get escaping right mostly.
+
+        return cleaned_str
+
+    def generate_text(self, prompt, model=None, output_format="text"):
         if model is None: model = self.model_name
 
         max_attempts_per_key = API_RETRY_ATTEMPTS
         total_keys = len(GOOGLE_API_KEYS)
         if total_keys == 0:
-            logger.error("Gemini: No API keys configured in GOOGLE_API_KEYS."); return "Error: No Google API keys."
+            logger.error("Gemini: No API keys configured in GOOGLE_API_KEYS.");
+            return {"error": "No Google API keys."} if output_format == "json" else "Error: No Google API keys."
 
-        if len(prompt) > GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE:
-            original_len = len(prompt)
-            prompt = prompt[:GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE]
+        # Append JSON instruction if needed
+        final_prompt = prompt
+        if output_format == "json" and AI_JSON_OUTPUT_INSTRUCTION not in prompt:
+            final_prompt += f"\n\n{AI_JSON_OUTPUT_INSTRUCTION}"
+
+        if len(final_prompt) > GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE:
+            original_len = len(final_prompt)
+            final_prompt = final_prompt[:GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE]
             logger.warning(
                 f"Gemini prompt (original length {original_len}) exceeded hard limit {GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE}. "
-                f"Truncated to {len(prompt)} chars."
+                f"Truncated to {len(final_prompt)} chars."
             )
             trunc_note = "\n...[PROMPT TRUNCATED DUE TO EXCESSIVE LENGTH]..."
-            if len(prompt) + len(trunc_note) <= GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE:
-                prompt += trunc_note
+            if len(final_prompt) + len(trunc_note) <= GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE:
+                final_prompt += trunc_note
             else:
-                prompt = prompt[:GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE - len(trunc_note)] + trunc_note
+                final_prompt = final_prompt[:GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE - len(trunc_note)] + trunc_note
 
         for overall_attempt_num in range(total_keys * max_attempts_per_key):
             api_key, current_retry_for_this_key = self._get_next_api_key_for_attempt(
@@ -660,10 +702,12 @@ class GeminiAPIClient:
 
             url = f"{self.base_url}/{model}:generateContent?key={api_key}"
             payload = {
-                "contents": [{"parts": [{"text": prompt}]}],
+                "contents": [{"parts": [{"text": final_prompt}]}],
                 "generationConfig": {
-                    "temperature": 0.6, "maxOutputTokens": 8192,
-                    "topP": 0.9, "topK": 40
+                    "temperature": 0.5,  # Slightly lower for more factual JSON
+                    "maxOutputTokens": GEMINI_MAX_OUTPUT_TOKENS,
+                    "topP": 0.9, "topK": 40,
+                    # "response_mime_type": "application/json" # Add if using models that support this directly
                 },
                 "safetySettings": [
                     {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
@@ -672,77 +716,124 @@ class GeminiAPIClient:
                     {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
                 ]
             }
+            # If the model supports it, setting response_mime_type in generationConfig
+            # if output_format == "json" and model_supports_json_output: # model_supports_json_output would be a flag
+            #    payload["generationConfig"]["response_mime_type"] = "application/json"
+
             try:
-                response = requests.post(url, json=payload, timeout=API_REQUEST_TIMEOUT + 120)
+                response = requests.post(url, json=payload,
+                                         timeout=API_REQUEST_TIMEOUT + 120)  # Increased timeout for potentially larger JSON
                 response.raise_for_status()
                 response_json = response.json()
 
                 if response_json.get("promptFeedback", {}).get("blockReason"):
                     reason = response_json["promptFeedback"]["blockReason"]
-                    logger.error(f"Gemini prompt blocked for key ...{api_key[-4:]}. Reason: {reason}. Prompt: '{prompt[:150]}...'")
-                    time.sleep(API_RETRY_DELAY); continue
+                    logger.error(
+                        f"Gemini prompt blocked for key ...{api_key[-4:]}. Reason: {reason}. Prompt: '{final_prompt[:150]}...'")
+                    time.sleep(API_RETRY_DELAY);
+                    continue
 
                 if "candidates" in response_json and response_json["candidates"]:
                     candidate = response_json["candidates"][0]
                     finish_reason = candidate.get("finishReason")
-                    if finish_reason not in [None, "STOP", "MAX_TOKENS", "MODEL_LENGTH", "OK", "OTHER"]:
-                        logger.warning(f"Gemini unusual finish reason: {finish_reason} for key ...{api_key[-4:]}. Prompt: '{prompt[:150]}...'")
+                    if finish_reason not in [None, "STOP", "MAX_TOKENS", "MODEL_LENGTH", "OK",
+                                             "OTHER"]:  # "OK" and "MODEL_LENGTH" added based on observations
+                        logger.warning(
+                            f"Gemini unusual finish reason: {finish_reason} for key ...{api_key[-4:]}. Prompt: '{final_prompt[:150]}...'")
                         if finish_reason == "SAFETY":
-                            logger.error(f"Gemini candidate content blocked by safety settings for key ...{api_key[-4:]}.")
-                            time.sleep(API_RETRY_DELAY); continue
+                            logger.error(
+                                f"Gemini candidate content blocked by safety settings for key ...{api_key[-4:]}.")
+                            time.sleep(API_RETRY_DELAY);
+                            continue
+                        # For other unusual reasons, if we expect JSON, this might be an issue.
 
                     content_part = candidate.get("content", {}).get("parts", [{}])[0]
                     if "text" in content_part:
-                        return content_part["text"]
+                        raw_text_output = content_part["text"]
+                        if output_format == "json":
+                            cleaned_json_str = self._clean_json_string(raw_text_output)
+                            try:
+                                return json.loads(cleaned_json_str)
+                            except json.JSONDecodeError as e_json_parse:
+                                logger.error(
+                                    f"Gemini response for key ...{api_key[-4:]} was not valid JSON after cleaning: {e_json_parse}. Raw text: '{raw_text_output[:500]}...'")
+                                # Fallback or retry, or return error structure
+                                # For now, return an error dict
+                                if current_retry_for_this_key < max_attempts_per_key:  # retry if not last attempt for this key
+                                    time.sleep(API_RETRY_DELAY * current_retry_for_this_key)
+                                    continue
+                                return {"error": "Failed to parse AI JSON response", "details": str(e_json_parse),
+                                        "raw_response": raw_text_output[:500]}
+                        else:  # output_format == "text"
+                            return raw_text_output
                     else:
-                        logger.error(f"Gemini response missing 'text' in content part for key ...{api_key[-4:]}: {response_json}")
+                        logger.error(
+                            f"Gemini response missing 'text' in content part for key ...{api_key[-4:]}: {response_json}")
                 else:
-                    logger.error(f"Gemini response malformed or no candidates for key ...{api_key[-4:]}: {response_json}")
+                    logger.error(
+                        f"Gemini response malformed or no candidates for key ...{api_key[-4:]}: {response_json}")
 
             except requests.exceptions.HTTPError as e:
                 response_text = e.response.text[:200] if e.response is not None else "N/A"
                 status_code = e.response.status_code if e.response is not None else "N/A"
                 logger.warning(
-                    f"Gemini API HTTP error key ...{api_key[-4:]} attempt {current_retry_for_this_key}: {status_code} - {response_text}. Prompt: '{prompt[:150]}...'")
+                    f"Gemini API HTTP error key ...{api_key[-4:]} attempt {current_retry_for_this_key}: {status_code} - {response_text}. Prompt: '{final_prompt[:150]}...'")
                 if e.response is not None and e.response.status_code == 400:
                     if "API key not valid" in e.response.text or "API_KEY_INVALID" in e.response.text:
-                        logger.error(f"Gemini API key ...{api_key[-4:]} reported as invalid. Skipping further retries with this key for this call.")
-                        overall_attempt_num = ( (overall_attempt_num // max_attempts_per_key) + 1) * max_attempts_per_key -1
+                        logger.error(
+                            f"Gemini API key ...{api_key[-4:]} reported as invalid. Skipping further retries with this key for this call.")
+                        overall_attempt_num = ((
+                                                           overall_attempt_num // max_attempts_per_key) + 1) * max_attempts_per_key - 1  # Advance to next key group
                         continue
-                    else:
-                        logger.error(f"Gemini API Bad Request (400). Aborting for this prompt. Response: {e.response.text[:500]}")
-                        return f"Error: Gemini API bad request (400). {e.response.text[:200]}"
+                    else:  # Other 400 errors
+                        logger.error(
+                            f"Gemini API Bad Request (400). Aborting for this prompt. Response: {e.response.text[:500]}")
+                        return {"error": f"Gemini API bad request (400)", "details": e.response.text[
+                                                                                     :200]} if output_format == "json" else f"Error: Gemini API bad request (400). {e.response.text[:200]}"
             except requests.exceptions.RequestException as e:
-                logger.warning(f"Gemini API request error key ...{api_key[-4:]} attempt {current_retry_for_this_key}: {e}. Prompt: '{prompt[:150]}...'")
-            except json.JSONDecodeError as e_json_gemini:
-                resp_text_for_log = response.text[:500] if 'response' in locals() and hasattr(response, 'text') else "N/A"
-                logger.error(f"Gemini API JSON decode error key ...{api_key[-4:]} attempt {current_retry_for_this_key}. Resp: {resp_text_for_log}. Err: {e_json_gemini}")
+                logger.warning(
+                    f"Gemini API request error key ...{api_key[-4:]} attempt {current_retry_for_this_key}: {e}. Prompt: '{final_prompt[:150]}...'")
+            except json.JSONDecodeError as e_json_gemini:  # This is for parsing the *API's* response, not the LLM's content
+                resp_text_for_log = response.text[:500] if 'response' in locals() and hasattr(response,
+                                                                                              'text') else "N/A"
+                logger.error(
+                    f"Gemini API outer JSON decode error key ...{api_key[-4:]} attempt {current_retry_for_this_key}. Resp: {resp_text_for_log}. Err: {e_json_gemini}")
 
             if overall_attempt_num < (total_keys * max_attempts_per_key) - 1:
                 time.sleep(API_RETRY_DELAY * current_retry_for_this_key)
 
-        logger.error(f"All attempts ({total_keys * max_attempts_per_key}) for Gemini API failed for prompt: {prompt[:150]}...")
-        return "Error: Could not get response from Gemini API after multiple attempts."
+        logger.error(
+            f"All attempts ({total_keys * max_attempts_per_key}) for Gemini API failed for prompt: {final_prompt[:150]}...")
+        return {
+            "error": "Could not get response from Gemini API after multiple attempts."} if output_format == "json" else "Error: Could not get response from Gemini API after multiple attempts."
 
-    def summarize_text_with_context(self, text_to_summarize, context_summary, desired_output_instruction):
+    def summarize_text_with_context(self, text_to_summarize, context_summary, desired_output_instruction,
+                                    output_format="text"):
+        # This method might be too generic now if specific JSON is needed for summarization.
+        # It's kept for general text summarization. Specific summarization tasks might call generate_text directly.
         prompt = (
             f"Context: {context_summary}\n\n"
             f"Text to Analyze:\n\"\"\"\n{text_to_summarize}\n\"\"\"\n\n"
             f"Instructions: {desired_output_instruction}\n\n"
             f"Provide a concise and factual summary based on the text and guided by the context and instructions."
         )
-        return self.generate_text(prompt)
+        if output_format == "json":
+            prompt += (
+                f"\n\nOutput the summary in JSON format using the following structure: "
+                f"{{\"summary\": \"Your summarized text here.\", \"keyPoints\": [\"Point 1\", \"Point 2\"]}}."
+            )
+        return self.generate_text(prompt, output_format=output_format)
 
     def analyze_sentiment_with_reasoning(self, text_to_analyze, context=""):
         prompt = (
             f"Analyze the sentiment of the following text. "
             f"Context for analysis (if any): '{context}'.\n\n"
             f"Text to Analyze:\n\"\"\"\n{text_to_analyze}\n\"\"\"\n\n"
-            f"Instructions: Respond with the sentiment classification and reasoning, structured as follows:\n"
-            f"Sentiment: [Choose one: Positive, Negative, Neutral]\n"
-            f"Reasoning: [Provide a brief 1-2 sentence explanation, citing specific phrases from the text if possible to justify the sentiment.]"
+            f"Instructions: Respond with the sentiment classification and reasoning. "
+            f"Your entire response MUST be a single valid JSON object with the following structure: \n"
+            f"{{\"sentiment\": \"Positive|Negative|Neutral\", \"reasoning\": \"A brief 1-2 sentence explanation, citing specific phrases from the text if possible to justify the sentiment.\"}}"
         )
-        return self.generate_text(prompt)
+        return self.generate_text(prompt, output_format="json")
 ---------- END gemini_client.py ----------
 
 
@@ -946,12 +1037,13 @@ API_RETRY_ATTEMPTS = 3
 API_RETRY_DELAY = 10  # seconds
 
 # Gemini API Configuration
-GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE = 400000
+GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE = 400000 # Max input characters
+GEMINI_MAX_OUTPUT_TOKENS = 8192 # Max output tokens
 
 # Chunking for Summarization
-SUMMARIZATION_CHUNK_SIZE_CHARS = 500000
+SUMMARIZATION_CHUNK_SIZE_CHARS = 150000 # Reduced for better JSON handling within token limits
 SUMMARIZATION_CHUNK_OVERLAP_CHARS = 5000
-SUMMARIZATION_MAX_CONCAT_SUMMARIES_CHARS = 500000
+SUMMARIZATION_MAX_CONCAT_SUMMARIES_CHARS = 300000 # Reduced
 
 # Analysis Settings
 MAX_NEWS_ARTICLES_PER_QUERY = 10
@@ -969,7 +1061,7 @@ DEFAULT_PERPETUAL_GROWTH_RATE = 0.025
 DEFAULT_FCF_PROJECTION_YEARS = 5
 
 # News Analysis
-NEWS_ARTICLE_MAX_LENGTH_FOR_GEMINI_SUMMARIZATION = GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE - 10000
+NEWS_ARTICLE_MAX_LENGTH_FOR_GEMINI_SUMMARIZATION = GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE - 20000 # Larger buffer for JSON structure
 
 # IPO/10-K Sections
 S1_KEY_SECTIONS = {
@@ -982,8 +1074,20 @@ TEN_K_KEY_SECTIONS = S1_KEY_SECTIONS
 
 # Stock Analyzer specific settings
 MAX_COMPETITORS_TO_ANALYZE = 5
-Q_REVENUE_SANITY_CHECK_DEVIATION_THRESHOLD = 0.75
+Q_REVENUE_SANITY_CHECK_DEVIATION_THRESHOLD = 0.30 # Lowered from 0.75
 PRIORITY_REVENUE_SOURCES = ["fmp_quarterly", "finnhub_quarterly", "alphavantage_quarterly"]
+
+# Default stock list for --all command in main.py
+DEFAULT_STOCKS_FOR_ALL_MODE = ["AAPL", "MSFT", "GOOGL", "NVDA", "JPM", "NKE"]
+
+# Gemini Model configuration
+GEMINI_MODEL_NAME = "gemini-2.5-flash-preview-05-20" # Updated model
+
+# System-wide AI response behavior
+AI_JSON_OUTPUT_INSTRUCTION = (
+    "IMPORTANT: Your entire response MUST be a single, valid JSON object. Do not include any text outside of this JSON structure. "
+    "Ensure all strings within the JSON are properly escaped. Use the exact field names and structure specified in the prompt."
+)
 ---------- END config.py ----------
 
 
@@ -1297,207 +1401,215 @@ __all__ = ["IPOAnalyzer"]
 ---------- ai_analyzer.py ----------
 # services/ipo_analyzer/ai_analyzer.py
 import time
+import json  # For JSON parsing
 from api_clients import extract_S1_text_sections
 from core.logging_setup import logger
-from core.config import S1_KEY_SECTIONS, SUMMARIZATION_CHUNK_SIZE_CHARS
+from core.config import S1_KEY_SECTIONS, SUMMARIZATION_CHUNK_SIZE_CHARS, AI_JSON_OUTPUT_INSTRUCTION
 
 
-def _parse_ai_section_response(ai_text, section_header_keywords):
+def _parse_generic_ai_json_response(ai_response_data, expected_keys_map,
+                                    default_error_msg="AI Error or No Valid JSON."):
     """
-    Parses a specific section from a larger AI-generated text block.
-    section_header_keywords can be a string or a list of strings.
+    Generic parser for AI JSON responses.
+    ai_response_data: The direct output from Gemini (expected to be a dict if successful).
+    expected_keys_map: A dict mapping desired output keys to keys expected in AI's JSON.
+                       e.g., {"business_model_summary": "businessModel"}
     """
-    if not ai_text or ai_text.startswith("Error:"):
-        return "AI Error or No Text"
+    parsed_output = {key: default_error_msg for key in expected_keys_map.keys()}
 
-    # Normalize keywords
-    keywords_to_check = [k.lower() for k in (
-        [section_header_keywords] if isinstance(section_header_keywords, str) else section_header_keywords)]
+    if not isinstance(ai_response_data, dict):
+        logger.error(f"AI response is not a dictionary: {str(ai_response_data)[:200]}")
+        return parsed_output  # All fields will have default_error_msg
 
-    lines = ai_text.split('\n')
-    capture_content = False
-    section_content_lines = []
+    if ai_response_data.get("error"):
+        logger.error(f"AI returned an error in JSON: {ai_response_data.get('error')}")
+        # Propagate the error to all expected fields
+        error_detail = ai_response_data.get('details', default_error_msg)
+        for key in expected_keys_map.keys():
+            parsed_output[key] = f"AI Error: {error_detail}"
+        return parsed_output
 
-    # List of all known headers to stop capturing when a new section starts
-    # This needs to be comprehensive for the specific AI output format
-    all_known_headers_lower = [
-        "business model:", "competitive landscape:", "industry outlook:",
-        "key risk factors:", "risk factors summary:", "use of ipo proceeds:",
-        "financial health from md&a:", "financial health summary:", "md&a summary:",
-        "investment stance:", "reasoning:", "critical verification points:"
-        # Add any other headers used by Gemini prompts here
-    ]
+    for target_key, ai_json_key_or_path in expected_keys_map.items():
+        if isinstance(ai_json_key_or_path, str):  # Simple key
+            value = ai_response_data.get(ai_json_key_or_path)
+        elif isinstance(ai_json_key_or_path, list):  # Path for nested key e.g. ["section", "subsection"]
+            temp_val = ai_response_data
+            try:
+                for k_part in ai_json_key_or_path:
+                    temp_val = temp_val[k_part]
+                value = temp_val
+            except (KeyError, TypeError):
+                value = None
+        else:
+            value = None
 
-    for line in lines:
-        normalized_line_stripped = line.strip().lower()
+        if value is not None:
+            # If value is a dict/list, convert back to string for text fields, or keep as is for JSON fields
+            # This depends on how the final `analysis_payload` is structured and DB model.
+            # For now, assume we want the structured data if it's complex, or text if it's simple.
+            parsed_output[target_key] = value  # Store the direct value (could be string, list, dict)
+        else:
+            logger.warning(f"Key '{ai_json_key_or_path}' not found in AI JSON response for target '{target_key}'.")
+            # Keep default_error_msg or a more specific "Key not found" message
+            parsed_output[target_key] = f"Key '{ai_json_key_or_path}' not found in AI response."
 
-        # Check if the line starts with one of the target keywords
-        matched_current_keyword = next((kw for kw in keywords_to_check if normalized_line_stripped.startswith(
-            kw + ":") or normalized_line_stripped == kw), None)
-
-        if matched_current_keyword:
-            capture_content = True
-            # Get content on the same line as the header, after the colon
-            line_content_after_header = line.strip()[len(matched_current_keyword):].lstrip(':').strip()
-            if line_content_after_header:
-                section_content_lines.append(line_content_after_header)
-            continue  # Move to next line
-
-        if capture_content:
-            # Check if this line is a different known header (and not one of the target keywords)
-            is_another_known_header = any(
-                normalized_line_stripped.startswith(h_prefix) for h_prefix in all_known_headers_lower if
-                h_prefix not in keywords_to_check)
-            if is_another_known_header:
-                break  # Stop capturing, new section started
-            section_content_lines.append(line)  # Append the original line to preserve formatting
-
-    return "\n".join(section_content_lines).strip() if section_content_lines else "Section not found or empty."
-
-
-def _parse_ai_synthesis_response(ai_response):
-    """Parses the AI synthesis response for investment decision and reasoning."""
-    parsed_data = {}
-    if ai_response.startswith("Error:") or not ai_response:
-        parsed_data["investment_decision"] = "AI Error"
-        parsed_data["reasoning"] = ai_response if ai_response else "AI Error: Empty response."
-        return parsed_data
-
-    parsed_data["investment_decision"] = _parse_ai_section_response(ai_response, "Investment Stance")
-    # Combine Reasoning and Critical Verification Points into one 'reasoning' field
-    reasoning_text = _parse_ai_section_response(ai_response, "Reasoning")
-    critical_points_text = _parse_ai_section_response(ai_response, "Critical Verification Points")
-
-    combined_reasoning = []
-    if reasoning_text and not reasoning_text.startswith("Section not found"):
-        combined_reasoning.append(reasoning_text)
-    if critical_points_text and not critical_points_text.startswith("Section not found"):
-        combined_reasoning.append(f"Critical Verification Points:\n{critical_points_text}")
-
-    parsed_data["reasoning"] = "\n\n".join(combined_reasoning).strip()
-
-    if parsed_data["reasoning"].startswith("Section not found") or not parsed_data["reasoning"]:
-        parsed_data["reasoning"] = ai_response  # Fallback to full response if parsing specific parts fails
-
-    if parsed_data["investment_decision"].startswith("Section not found"):
-        parsed_data["investment_decision"] = "Review AI Output"  # Default if parsing fails
-
-    return parsed_data
+    return parsed_output
 
 
 def perform_ai_analysis_for_ipo(analyzer_instance, ipo_db_entry, s1_text, ipo_api_data_raw):
-    """Performs AI-driven analysis using S-1 text and other IPO data."""
     analysis_payload = {
-        "key_data_snapshot": ipo_api_data_raw,  # Store the raw API data for this IPO
-        "s1_sections_used": {}  # Track which S-1 sections were found and used
+        "key_data_snapshot": ipo_api_data_raw,
+        "s1_sections_used": {}
     }
 
     s1_sections = {}
     if s1_text:
         s1_sections = extract_S1_text_sections(s1_text, S1_KEY_SECTIONS)
         analysis_payload["s1_sections_used"] = {k: bool(v) for k, v in s1_sections.items()}
-    else:  # No S1 text, all sections will be marked as not used
+    else:
         analysis_payload["s1_sections_used"] = {k: False for k in S1_KEY_SECTIONS.keys()}
 
     company_prompt_id = f"{ipo_db_entry.company_name} ({ipo_db_entry.symbol or 'N/A'})"
-    max_section_len_for_prompt = SUMMARIZATION_CHUNK_SIZE_CHARS  # Max length for each section text in prompt
+    max_section_len_for_prompt = SUMMARIZATION_CHUNK_SIZE_CHARS // 3  # Divide among sections
 
-    # Prepare context from S-1 sections (truncated)
     biz_text_for_prompt = (s1_sections.get("business", "") or "")[:max_section_len_for_prompt]
     risk_text_for_prompt = (s1_sections.get("risk_factors", "") or "")[:max_section_len_for_prompt]
     mda_text_for_prompt = (s1_sections.get("mda", "") or "")[:max_section_len_for_prompt]
 
     prompt_context_parts = [f"IPO Analysis for: {company_prompt_id}"]
-    if biz_text_for_prompt: prompt_context_parts.append(f"S-1 Business Summary Extract: {biz_text_for_prompt}")
-    if risk_text_for_prompt: prompt_context_parts.append(f"S-1 Risk Factors Extract: {risk_text_for_prompt}")
-    if mda_text_for_prompt: prompt_context_parts.append(f"S-1 MD&A Extract: {mda_text_for_prompt}")
+    if biz_text_for_prompt: prompt_context_parts.append(
+        f"S-1 Business Summary Extract (truncated):\n {biz_text_for_prompt}...")
+    if risk_text_for_prompt: prompt_context_parts.append(
+        f"S-1 Risk Factors Extract (truncated):\n {risk_text_for_prompt}...")
+    if mda_text_for_prompt: prompt_context_parts.append(f"S-1 MD&A Extract (truncated):\n {mda_text_for_prompt}...")
 
-    # Add raw IPO data to prompt context for better AI understanding
-    if ipo_api_data_raw:
-        context_ipo_data = {
-            "name": ipo_api_data_raw.get("name"), "symbol": ipo_api_data_raw.get("symbol"),
-            "date": ipo_api_data_raw.get("date"), "price": ipo_api_data_raw.get("price"),
-            "exchange": ipo_api_data_raw.get("exchange"), "status": ipo_api_data_raw.get("status")
-        }
-        prompt_context_parts.append(f"IPO Calendar Data: {context_ipo_data}")
-
+    context_ipo_data = {k: ipo_api_data_raw.get(k) for k in
+                        ["name", "symbol", "date", "price", "exchange", "status", "numberOfShares", "totalSharesValue"]
+                        if ipo_api_data_raw.get(k)}
+    if context_ipo_data:
+        prompt_context_parts.append(f"IPO Calendar Data: {json.dumps(context_ipo_data)}")
     full_prompt_context = "\n\n".join(prompt_context_parts)
 
-    # Gemini Prompt 1: Business, Competition, Industry
+    # --- Prompt 1: Business, Competition, Industry ---
+    json_structure_prompt1 = """
+    {
+      "businessModel": {"summary": "Core operations, products/services, revenue generation model."},
+      "competitiveLandscape": {"summary": "Key competitors, company's market position, differentiation."},
+      "industryOutlook": {"summary": "Relevant industry trends, growth prospects, challenges."}
+    }
+    """
     prompt1_instruction = (
         f"{full_prompt_context}\n\n"
-        "Based on the S-1 information (if provided) and IPO calendar data, summarize the following for this IPO candidate:\n"
-        "1. Business Model: (Core operations, products/services, revenue generation)\n"
-        "2. Competitive Landscape: (Key competitors, company's market position, differentiation)\n"
-        "3. Industry Outlook: (Relevant industry trends, growth prospects, challenges)\n"
-        "Structure your response clearly with these headings."
+        f"Based on S-1 info (if provided) and IPO calendar data, analyze the IPO candidate. {AI_JSON_OUTPUT_INSTRUCTION}\n"
+        f"Structure your JSON response with these exact top-level keys: \"businessModel\", \"competitiveLandscape\", \"industryOutlook\". Each should contain a \"summary\" field as a string."
+        f"Example structure: {json_structure_prompt1}"
     )
-    response1 = analyzer_instance.gemini.generate_text(prompt1_instruction)
-    time.sleep(3)  # API call delay
-    analysis_payload["s1_business_summary"] = _parse_ai_section_response(response1,
-                                                                         "Business Model")  # Will be aliased to business_model_summary too
-    analysis_payload["competitive_landscape_summary"] = _parse_ai_section_response(response1, "Competitive Landscape")
-    analysis_payload["industry_outlook_summary"] = _parse_ai_section_response(response1, "Industry Outlook")
+    response1_data = analyzer_instance.gemini.generate_text(prompt1_instruction, output_format="json")
+    time.sleep(1)
 
-    # Gemini Prompt 2: Risks, Use of Proceeds, Financials
+    parsed_response1 = _parse_generic_ai_json_response(response1_data, {
+        "s1_business_summary": ["businessModel", "summary"],
+        "competitive_landscape_summary": ["competitiveLandscape", "summary"],
+        "industry_outlook_summary": ["industryOutlook", "summary"]
+    })
+    analysis_payload.update(parsed_response1)
+    analysis_payload["business_model_summary"] = parsed_response1.get("s1_business_summary", "AI Error")
+
+    # --- Prompt 2: Risks, Use of Proceeds, Financials ---
+    json_structure_prompt2 = """
+    {
+      "keyRiskFactors": {"summary": "Top 3-5 specific risks from S-1, not generic ones. Explain potential impact."},
+      "useOfIPOProceeds": {"summary": "How the company plans to use the funds raised."},
+      "financialHealthSummary": {"summary": "Key financial performance trends (revenue, profit, burn rate), profitability, debt, liquidity from MD&A or inferred."}
+    }
+    """
     prompt2_instruction = (
         f"{full_prompt_context}\n\n"
-        "Based on the S-1 information (if provided) and IPO calendar data, summarize the following for this IPO candidate:\n"
-        "1. Key Risk Factors: (Top 3-5 specific risks from S-1, not generic market risks)\n"
-        "2. Use of IPO Proceeds: (How the company plans to use the funds raised)\n"
-        "3. Financial Health Summary (from MD&A or inferred): (Key financial performance trends, profitability, debt, liquidity)\n"
-        "Structure your response clearly with these headings."
+        f"Analyze the IPO candidate. {AI_JSON_OUTPUT_INSTRUCTION}\n"
+        f"Structure your JSON response with these exact top-level keys: \"keyRiskFactors\", \"useOfIPOProceeds\", \"financialHealthSummary\". Each should contain a \"summary\" field as a string."
+        f"Example structure: {json_structure_prompt2}"
     )
-    response2 = analyzer_instance.gemini.generate_text(prompt2_instruction)
-    time.sleep(3)  # API call delay
-    analysis_payload["s1_risk_factors_summary"] = _parse_ai_section_response(response2, ["Key Risk Factors",
-                                                                                         "Risk Factors Summary"])
-    analysis_payload["use_of_proceeds_summary"] = _parse_ai_section_response(response2, "Use of IPO Proceeds")
-    analysis_payload["s1_financial_health_summary"] = _parse_ai_section_response(response2, ["Financial Health Summary",
-                                                                                             "Financial Health from MD&A"])
+    response2_data = analyzer_instance.gemini.generate_text(prompt2_instruction, output_format="json")
+    time.sleep(1)
 
-    # Alias for consistency with older DB fields if they exist or for email service
-    analysis_payload["business_model_summary"] = analysis_payload["s1_business_summary"]
-    analysis_payload["risk_factors_summary"] = analysis_payload["s1_risk_factors_summary"]
-    analysis_payload["pre_ipo_financials_summary"] = analysis_payload["s1_financial_health_summary"]  # Alias
-    analysis_payload["s1_mda_summary"] = analysis_payload[
-        "s1_financial_health_summary"]  # MDA summary is often about financial health
+    parsed_response2 = _parse_generic_ai_json_response(response2_data, {
+        "s1_risk_factors_summary": ["keyRiskFactors", "summary"],
+        "use_of_proceeds_summary": ["useOfIPOProceeds", "summary"],
+        "s1_financial_health_summary": ["financialHealthSummary", "summary"]
+    })
+    analysis_payload.update(parsed_response2)
+    analysis_payload["risk_factors_summary"] = parsed_response2.get("s1_risk_factors_summary", "AI Error")
+    analysis_payload["pre_ipo_financials_summary"] = parsed_response2.get("s1_financial_health_summary", "AI Error")
+    analysis_payload["s1_mda_summary"] = parsed_response2.get("s1_financial_health_summary", "AI Error")
 
-    # Synthesis Prompt: Investment Decision and Reasoning
-    synthesis_prompt_parts = [
-        f"Synthesize an IPO investment perspective for {company_prompt_id} using the following information and previously analyzed S-1 summaries."]
-    if analysis_payload.get('s1_business_summary') and "Section not found" not in analysis_payload[
-        's1_business_summary'] and "AI Error" not in analysis_payload['s1_business_summary']:
-        synthesis_prompt_parts.append(f"Business Model Snippet: {analysis_payload['s1_business_summary'][:200]}...")
-    if analysis_payload.get('s1_risk_factors_summary') and "Section not found" not in analysis_payload[
-        's1_risk_factors_summary'] and "AI Error" not in analysis_payload['s1_risk_factors_summary']:
-        synthesis_prompt_parts.append(f"Key Risks Snippet: {analysis_payload['s1_risk_factors_summary'][:200]}...")
-    if analysis_payload.get('s1_financial_health_summary') and "Section not found" not in analysis_payload[
-        's1_financial_health_summary'] and "AI Error" not in analysis_payload['s1_financial_health_summary']:
-        synthesis_prompt_parts.append(
-            f"Financial Health Snippet: {analysis_payload['s1_financial_health_summary'][:200]}...")
+    # --- Synthesis Prompt: Investment Decision and Reasoning ---
+    synthesis_context_parts = [
+        f"Synthesize an IPO investment perspective for {company_prompt_id} using the following information and previously analyzed S-1 summaries."
+    ]
+    # Add snippets of previously generated summaries (if successful)
+    for key, display_name in [
+        ("s1_business_summary", "Business Model Snippet"),
+        ("s1_risk_factors_summary", "Key Risks Snippet"),
+        ("s1_financial_health_summary", "Financial Health Snippet")]:
+        summary_text = analysis_payload.get(key)
+        if summary_text and not isinstance(summary_text,
+                                           dict) and "AI Error" not in summary_text and "not found" not in summary_text:
+            synthesis_context_parts.append(f"{display_name}: {str(summary_text)[:250]}...")  # Ensure it's a string
 
-    synthesis_prompt_parts.append(
-        "Instructions: Provide the following structured response:\n"
-        "Investment Stance: [Choose ONE: Monitor Closely, Potentially Attractive (with caveats), High Risk/Speculative, Avoid, Further Diligence Required]\n"
-        "Reasoning: [Provide 2-4 bullet points explaining the stance, highlighting key pros and cons. Refer to business model, risks, financials, market conditions if relevant.]\n"
-        "Critical Verification Points: [List 2-3 specific items from the S-1 (if available) or aspects of the business model that an investor should verify or scrutinize further.]"
+    json_structure_synthesis = """
+    {
+      "investmentStance": "Monitor Closely|Potentially Attractive (with caveats)|High Risk/Speculative|Avoid|Further Diligence Required",
+      "reasoning": ["Bullet point 1 explaining the stance...", "Bullet point 2..."],
+      "criticalVerificationPoints": ["Specific item 1 to verify...", "Specific item 2..."]
+    }
+    """
+    synthesis_prompt_instruction = (
+        "\n\nBased on the above, provide your investment perspective. "
+        f"{AI_JSON_OUTPUT_INSTRUCTION}\n"
+        f"Structure your JSON response with these exact keys: \"investmentStance\" (string), \"reasoning\" (list of strings), \"criticalVerificationPoints\" (list of strings)."
+        f"Example structure: {json_structure_synthesis}"
     )
-    synthesis_prompt = "\n\n".join(synthesis_prompt_parts)
+    full_synthesis_prompt = "\n\n".join(synthesis_context_parts) + synthesis_prompt_instruction
 
-    gemini_synthesis_response = analyzer_instance.gemini.generate_text(synthesis_prompt)
-    time.sleep(3)  # API call delay
-    parsed_synthesis = _parse_ai_synthesis_response(gemini_synthesis_response)
-    analysis_payload.update(parsed_synthesis)  # Adds 'investment_decision' and 'reasoning'
+    synthesis_response_data = analyzer_instance.gemini.generate_text(full_synthesis_prompt, output_format="json")
+    time.sleep(1)
 
-    # Placeholder for other qualitative assessments if needed in future
+    parsed_synthesis = _parse_generic_ai_json_response(synthesis_response_data, {
+        "investment_decision": "investmentStance",
+        "reasoning_points_list": "reasoning",  # Keep as list for now
+        "critical_verification_points_list": "criticalVerificationPoints"
+    })
+
+    analysis_payload["investment_decision"] = parsed_synthesis.get("investment_decision", "Review AI Output")
+
+    # Format reasoning and critical points into a single string for the DB 'reasoning' field
+    reasoning_str_parts = []
+    if isinstance(parsed_synthesis.get("reasoning_points_list"), list):
+        reasoning_str_parts.append(
+            "Reasoning:\n" + "\n".join([f"- {p}" for p in parsed_synthesis["reasoning_points_list"]]))
+    elif parsed_synthesis.get("reasoning_points_list", "").startswith("AI Error"):  # If it's an error string
+        reasoning_str_parts.append(f"Reasoning: {parsed_synthesis['reasoning_points_list']}")
+
+    if isinstance(parsed_synthesis.get("critical_verification_points_list"), list):
+        reasoning_str_parts.append("\nCritical Verification Points:\n" + "\n".join(
+            [f"- {p}" for p in parsed_synthesis["critical_verification_points_list"]]))
+    elif parsed_synthesis.get("critical_verification_points_list", "").startswith("AI Error"):
+        reasoning_str_parts.append(
+            f"\nCritical Verification Points: {parsed_synthesis['critical_verification_points_list']}")
+
+    analysis_payload["reasoning"] = "\n".join(reasoning_str_parts).strip()
+    if not analysis_payload["reasoning"]:  # Fallback if parsing fails badly
+        analysis_payload["reasoning"] = str(synthesis_response_data) if isinstance(synthesis_response_data,
+                                                                                   dict) and synthesis_response_data.get(
+            "error") else "AI reasoning synthesis failed."
+
+    # Placeholders for other qualitative assessments
     analysis_payload["management_team_assessment"] = "Not explicitly analyzed by AI in this version."
     analysis_payload["underwriter_quality_assessment"] = "Not explicitly analyzed by AI in this version."
     analysis_payload[
         "valuation_comparison_summary"] = "Detailed valuation comparison not performed by AI in this version."
 
     return analysis_payload
-
 ---------- END ai_analyzer.py ----------
 
 
@@ -1934,171 +2046,120 @@ __all__ = ["NewsAnalyzer"]
 ---------- ai_analyzer.py ----------
 # services/news_analyzer/ai_analyzer.py
 import time
+import json
 from core.logging_setup import logger
-from core.config import NEWS_ARTICLE_MAX_LENGTH_FOR_GEMINI_SUMMARIZATION
-
-
-def _parse_ai_section_from_news_analysis(ai_text, section_header_keywords):
-    """
-    Parses a specific section from a larger AI-generated text block for news analysis.
-    """
-    if not ai_text or ai_text.startswith("Error:"):
-        return "AI Error or No Text"
-
-    keywords_to_check = [k.lower().strip() for k in (
-        [section_header_keywords] if isinstance(section_header_keywords, str) else section_header_keywords)]
-    lines = ai_text.split('\n')
-    capture_content = False
-    section_content_lines = []
-
-    all_known_headers_lower_prefixes = [
-        "news summary:", "affected entities:", "affected companies:", "affected stocks/sectors:",
-        "mechanism of impact:", "estimated timing & duration:", "estimated timing:",
-        "estimated magnitude & direction:", "estimated magnitude/direction:",
-        "confidence level:", "investor summary:", "final summary for investor:"
-    ]  # Ensure this list is comprehensive for your Gemini prompts
-
-    for line_original in lines:
-        line_stripped_lower = line_original.strip().lower()
-
-        matched_current_keyword = next((kw_lower for kw_lower in keywords_to_check if
-                                        line_stripped_lower.startswith(kw_lower) or line_stripped_lower == kw_lower),
-                                       None)
-
-        if matched_current_keyword:
-            capture_content = True
-            # Extract content on the same line after the keyword and colon
-            content_on_header_line = line_original.strip()
-            # Remove the keyword part
-            for kw in keywords_to_check:  # Check all variations
-                if content_on_header_line.lower().startswith(kw):
-                    content_on_header_line = content_on_header_line[len(kw):].strip()
-                    break
-            if content_on_header_line.startswith(":"):
-                content_on_header_line = content_on_header_line[1:].strip()
-
-            if content_on_header_line:
-                section_content_lines.append(content_on_header_line)
-            continue
-
-        if capture_content:
-            # Stop if another known header (not one of the target ones) is encountered
-            is_another_known_header = any(line_stripped_lower.startswith(known_header_prefix) for known_header_prefix in
-                                          all_known_headers_lower_prefixes if
-                                          known_header_prefix not in keywords_to_check)
-            if is_another_known_header:
-                break
-            section_content_lines.append(line_original)  # Append the original line to preserve formatting
-
-    return "\n".join(section_content_lines).strip() if section_content_lines else "Section not found or empty."
+from core.config import NEWS_ARTICLE_MAX_LENGTH_FOR_GEMINI_SUMMARIZATION, AI_JSON_OUTPUT_INSTRUCTION
 
 
 def perform_ai_analysis_for_news_item(analyzer_instance, news_event_db_obj):
-    """
-    Performs AI-driven analysis on the content of a news event.
-    """
     headline = news_event_db_obj.event_title
     content_for_analysis = news_event_db_obj.full_article_text
     analysis_source_type = "full article"
 
     if not content_for_analysis:
-        content_for_analysis = headline  # Fallback to headline if no full text
+        content_for_analysis = headline
         analysis_source_type = "headline only"
         logger.warning(f"No full article text for '{headline}'. Analyzing based on headline only.")
 
-    # Truncate if content is too long for Gemini
     if len(content_for_analysis) > NEWS_ARTICLE_MAX_LENGTH_FOR_GEMINI_SUMMARIZATION:
         content_for_analysis = content_for_analysis[
-                               :NEWS_ARTICLE_MAX_LENGTH_FOR_GEMINI_SUMMARIZATION] + "\n... [CONTENT TRUNCATED FOR AI ANALYSIS] ..."
-        logger.info(
-            f"Truncated news content for '{headline}' to {NEWS_ARTICLE_MAX_LENGTH_FOR_GEMINI_SUMMARIZATION} chars for Gemini.")
+                               :NEWS_ARTICLE_MAX_LENGTH_FOR_GEMINI_SUMMARIZATION] + "\n... [CONTENT TRUNCATED] ..."
+        logger.info(f"Truncated news content for '{headline}' for Gemini.")
         analysis_source_type += " (truncated)"
 
-    logger.info(f"Analyzing news: '{headline[:70]}...' (using {analysis_source_type})")
-
-    analysis_payload = {
-        "key_news_snippets": {"headline": headline, "source_type_used": analysis_source_type}
-    }
+    logger.info(f"Analyzing news (JSON): '{headline[:70]}...' (using {analysis_source_type})")
+    analysis_payload = {"key_news_snippets": {"headline": headline, "source_type_used": analysis_source_type}}
 
     # 1. Sentiment Analysis
-    sentiment_response = analyzer_instance.gemini.analyze_sentiment_with_reasoning(
-        content_for_analysis,
-        context=f"News headline for context: {headline}"
+    sentiment_json_structure = """
+    {
+      "sentiment": "Positive|Negative|Neutral",
+      "reasoning": "A brief 1-2 sentence explanation, citing specific phrases from the text if possible."
+    }
+    """
+    sentiment_prompt = (
+        f"Analyze the sentiment of the following text. Context: News headline '{headline}'.\n\n"
+        f"Text to Analyze:\n\"\"\"\n{content_for_analysis}\n\"\"\"\n\n"
+        f"{AI_JSON_OUTPUT_INSTRUCTION} Structure it as: {sentiment_json_structure}"
     )
-    time.sleep(2)  # API delay
+    sentiment_response_data = analyzer_instance.gemini.generate_text(sentiment_prompt, output_format="json")
+    time.sleep(1)
 
-    if sentiment_response and not sentiment_response.startswith("Error:"):
-        try:
-            # Example parsing logic (adjust based on actual Gemini output format)
-            # Sentiment: [Positive/Negative/Neutral]\nReasoning: [Explanation]
-            parts = sentiment_response.split("Reasoning:", 1)
-            sentiment_part = parts[0].split(":", 1)[1].strip() if ":" in parts[0] else parts[0].strip()
-            # Take the first word of the sentiment part as the sentiment
-            analysis_payload["sentiment"] = sentiment_part.split(' ')[0].split('.')[0].split(',')[0].strip()
-            analysis_payload["sentiment_reasoning"] = parts[1].strip() if len(parts) > 1 else sentiment_response
-        except Exception as e_parse_sent:
-            logger.warning(
-                f"Could not parse sentiment response for '{headline}': {sentiment_response}. Error: {e_parse_sent}. Storing raw.")
-            analysis_payload["sentiment"] = "Error Parsing"
-            analysis_payload["sentiment_reasoning"] = sentiment_response
+    if isinstance(sentiment_response_data, dict) and not sentiment_response_data.get("error"):
+        analysis_payload["sentiment"] = sentiment_response_data.get("sentiment", "Error Parsing")
+        analysis_payload["sentiment_reasoning"] = sentiment_response_data.get("reasoning",
+                                                                              "AI Error: Reasoning not provided.")
     else:
+        logger.warning(
+            f"Sentiment analysis failed or returned non-JSON for '{headline}'. Response: {sentiment_response_data}")
         analysis_payload["sentiment"] = "AI Error"
-        analysis_payload["sentiment_reasoning"] = sentiment_response or "AI Error: Empty sentiment response."
+        analysis_payload["sentiment_reasoning"] = str(sentiment_response_data)
 
     # 2. Detailed Impact Analysis
+    impact_json_structure = """
+    {
+      "newsSummary": "Comprehensive yet concise summary (3-5 key sentences).",
+      "affectedEntities": [
+        {"entityName": "Company Name", "tickerSymbol": "TICKER (if known and highly relevant)", "explanation": "Brief explanation of impact."},
+        {"sectorName": "Industry Sector", "explanation": "Brief explanation of impact."}
+      ],
+      "mechanismOfImpact": "How news likely affects fundamentals (revenue, costs, market share) or market perception.",
+      "estimatedTimingAndDuration": {"timing": "Immediate|Short-term (<3mo)|Medium-term (3-12mo)|Long-term (>1yr)", "duration": "Brief|Extended|Ongoing|etc."},
+      "estimatedMagnitudeAndDirection": {"magnitude": "Low|Medium|High", "direction": "Positive|Negative|Neutral/Mixed"},
+      "confidenceLevel": "High|Medium|Low",
+      "confidenceJustification": "Brief justification for confidence level (e.g., clarity of news, directness of impact).",
+      "investorSummary": "Final 2-sentence summary for an investor: most critical implication/takeaway."
+    }
+    """
     prompt_detailed_analysis = (
         f"News Headline: \"{headline}\"\n"
         f"News Content (may be truncated or headline only): \"\"\"\n{content_for_analysis}\n\"\"\"\n\n"
-        f"Instructions for Analysis:\n"
-        f"1. News Summary: Provide a comprehensive yet concise summary of this news article (3-5 key sentences).\n"
-        f"2. Affected Entities: Identify specific companies (with ticker symbols if known and highly relevant) and/or specific industry sectors directly or significantly indirectly affected by this news. Explain why briefly for each.\n"
-        f"3. Mechanism of Impact: For the primary affected entities, describe how this news will likely affect their fundamentals (e.g., revenue, costs, market share, customer sentiment) or market perception.\n"
-        f"4. Estimated Timing & Duration: Estimate the likely timing (e.g., Immediate, Short-term <3mo, Medium-term 3-12mo, Long-term >1yr) and duration of the impact.\n"
-        f"5. Estimated Magnitude & Direction: Estimate the potential magnitude (e.g., Low, Medium, High) and direction (e.g., Positive, Negative, Neutral/Mixed) of the impact on the primary affected entities.\n"
-        f"6. Confidence Level: State your confidence (High, Medium, Low) in this overall impact assessment, briefly justifying it (e.g., based on clarity of news, directness of impact).\n"
-        f"7. Investor Summary: Provide a final 2-sentence summary specifically for an investor, highlighting the most critical implication or takeaway.\n\n"
-        f"Structure your response clearly with headings for each point (e.g., 'News Summary:', 'Affected Entities:', etc.)."
+        f"Perform a detailed impact analysis. {AI_JSON_OUTPUT_INSTRUCTION}\n"
+        f"Structure your JSON response as follows: {impact_json_structure}"
     )
-    impact_analysis_response = analyzer_instance.gemini.generate_text(prompt_detailed_analysis)
-    time.sleep(2)  # API delay
+    impact_analysis_response_data = analyzer_instance.gemini.generate_text(prompt_detailed_analysis,
+                                                                           output_format="json")
+    time.sleep(1)
 
-    if impact_analysis_response and not impact_analysis_response.startswith("Error:"):
-        analysis_payload["news_summary_detailed"] = _parse_ai_section_from_news_analysis(impact_analysis_response,
-                                                                                         "News Summary:")
-        # Affected Entities might contain both companies and sectors.
-        affected_entities_text = _parse_ai_section_from_news_analysis(impact_analysis_response,
-                                                                      ["Affected Entities:", "Affected Companies:",
-                                                                       "Affected Stocks/Sectors:"])
-        analysis_payload["potential_impact_on_companies"] = affected_entities_text  # Store the full text here
+    if isinstance(impact_analysis_response_data, dict) and not impact_analysis_response_data.get("error"):
+        analysis_payload["news_summary_detailed"] = impact_analysis_response_data.get("newsSummary", "AI Error")
 
-        # Try to parse sectors specifically if "Affected Sectors:" header is used by AI
-        sectors_text = _parse_ai_section_from_news_analysis(impact_analysis_response, "Affected Sectors:")
-        if sectors_text and not sectors_text.startswith("Section not found") and not sectors_text.startswith(
-                "AI Error"):
-            analysis_payload["potential_impact_on_sectors"] = sectors_text
-        else:  # Fallback if specific sector parsing fails or not present
-            analysis_payload[
-                "potential_impact_on_sectors"] = affected_entities_text  # It might be mixed in "Affected Entities"
+        # Handle affected entities carefully - it's a list of dicts
+        affected_entities = impact_analysis_response_data.get("affectedEntities", [])
+        if isinstance(affected_entities, list):
+            analysis_payload["potential_impact_on_companies"] = json.dumps(
+                [e for e in affected_entities if "entityName" in e])  # Store as JSON string
+            analysis_payload["potential_impact_on_sectors"] = json.dumps(
+                [e for e in affected_entities if "sectorName" in e])  # Store as JSON string
+        else:
+            analysis_payload["potential_impact_on_companies"] = "[]"  # Empty JSON array string
+            analysis_payload["potential_impact_on_sectors"] = "[]"
 
-        analysis_payload["mechanism_of_impact"] = _parse_ai_section_from_news_analysis(impact_analysis_response,
-                                                                                       "Mechanism of Impact:")
-        analysis_payload["estimated_timing_duration"] = _parse_ai_section_from_news_analysis(impact_analysis_response, [
-            "Estimated Timing & Duration:", "Estimated Timing:"])
-        analysis_payload["estimated_magnitude_direction"] = _parse_ai_section_from_news_analysis(
-            impact_analysis_response, ["Estimated Magnitude & Direction:", "Estimated Magnitude/Direction:"])
-        analysis_payload["confidence_of_assessment"] = _parse_ai_section_from_news_analysis(impact_analysis_response,
-                                                                                            "Confidence Level:")
-        analysis_payload["summary_for_email"] = _parse_ai_section_from_news_analysis(impact_analysis_response,
-                                                                                     ["Investor Summary:",
-                                                                                      "Final Summary for Investor:"])
-    else:
-        logger.error(f"Gemini failed to provide detailed impact analysis for '{headline}': {impact_analysis_response}")
+        analysis_payload["mechanism_of_impact"] = impact_analysis_response_data.get("mechanismOfImpact", "AI Error")
+
+        timing_duration = impact_analysis_response_data.get("estimatedTimingAndDuration", {})
         analysis_payload[
-            "news_summary_detailed"] = impact_analysis_response or "AI Error: Empty impact analysis response."
-        # Set other fields to AI Error or similar indication
-        error_indicator = analysis_payload["news_summary_detailed"]
-        analysis_payload["potential_impact_on_companies"] = error_indicator
-        analysis_payload["potential_impact_on_sectors"] = error_indicator
+            "estimated_timing_duration"] = f"Timing: {timing_duration.get('timing', 'N/A')}, Duration: {timing_duration.get('duration', 'N/A')}" if isinstance(
+            timing_duration, dict) else "AI Error"
+
+        mag_direction = impact_analysis_response_data.get("estimatedMagnitudeAndDirection", {})
+        analysis_payload[
+            "estimated_magnitude_direction"] = f"Magnitude: {mag_direction.get('magnitude', 'N/A')}, Direction: {mag_direction.get('direction', 'N/A')}" if isinstance(
+            mag_direction, dict) else "AI Error"
+
+        analysis_payload["confidence_of_assessment"] = impact_analysis_response_data.get("confidenceLevel", "AI Error")
+        if impact_analysis_response_data.get("confidenceJustification"):
+            analysis_payload[
+                "confidence_of_assessment"] += f" (Justification: {impact_analysis_response_data.get('confidenceJustification')})"
+
+        analysis_payload["summary_for_email"] = impact_analysis_response_data.get("investorSummary", "AI Error")
+    else:
+        logger.error(
+            f"Gemini failed to provide detailed impact analysis JSON for '{headline}': {impact_analysis_response_data}")
+        error_indicator = str(impact_analysis_response_data)
+        analysis_payload["news_summary_detailed"] = error_indicator
+        analysis_payload["potential_impact_on_companies"] = "[]"
+        analysis_payload["potential_impact_on_sectors"] = "[]"
         analysis_payload["mechanism_of_impact"] = error_indicator
         analysis_payload["estimated_timing_duration"] = error_indicator
         analysis_payload["estimated_magnitude_direction"] = error_indicator
@@ -2490,92 +2551,79 @@ __all__ = ["StockAnalyzer"]
 ---------- ai_synthesis.py ----------
 # services/stock_analyzer/ai_synthesis.py
 import re
+import json  # For parsing potential JSON responses
 from core.logging_setup import logger
 from .helpers import safe_get_float
+from core.config import AI_JSON_OUTPUT_INSTRUCTION
 
 
-def _parse_ai_investment_thesis_response(ticker_for_log, ai_response_text):
+def _parse_ai_investment_thesis_json_response(ticker_for_log, ai_response_data):
     parsed_data = {
-        "investment_thesis_full": "AI response not fully processed or 'Investment Thesis:' section missing.",
+        "investment_thesis_full": "AI response not fully processed or expected JSON fields missing.",
         "investment_decision": "Review AI Output",
         "strategy_type": "Not Specified by AI",
         "confidence_level": "Not Specified by AI",
-        "reasoning": "AI response not fully processed or 'Key Reasoning Points:' section missing."
+        "reasoning": "AI response not fully processed or expected JSON fields missing."
     }
 
-    if not ai_response_text or ai_response_text.startswith("Error:"):
-        error_message = ai_response_text if ai_response_text else "Error: Empty response from AI for thesis."
-        parsed_data["investment_thesis_full"] = error_message
-        parsed_data["reasoning"] = error_message
+    if not isinstance(ai_response_data, dict):
+        error_message = f"Error: AI response for thesis was not a valid dictionary. Response: {str(ai_response_data)[:500]}"
+        parsed_data = {key: error_message for key in parsed_data}
         parsed_data["investment_decision"] = "AI Error"
         parsed_data["strategy_type"] = "AI Error"
         parsed_data["confidence_level"] = "AI Error"
+        logger.error(f"AI thesis response for {ticker_for_log} is not a dict: {ai_response_data}")
         return parsed_data
 
-    text_content = ai_response_text.replace('\r\n', '\n').strip()
+    if ai_response_data.get("error"):
+        error_message = f"AI Error: {ai_response_data.get('error_details', str(ai_response_data))}"
+        parsed_data = {key: error_message for key in parsed_data}
+        parsed_data["investment_decision"] = "AI Error"
+        parsed_data["strategy_type"] = "AI Error"
+        parsed_data["confidence_level"] = "AI Error"
+        logger.error(f"AI thesis generation for {ticker_for_log} returned an error: {ai_response_data.get('error')}")
+        return parsed_data
 
-    # Define patterns for each section
-    # Using re.DOTALL to make '.' match newlines, and re.MULTILINE for '^'
-    # Lookahead assertions ensure non-greedy matching up to the next known header or end of string
-    patterns = {
-        "investment_thesis_full": re.compile(
-            r"^\s*Investment Thesis:\s*\n?(.*?)(?=\n\s*(?:Investment Decision:|Strategy Type:|Confidence Level:|Key Reasoning Points:)|^\s*$|\Z)",
-            re.IGNORECASE | re.MULTILINE | re.DOTALL
-        ),
-        "investment_decision": re.compile(
-            r"^\s*Investment Decision:\s*\n?(.*?)(?=\n\s*(?:Investment Thesis:|Strategy Type:|Confidence Level:|Key Reasoning Points:)|^\s*$|\Z)",
-            re.IGNORECASE | re.MULTILINE | re.DOTALL
-        ),
-        "strategy_type": re.compile(
-            r"^\s*Strategy Type:\s*\n?(.*?)(?=\n\s*(?:Investment Thesis:|Investment Decision:|Confidence Level:|Key Reasoning Points:)|^\s*$|\Z)",
-            re.IGNORECASE | re.MULTILINE | re.DOTALL
-        ),
-        "confidence_level": re.compile(
-            r"^\s*Confidence Level:\s*\n?(.*?)(?=\n\s*(?:Investment Thesis:|Investment Decision:|Strategy Type:|Key Reasoning Points:)|^\s*$|\Z)",
-            re.IGNORECASE | re.MULTILINE | re.DOTALL
-        ),
-        "reasoning": re.compile(
-            r"^\s*Key Reasoning Points:\s*\n?(.*?)(?=\n\s*(?:Investment Thesis:|Investment Decision:|Strategy Type:|Confidence Level:)|^\s*$|\Z)",
-            re.IGNORECASE | re.MULTILINE | re.DOTALL
-        )
-    }
+    # Expected JSON structure:
+    # {
+    #   "investmentThesis": "...",
+    #   "investmentDecision": "Buy|Hold|Sell|Monitor|etc.",
+    #   "strategyType": "GARP|Value|Growth|etc.",
+    #   "confidenceLevel": "High|Medium|Low",
+    #   "keyReasoningPoints": ["Point 1...", "Point 2..."],
+    #   "dataQualityAcknowledgement": "..." (optional)
+    # }
 
-    found_any_section = False
-    for key, pattern in patterns.items():
-        match = pattern.search(text_content)
-        if match:
-            content = match.group(1).strip()
-            if content:
-                # For single-line answers, take the first line after stripping
-                if key in ["investment_decision", "strategy_type", "confidence_level"]:
-                    parsed_data[key] = content.split('\n')[0].strip()
-                else:  # For multi-line answers like thesis and reasoning
-                    parsed_data[key] = content
-                found_any_section = True
-            else:  # Header found but content is empty
-                parsed_data[key] = f"'{key.replace('_', ' ').title()}:' section found but content empty."
+    parsed_data["investment_thesis_full"] = ai_response_data.get("investmentThesis",
+                                                                 parsed_data["investment_thesis_full"])
+    parsed_data["investment_decision"] = ai_response_data.get("investmentDecision", parsed_data["investment_decision"])
+    parsed_data["strategy_type"] = ai_response_data.get("strategyType", parsed_data["strategy_type"])
+    parsed_data["confidence_level"] = ai_response_data.get("confidenceLevel", parsed_data["confidence_level"])
 
-    if not found_any_section and not ai_response_text.startswith("Error:"):
-        # If no sections are parsed but there is AI text, put all of it in the thesis.
-        logger.warning(f"Could not parse distinct sections from AI thesis response for {ticker_for_log}. "
-                       f"Full response will be in 'investment_thesis_full'.")
-        parsed_data["investment_thesis_full"] = text_content
-        # Other fields remain as "Review AI Output" or "Not Specified by AI"
+    reasoning_points = ai_response_data.get("keyReasoningPoints")
+    if isinstance(reasoning_points, list) and reasoning_points:
+        parsed_data["reasoning"] = "\n".join([f"- {point}" for point in reasoning_points])
+    elif isinstance(reasoning_points, str):  # Handle if AI gives a single string
+        parsed_data["reasoning"] = reasoning_points
+    else:
+        parsed_data["reasoning"] = "Key reasoning points not provided in expected format by AI."
+
+    data_quality_ack = ai_response_data.get("dataQualityAcknowledgement")
+    if data_quality_ack:
+        parsed_data["reasoning"] += f"\n\nAI Data Quality Acknowledgement: {data_quality_ack}"
 
     return parsed_data
 
 
 def synthesize_investment_thesis(analyzer_instance):
     ticker = analyzer_instance.ticker
-    logger.info(f"Synthesizing investment thesis for {ticker}...")
+    logger.info(f"Synthesizing investment thesis for {ticker} using JSON format...")
 
-    # Retrieve all necessary data from the analyzer instance's cache
     metrics = analyzer_instance._financial_data_cache.get('calculated_metrics', {})
     qual_summaries = analyzer_instance._financial_data_cache.get('10k_summaries', {})
     dcf_results = analyzer_instance._financial_data_cache.get('dcf_results', {})
     profile = analyzer_instance._financial_data_cache.get('profile_fmp', {})
-    competitor_analysis_summary = analyzer_instance._financial_data_cache.get('competitor_analysis', {}).get("summary",
-                                                                                                             "N/A")
+    competitor_analysis_summary_data = analyzer_instance._financial_data_cache.get('competitor_analysis', {})
 
     company_name = analyzer_instance.stock_db_entry.company_name or ticker
     industry = analyzer_instance.stock_db_entry.industry or "N/A"
@@ -2583,7 +2631,7 @@ def synthesize_investment_thesis(analyzer_instance):
 
     prompt = f"Company: {company_name} ({ticker})\nIndustry: {industry}, Sector: {sector}\n\n"
     prompt += "Key Financial Metrics & Data:\n"
-
+    # ... (metrics formatting as before, unchanged)
     metrics_for_prompt = {
         "P/E Ratio": metrics.get("pe_ratio"), "P/B Ratio": metrics.get("pb_ratio"),
         "P/S Ratio": metrics.get("ps_ratio"), "Dividend Yield": metrics.get("dividend_yield"),
@@ -2627,69 +2675,106 @@ def synthesize_investment_thesis(analyzer_instance):
     if dcf_results.get("dcf_assumptions", {}).get("sensitivity_analysis"):
         prompt += "- DCF Sensitivity Highlights:\n"
         for s_idx, s_data in enumerate(dcf_results["dcf_assumptions"]["sensitivity_analysis"]):
-            if s_idx < 2:  # Limit to a few examples for brevity
+            if s_idx < 2:
                 upside_str = f"{s_data['upside']:.2%}" if s_data['upside'] is not None else "N/A"
                 prompt += f"  - {s_data['scenario']}: IV {s_data['intrinsic_value']:.2f} (Upside: {upside_str})\n"
+    prompt += "\n"
 
-    prompt += "\nQualitative Summaries (from 10-K & AI analysis):\n"
+    prompt += "Qualitative Summaries (from 10-K & AI analysis):\n"
+
+    # Helper to get AI summary text or fallback
+    def get_summary_text(summary_data, key, fallback="N/A"):
+        if isinstance(summary_data, dict) and summary_data.get(key):
+            content = summary_data[key]
+            if isinstance(content, dict) and "summary" in content:  # If it's a JSON summary object
+                return content["summary"]
+            elif isinstance(content, str):  # If it's already a string summary
+                return content
+        return fallback
+
     qual_for_prompt = {
-        "Business Model": qual_summaries.get("business_summary"),
-        "Economic Moat": qual_summaries.get("economic_moat_summary"),
-        "Industry Trends & Positioning": qual_summaries.get("industry_trends_summary"),
-        "Competitive Landscape": competitor_analysis_summary,  # Use the summary string
-        "Management Discussion Highlights (MD&A)": qual_summaries.get("management_assessment_summary"),
-        # Renamed from mda_summary
-        "Key Risk Factors (from 10-K)": qual_summaries.get("risk_factors_summary"),
+        "Business Model": get_summary_text(qual_summaries.get("business_summary_data"), "summary"),
+        "Economic Moat": get_summary_text(qual_summaries.get("economic_moat_summary_data"), "overallAssessment"),
+        "Industry Trends & Positioning": get_summary_text(qual_summaries.get("industry_trends_summary_data"),
+                                                          "companyPositioning"),
+        "Competitive Landscape": get_summary_text(competitor_analysis_summary_data,
+                                                  "landscapeOverview") or competitor_analysis_summary_data.get(
+            "summary", "N/A"),
+        "Management Discussion Highlights (MD&A)": get_summary_text(
+            qual_summaries.get("management_assessment_summary_data"), "summary"),
+        "Key Risk Factors (from 10-K)": get_summary_text(qual_summaries.get("risk_factors_summary_data"), "summary"),
     }
+
     for name, text_val in qual_for_prompt.items():
-        if text_val and isinstance(text_val, str) and not text_val.startswith(
-                ("AI analysis", "Section not found", "Insufficient input")):
-            prompt += f"- {name}:\n{text_val[:500].replace('...', '').strip()}...\n\n"  # Truncate for prompt
-        elif text_val:  # Catch-all for other cases, like "N/A" or short error messages
+        if text_val and text_val != "N/A" and not text_val.startswith(
+                ("AI analysis error", "Section not found", "Insufficient input")):
+            prompt += f"- {name}:\n{text_val[:500].replace('...', '').strip()}...\n\n"
+        elif text_val:
             prompt += f"- {name}: {text_val}\n\n"
 
     if analyzer_instance.data_quality_warnings:
         prompt += "IMPORTANT DATA QUALITY CONSIDERATIONS:\n"
         for i, warn_msg in enumerate(analyzer_instance.data_quality_warnings):
             prompt += f"- WARNING {i + 1}: {warn_msg}\n"
-        prompt += "Acknowledge these warnings in your risk assessment or confidence level.\n\n"
+        prompt += "Acknowledge these warnings in your 'dataQualityAcknowledgement' field if they are significant.\n\n"
 
     prompt += (
         "Instructions for AI: Based on ALL the above information (quantitative, qualitative, DCF, competitor data, and data quality warnings), "
         "provide a detailed financial analysis and investment thesis. "
-        "Structure your response *EXACTLY* as follows, using these specific headings on separate lines:\n\n"
-        "Investment Thesis:\n"
-        "[Comprehensive thesis (2-4 paragraphs) synthesizing all data. Discuss positives, negatives, outlook. "
-        "If revenue growth is stagnant/negative but EPS growth is positive, explain the drivers (e.g., buybacks, margin expansion) and sustainability. "
-        "Address any points on margin pressures (e.g., in DTC if mentioned in MD&A) or changes in segment profitability.]\n\n"
-        "Investment Decision:\n"
-        "[Choose ONE: Strong Buy, Buy, Hold, Monitor, Reduce, Sell, Avoid. Base this on the overall analysis.]\n\n"
-        "Strategy Type:\n"
-        "[Choose ONE that best fits: Value, GARP (Growth At a Reasonable Price), Growth, Income, Speculative, Special Situation, Turnaround.]\n\n"
-        "Confidence Level:\n"
-        "[Choose ONE: High, Medium, Low. This reflects confidence in YOUR analysis and decision, considering data quality and completeness.]\n\n"
-        "Key Reasoning Points:\n"
-        "[3-7 bullet points. Each point should be a concise summary of a key factor supporting your decision. "
-        "Cover: Valuation (DCF, comparables if any), Financial Health & Profitability, Growth Prospects (Revenue & EPS), "
-        "Economic Moat, Competitive Position, Key Risks (including data quality issues if significant), Management & Strategy (if inferable).]\n"
+        f"Your entire response MUST be a single, valid JSON object. Do not include any text outside of this JSON structure. "
+        "Use the following exact structure and field names:\n"
+        "{\n"
+        "  \"investmentThesis\": \"Comprehensive thesis (2-4 paragraphs) synthesizing all data. Discuss positives, negatives, outlook. If revenue growth is stagnant/negative but EPS growth is positive, explain drivers and sustainability. Address margin pressures or segment profitability changes.\",\n"
+        "  \"investmentDecision\": \"Strong Buy|Buy|Hold|Monitor|Reduce|Sell|Avoid\",\n"
+        "  \"strategyType\": \"Value|GARP|Growth|Income|Speculative|Special Situation|Turnaround\",\n"
+        "  \"confidenceLevel\": \"High|Medium|Low (Reflect confidence in YOUR analysis, considering data quality and completeness)\",\n"
+        "  \"keyReasoningPoints\": [\n"
+        "    \"Bullet point 1: Valuation (DCF, comparables if any)\",\n"
+        "    \"Bullet point 2: Financial Health & Profitability\",\n"
+        "    \"Bullet point 3: Growth Prospects (Revenue & EPS)\",\n"
+        "    \"Bullet point 4: Economic Moat & Competitive Position\",\n"
+        "    \"Bullet point 5: Key Risks (including data quality issues if significant)\",\n"
+        "    \"Bullet point 6: Management & Strategy (if inferable)\"\n"
+        "  ],\n"
+        "  \"dataQualityAcknowledgement\": \"Optional: Briefly state if data quality warnings significantly impacted your analysis or confidence.\"\n"
+        "}\n"
     )
 
-    ai_response_text = analyzer_instance.gemini.generate_text(prompt)
-    parsed_thesis_data = _parse_ai_investment_thesis_response(ticker, ai_response_text)
+    ai_response_data = analyzer_instance.gemini.generate_text(prompt, output_format="json")
+    parsed_thesis_data = _parse_ai_investment_thesis_json_response(ticker, ai_response_data)
 
-    # Adjust confidence based on data quality warnings
-    if any("CRITICAL:" in warn for warn in analyzer_instance.data_quality_warnings) or \
-            any("DATA QUALITY WARNING:" in warn for warn in analyzer_instance.data_quality_warnings if
-                "revenue" in warn.lower()):
-        current_confidence = parsed_thesis_data.get("confidence_level", "").lower()
+    # Consolidate data quality warnings and adjust confidence
+    # If there are CRITICAL warnings, or multiple warnings, confidence should be lowered.
+    critical_warnings = [w for w in analyzer_instance.data_quality_warnings if "CRITICAL:" in w.upper()]
+    significant_revenue_warnings = [w for w in analyzer_instance.data_quality_warnings if
+                                    "REVENUE" in w.upper() and "DEVIATES" in w.upper()]
+
+    current_confidence = parsed_thesis_data.get("confidence_level", "Not Specified by AI").lower()
+    new_confidence = current_confidence
+    confidence_adjustment_reason = ""
+
+    if critical_warnings:
+        new_confidence = "Low"
+        confidence_adjustment_reason = f"Critical data quality warnings ({len(critical_warnings)}) present."
+    elif significant_revenue_warnings or len(analyzer_instance.data_quality_warnings) >= 2:
         if current_confidence == "high":
-            logger.warning(
-                f"Downgrading AI confidence from High to Medium for {ticker} due to critical data quality warnings.")
-            parsed_thesis_data["confidence_level"] = "Medium"
+            new_confidence = "Medium"
+            confidence_adjustment_reason = "Significant data warnings or multiple issues."
         elif current_confidence == "medium":
-            logger.warning(
-                f"Downgrading AI confidence from Medium to Low for {ticker} due to critical data quality warnings.")
-            parsed_thesis_data["confidence_level"] = "Low"
+            new_confidence = "Low"
+            confidence_adjustment_reason = "Significant data warnings or multiple issues, and AI was already Medium."
+
+    if new_confidence != current_confidence and current_confidence not in ["low", "ai error", "not specified by ai"]:
+        logger.warning(
+            f"Adjusting AI confidence for {ticker} from '{current_confidence.capitalize()}' to '{new_confidence.capitalize()}' due to: {confidence_adjustment_reason}")
+        parsed_thesis_data["confidence_level"] = new_confidence.capitalize()
+        # Add a note to reasoning if not already covered by AI's dataQualityAcknowledgement
+        reasoning_update = f"\nSystem Note: Confidence adjusted to {new_confidence.capitalize()} due to data quality concerns ({confidence_adjustment_reason})."
+        if "reasoning" in parsed_thesis_data and isinstance(parsed_thesis_data["reasoning"], str):
+            if reasoning_update not in parsed_thesis_data["reasoning"]:
+                parsed_thesis_data["reasoning"] += reasoning_update
+        else:
+            parsed_thesis_data["reasoning"] = reasoning_update
 
     logger.info(f"Generated thesis for {ticker}. Decision: {parsed_thesis_data.get('investment_decision')}, "
                 f"Strategy: {parsed_thesis_data.get('strategy_type')}, Confidence: {parsed_thesis_data.get('confidence_level')}")
@@ -3564,99 +3649,125 @@ def calculate_all_derived_metrics(analyzer_instance):
 ---------- qualitative_analyzer.py ----------
 # services/stock_analyzer/qualitative_analyzer.py
 import time
+import json
 from core.logging_setup import logger
-from api_clients import extract_S1_text_sections  # Re-check if S1 or TEN_K version
+from api_clients import extract_S1_text_sections
 from core.config import (
     TEN_K_KEY_SECTIONS, SUMMARIZATION_CHUNK_SIZE_CHARS,
     SUMMARIZATION_CHUNK_OVERLAP_CHARS, SUMMARIZATION_MAX_CONCAT_SUMMARIES_CHARS,
-    MAX_COMPETITORS_TO_ANALYZE
+    MAX_COMPETITORS_TO_ANALYZE, AI_JSON_OUTPUT_INSTRUCTION
 )
 from .helpers import safe_get_float
 
 
-def _summarize_text_chunked(analyzer_instance, text_to_summarize, base_context, section_specific_instruction,
-                            company_name_ticker_prompt):
+def _summarize_text_chunked_for_json(analyzer_instance, text_to_summarize, base_context, section_specific_instruction,
+                                     company_name_ticker_prompt, json_structure_example):
     gemini_client = analyzer_instance.gemini
+    default_error_response = {"error": f"AI summary error or no content for '{base_context}'.", "summary": "",
+                              "keyPoints": []}
+
     if not text_to_summarize or not isinstance(text_to_summarize, str) or not text_to_summarize.strip():
-        return "No text provided for summarization.", 0
+        return default_error_response, 0
 
     text_len = len(text_to_summarize)
-    logger.info(f"Summarizing '{base_context}' for {company_name_ticker_prompt}, original length: {text_len} chars.")
+    logger.info(
+        f"Summarizing '{base_context}' for {company_name_ticker_prompt} (JSON output), original length: {text_len} chars.")
 
-    if text_len < SUMMARIZATION_MAX_CONCAT_SUMMARIES_CHARS:  # If short enough, summarize directly
+    final_prompt_instruction = (
+        f"{section_specific_instruction}\n"
+        f"Your entire response MUST be a single, valid JSON object structured as follows: {json_structure_example}"
+    )
+
+    if text_len < SUMMARIZATION_CHUNK_SIZE_CHARS:  # Adjusted for potentially larger JSON structure in prompt/output
         logger.info(
-            f"Section length {text_len} is within single-pass limit ({SUMMARIZATION_MAX_CONCAT_SUMMARIES_CHARS}). Summarizing directly.")
-        summary = gemini_client.summarize_text_with_context(
-            text_to_summarize,
-            f"{base_context} for {company_name_ticker_prompt}.",
-            section_specific_instruction
+            f"Section length {text_len} is within single-pass limit ({SUMMARIZATION_CHUNK_SIZE_CHARS}). Summarizing directly for JSON.")
+        summary_json = gemini_client.generate_text(
+            f"Text to Summarize from '{base_context}' for {company_name_ticker_prompt}:\n\"\"\"\n{text_to_summarize}\n\"\"\"\n\n{final_prompt_instruction}",
+            output_format="json"
         )
-        time.sleep(2)  # API call delay
-        return (summary if summary and not summary.startswith(
-            "Error:") else f"AI summary error or no content for '{base_context}'."), text_len
+        time.sleep(2)
+        if isinstance(summary_json, dict) and not summary_json.get("error"):
+            return summary_json, text_len
+        else:
+            logger.error(f"Direct JSON summarization failed for '{base_context}'. Response: {summary_json}")
+            return default_error_response, text_len
 
     # Chunked summarization
-    logger.info(f"Section length {text_len} exceeds single-pass limit. Applying chunked summarization "
-                f"(Chunk size: {SUMMARIZATION_CHUNK_SIZE_CHARS}, Overlap: {SUMMARIZATION_CHUNK_OVERLAP_CHARS}).")
+    logger.info(f"Section length {text_len} exceeds single-pass limit. Applying chunked summarization for JSON output.")
     chunks = []
     start = 0
     while start < text_len:
         end = start + SUMMARIZATION_CHUNK_SIZE_CHARS
         chunks.append(text_to_summarize[start:end])
-        if end >= text_len or SUMMARIZATION_CHUNK_OVERLAP_CHARS >= SUMMARIZATION_CHUNK_SIZE_CHARS:  # Prevent negative start
-            start = end
-        else:
-            start = end - SUMMARIZATION_CHUNK_OVERLAP_CHARS
+        start = end - SUMMARIZATION_CHUNK_OVERLAP_CHARS if end < text_len else end
 
-    chunk_summaries = []
+    chunk_summaries_text = []  # Store text summaries of chunks
     for i, chunk in enumerate(chunks):
         logger.info(
-            f"Summarizing chunk {i + 1}/{len(chunks)} for '{base_context}' of {company_name_ticker_prompt} (length: {len(chunk)} chars).")
-        summary = gemini_client.summarize_text_with_context(
+            f"Summarizing chunk {i + 1}/{len(chunks)} for '{base_context}' of {company_name_ticker_prompt} (length: {len(chunk)} chars) as text part.")
+        # Summarize chunks into text first to avoid overly complex JSON handling for each small piece
+        chunk_summary_text = gemini_client.summarize_text_with_context(
             chunk,
             f"This is chunk {i + 1} of {len(chunks)} from the '{base_context}' section for {company_name_ticker_prompt}.",
-            f"Summarize this chunk. Focus on key facts and figures relevant to: {section_specific_instruction}"
-        )
-        time.sleep(2)  # API call delay
-        chunk_summaries.append(summary if summary and not summary.startswith(
-            "Error:") else f"[AI error or no content for chunk {i + 1} of '{base_context}']")
+            f"Concisely summarize the key information in this chunk relevant to: {section_specific_instruction.splitlines()[0]}"
+            # Simpler instruction for chunk
+        )  # output_format="text" by default
+        time.sleep(2)
+        chunk_summaries_text.append(chunk_summary_text if chunk_summary_text and not chunk_summary_text.startswith(
+            "Error:") else f"[AI error or no content for chunk {i + 1}]")
 
-    if not chunk_summaries:
-        return f"No summaries generated from chunks for '{base_context}'.", text_len
+    if not chunk_summaries_text or all("[AI error" in s for s in chunk_summaries_text):
+        return default_error_response, text_len
 
-    concatenated_summaries = "\n\n---\n\n".join(chunk_summaries)
-    logger.info(f"Concatenated chunk summaries length for '{base_context}': {len(concatenated_summaries)} chars.")
+    concatenated_summaries = "\n\n---\n\n".join(chunk_summaries_text)
+    logger.info(f"Concatenated chunk text summaries length for '{base_context}': {len(concatenated_summaries)} chars.")
 
-    if not concatenated_summaries.strip() or all("[AI error" in s for s in chunk_summaries):
-        return f"Failed to generate summaries for any chunk of '{base_context}'.", text_len
+    if len(concatenated_summaries) > SUMMARIZATION_MAX_CONCAT_SUMMARIES_CHARS:  # If even concatenated text summaries are too long
+        logger.warning(
+            f"Concatenated text summaries for '{base_context}' too long ({len(concatenated_summaries)}). Truncating for final JSON generation.")
+        concatenated_summaries = concatenated_summaries[:SUMMARIZATION_MAX_CONCAT_SUMMARIES_CHARS]
 
-    # If concatenated summaries are too long, summarize the summaries
-    if len(concatenated_summaries) > SUMMARIZATION_MAX_CONCAT_SUMMARIES_CHARS:
-        logger.info(
-            f"Concatenated summaries for '{base_context}' too long. Performing a final 'summary of summaries' pass.")
-        final_summary = gemini_client.summarize_text_with_context(
-            concatenated_summaries,
-            f"The following are collated summaries from different parts of the '{base_context}' section for {company_name_ticker_prompt}.",
-            f"Synthesize these individual chunk summaries into a single, cohesive overview of the '{base_context}', "
-            f"maintaining factual accuracy and addressing the original goal: {section_specific_instruction}."
-        )
-        time.sleep(2)  # API call delay
-        return (final_summary if final_summary and not final_summary.startswith(
-            "Error:") else f"AI error in final summary pass for '{base_context}'."), text_len
+    # Final pass: generate JSON from the concatenated text summaries
+    logger.info(f"Generating final JSON summary for '{base_context}' from concatenated chunk summaries.")
+    final_summary_json = gemini_client.generate_text(
+        f"The following are collated summaries from different parts of the '{base_context}' section for {company_name_ticker_prompt}:\n\"\"\"\n{concatenated_summaries}\n\"\"\"\n\n"
+        f"Synthesize these into a single, cohesive overview for '{base_context}'.\n{final_prompt_instruction}",
+        output_format="json"
+    )
+    time.sleep(2)
+
+    if isinstance(final_summary_json, dict) and not final_summary_json.get("error"):
+        return final_summary_json, text_len
     else:
-        return concatenated_summaries, text_len
+        logger.error(
+            f"Final JSON summarization from chunks failed for '{base_context}'. Response: {final_summary_json}")
+        # Fallback: return the concatenated text if JSON fails, wrapped in the error structure
+        default_error_response[
+            "summary"] = "AI error in final JSON summary pass. Concatenated text summaries provided instead."
+        default_error_response["keyPoints"] = [concatenated_summaries[:1000]]  # Truncated
+        return default_error_response, text_len
 
 
 def fetch_and_summarize_10k_data(analyzer_instance):
     ticker = analyzer_instance.ticker
-    logger.info(f"Fetching and attempting to summarize latest 10-K for {ticker}")
-    summary_results = {"qualitative_sources_summary": {}}  # Initialize the sub-dictionary
+    logger.info(f"Fetching and attempting to summarize latest 10-K for {ticker} into JSON...")
+    # Initialize with keys for where the JSON data itself will be stored
+    summary_results = {
+        "qualitative_sources_summary": {},
+        "business_summary_data": None,
+        "risk_factors_summary_data": None,
+        "management_assessment_summary_data": None,  # MDA
+        "economic_moat_summary_data": None,
+        "industry_trends_summary_data": None,
+    }
 
     if not analyzer_instance.stock_db_entry or not analyzer_instance.stock_db_entry.cik:
         logger.warning(f"No CIK for {ticker}. Cannot fetch 10-K.")
+        # Populate error state for summary data fields
+        for key in ["business_summary_data", "risk_factors_summary_data", "management_assessment_summary_data"]:
+            summary_results[key] = {"error": "No CIK available for 10-K fetching."}
         return summary_results
 
-    # Try 10-K first, then 10-K/A
     filing_url = analyzer_instance.sec_edgar.get_filing_document_url(analyzer_instance.stock_db_entry.cik, "10-K")
     time.sleep(0.5)
     if not filing_url:
@@ -3666,6 +3777,8 @@ def fetch_and_summarize_10k_data(analyzer_instance):
 
     if not filing_url:
         logger.warning(f"No 10-K or 10-K/A URL found for {ticker} (CIK: {analyzer_instance.stock_db_entry.cik})")
+        for key in ["business_summary_data", "risk_factors_summary_data", "management_assessment_summary_data"]:
+            summary_results[key] = {"error": "No 10-K or 10-K/A URL found."}
         return summary_results
 
     summary_results["qualitative_sources_summary"]["10k_filing_url_used"] = filing_url
@@ -3673,150 +3786,163 @@ def fetch_and_summarize_10k_data(analyzer_instance):
 
     if not text_content:
         logger.warning(f"Failed to fetch/load 10-K text from {filing_url}")
+        for key in ["business_summary_data", "risk_factors_summary_data", "management_assessment_summary_data"]:
+            summary_results[key] = {"error": f"Failed to fetch 10-K text from {filing_url}."}
         return summary_results
 
     logger.info(f"Fetched 10-K text (length: {len(text_content)}) for {ticker}. Extracting and summarizing sections.")
-    sections = extract_S1_text_sections(text_content,
-                                        TEN_K_KEY_SECTIONS)  # TEN_K_KEY_SECTIONS is alias for S1_KEY_SECTIONS
-
+    sections = extract_S1_text_sections(text_content, TEN_K_KEY_SECTIONS)
     company_name_for_prompt = analyzer_instance.stock_db_entry.company_name or ticker
+
+    # Define JSON structure for basic summaries
+    basic_summary_json_structure = "{ \"summary\": \"Comprehensive summary text...\", \"keyPoints\": [\"Key point 1...\", \"Key point 2...\"] }"
 
     section_details = {
         "business": ("Business (Item 1)",
-                     "Summarize the company's core business operations, primary products/services, revenue generation model, key customer segments, and primary markets. Highlight any recent strategic shifts mentioned."),
+                     "Summarize the company's core business operations, primary products/services, revenue generation model, key customer segments, and primary markets. Highlight any recent strategic shifts mentioned.",
+                     "business_summary_data"),
         "risk_factors": ("Risk Factors (Item 1A)",
-                         "Identify and summarize the 3-5 most significant and company-specific risk factors disclosed. Focus on operational and strategic risks rather than generic market risks. Briefly explain the potential impact of each."),
+                         "Identify and summarize the 3-5 most significant and company-specific risk factors disclosed. Focus on operational and strategic risks. Briefly explain the potential impact of each.",
+                         "risk_factors_summary_data"),
         "mda": ("Management's Discussion and Analysis (Item 7)",
-                "Summarize key insights into financial performance drivers (revenue, costs, profitability), financial condition (liquidity, capital resources), and management's outlook or significant focus areas. Note any discussion on margin pressures or segment performance changes.")
+                "Summarize key insights into financial performance drivers (revenue, costs, profitability), financial condition (liquidity, capital resources), and management's outlook or significant focus areas. Note any discussion on margin pressures or segment performance changes.",
+                "management_assessment_summary_data")  # Target key for summary_results
     }
 
-    for section_key, (prompt_section_name, specific_instruction) in section_details.items():
+    for section_key, (prompt_section_name, specific_instruction, target_summary_key) in section_details.items():
         section_text = sections.get(section_key)
+        json_response = None
+        source_len = 0
         if not section_text:
             logger.warning(f"Section '{prompt_section_name}' not found in 10-K for {ticker}.")
-            summary_results[f"{section_key}_summary"] = "Section not found in 10-K document."
-            summary_results["qualitative_sources_summary"][f"{section_key}_10k_source_length"] = 0
-            continue
-
-        summary, source_len = _summarize_text_chunked(analyzer_instance, section_text, prompt_section_name,
-                                                      specific_instruction, f"{company_name_for_prompt} ({ticker})")
-        summary_results[f"{section_key}_summary"] = summary
+            json_response = {"error": f"Section '{prompt_section_name}' not found in 10-K document."}
+        else:
+            source_len = len(section_text)
+            json_response, _ = _summarize_text_chunked_for_json(
+                analyzer_instance, section_text, prompt_section_name,
+                specific_instruction, f"{company_name_for_prompt} ({ticker})",
+                basic_summary_json_structure
+            )
+        summary_results[target_summary_key] = json_response
         summary_results["qualitative_sources_summary"][f"{section_key}_10k_source_length"] = source_len
         logger.info(
-            f"Summary for '{prompt_section_name}' (source length {source_len}): {summary[:150].replace(chr(10), ' ')}...")
+            f"JSON Summary for '{prompt_section_name}' (source length {source_len}): {str(json_response)[:150].replace(chr(10), ' ')}...")
 
     # Economic Moat Analysis (derived from business and risk summaries)
-    biz_summary_str = summary_results.get("business_summary", "")
-    mda_summary_str = summary_results.get("mda_summary", "")  # For industry trends
-    risk_summary_str = summary_results.get("risk_factors_summary", "")
+    biz_summary_data = summary_results.get("business_summary_data", {})
+    risk_summary_data = summary_results.get("risk_factors_summary_data", {})
+    biz_summary_text = biz_summary_data.get("summary", "") if isinstance(biz_summary_data, dict) else ""
+    risk_summary_text = risk_summary_data.get("summary", "") if isinstance(risk_summary_data, dict) else ""
 
-    # Clean up potentially errored summaries for concatenation
-    if biz_summary_str.startswith(("Section not found", "AI summary error")): biz_summary_str = ""
-    if mda_summary_str.startswith(("Section not found", "AI summary error")): mda_summary_str = ""
-    if risk_summary_str.startswith(("Section not found", "AI summary error")): risk_summary_str = ""
-
-    moat_input_text = (f"Business Summary:\n{biz_summary_str}\n\nRisk Factors Summary:\n{risk_summary_str}").strip()
-    if moat_input_text and (biz_summary_str or risk_summary_str):  # Check if there's meaningful input
+    moat_json_structure = "{ \"moats\": [ { \"moatType\": \"Brand Strength|Network Effects|etc.\", \"evidence\": \"...\", \"strength\": \"Very Strong|Strong|Moderate|Weak\" } ], \"overallAssessment\": \"Overall summary of moat strength...\" }"
+    if biz_summary_text or risk_summary_text:
+        moat_input_text = (
+            f"Business Summary:\n{biz_summary_text}\n\nRisk Factors Summary:\n{risk_summary_text}").strip()
         moat_prompt = (
-            f"Analyze the primary economic moats (e.g., brand strength, network effects, switching costs, intangible assets like patents/IP, cost advantages from scale/process) "
-            f"for {company_name_for_prompt} ({ticker}), based on the following summaries from its 10-K:\n\n{moat_input_text}\n\n"
-            f"Provide a concise analysis of its key economic moats. For each identified moat, briefly explain the evidence from the text and assess its perceived strength (e.g., Very Strong, Strong, Moderate, Weak). If certain moats are not strongly evident, state that."
+            f"Analyze the primary economic moats for {company_name_for_prompt} ({ticker}), based on the following summaries from its 10-K:\n\n{moat_input_text}\n\n"
+            f"Provide your analysis as a JSON object. {AI_JSON_OUTPUT_INSTRUCTION} Structure it as: {moat_json_structure}"
         )
-        moat_summary = analyzer_instance.gemini.generate_text(moat_prompt)
-        time.sleep(3)  # API call delay
-        summary_results["economic_moat_summary"] = moat_summary if moat_summary and not moat_summary.startswith(
-            "Error:") else "AI analysis for economic moat failed or no input."
+        moat_summary_json = analyzer_instance.gemini.generate_text(moat_prompt, output_format="json")
+        time.sleep(3)
+        summary_results["economic_moat_summary_data"] = moat_summary_json if isinstance(moat_summary_json, dict) else {
+            "error": "AI analysis for economic moat failed or returned non-JSON."}
     else:
-        summary_results["economic_moat_summary"] = "Insufficient input from 10-K summaries for economic moat analysis."
+        summary_results["economic_moat_summary_data"] = {
+            "error": "Insufficient input from 10-K summaries for economic moat analysis."}
 
     # Industry Trends Analysis
-    industry_context_text = (
-        f"Company: {company_name_for_prompt} ({ticker})\n"
-        f"Industry: {analyzer_instance.stock_db_entry.industry or 'Not Specified'}\n"
-        f"Sector: {analyzer_instance.stock_db_entry.sector or 'Not Specified'}\n\n"
-        f"Business Summary (from 10-K):\n{biz_summary_str}\n\n"
-        f"MD&A Highlights (from 10-K):\n{mda_summary_str}"
-    ).strip()
+    mda_summary_data = summary_results.get("management_assessment_summary_data", {})
+    mda_summary_text = mda_summary_data.get("summary", "") if isinstance(mda_summary_data, dict) else ""
 
-    if biz_summary_str:  # Requires business summary at least
+    industry_json_structure = "{ \"keyTrends\": [\"Trend 1...\", \"Trend 2...\"], \"opportunities\": [\"Opportunity 1...\"], \"challenges\": [\"Challenge 1...\"], \"companyPositioning\": \"How the company is positioned...\", \"overallOutlook\": \"Brief outlook statement...\" }"
+    if biz_summary_text:
+        industry_context_text = (
+            f"Company: {company_name_for_prompt} ({ticker})\n"
+            f"Industry: {analyzer_instance.stock_db_entry.industry or 'Not Specified'}\n"
+            f"Sector: {analyzer_instance.stock_db_entry.sector or 'Not Specified'}\n\n"
+            f"Business Summary (from 10-K):\n{biz_summary_text}\n\n"
+            f"MD&A Highlights (from 10-K):\n{mda_summary_text}"
+        ).strip()
         industry_prompt = (
             f"Based on the provided information for {company_name_for_prompt} ({ticker}):\n\n{industry_context_text}\n\n"
-            f"Analyze key industry trends relevant to this company. Discuss significant opportunities and challenges within this industry context. "
-            f"How does the company appear to be positioned to capitalize on opportunities and mitigate challenges, based on its business summary and MD&A highlights? Be specific and use information from the text."
+            f"Analyze key industry trends, opportunities, challenges, and the company's positioning. "
+            f"{AI_JSON_OUTPUT_INSTRUCTION} Structure it as: {industry_json_structure}"
         )
-        industry_summary = analyzer_instance.gemini.generate_text(industry_prompt)
-        time.sleep(3)  # API call delay
-        summary_results[
-            "industry_trends_summary"] = industry_summary if industry_summary and not industry_summary.startswith(
-            "Error:") else "AI analysis for industry trends failed or no input."
+        industry_summary_json = analyzer_instance.gemini.generate_text(industry_prompt, output_format="json")
+        time.sleep(3)
+        summary_results["industry_trends_summary_data"] = industry_summary_json if isinstance(industry_summary_json,
+                                                                                              dict) else {
+            "error": "AI analysis for industry trends failed or returned non-JSON."}
     else:
-        summary_results[
-            "industry_trends_summary"] = "Insufficient input from 10-K (Business Summary missing) for industry analysis."
+        summary_results["industry_trends_summary_data"] = {
+            "error": "Insufficient input (Business Summary missing) for industry analysis."}
 
-    # Rename mda_summary to management_assessment_summary for consistency with DB model
-    if "mda_summary" in summary_results:
-        summary_results["management_assessment_summary"] = summary_results.pop("mda_summary")
-        if "mda_10k_source_length" in summary_results["qualitative_sources_summary"]:
-            summary_results["qualitative_sources_summary"]["management_assessment_10k_source_length"] = summary_results[
-                "qualitative_sources_summary"].pop("mda_10k_source_length")
+    # Remove the old string-based keys if they exist from a previous version, only keep _data suffixed keys for JSON
+    for old_key in ["business_summary", "risk_factors_summary", "management_assessment_summary",
+                    "economic_moat_summary", "industry_trends_summary"]:
+        if old_key in summary_results:
+            del summary_results[old_key]
 
-    logger.info(f"10-K qualitative summaries and AI interpretations generated for {ticker}.")
-    analyzer_instance._financial_data_cache['10k_summaries'] = summary_results
+    logger.info(f"10-K qualitative JSON summaries and AI interpretations generated for {ticker}.")
+    analyzer_instance._financial_data_cache[
+        '10k_summaries'] = summary_results  # This now stores dicts with JSON objects
     return summary_results
 
 
 def fetch_and_analyze_competitors(analyzer_instance):
     ticker = analyzer_instance.ticker
-    logger.info(f"Fetching and analyzing competitor data for {ticker}...")
-    competitor_analysis_summary_text = "Competitor analysis not performed or failed."
+    logger.info(f"Fetching and analyzing competitor data for {ticker} (JSON output)...")
+
+    default_error_summary = {
+        "summary": "Competitor analysis not performed or failed.",
+        "landscapeOverview": "N/A",
+        "companyPositioning": "N/A",
+        "keyDifferentials": [],
+        "competitionIntensity": "N/A",
+        "peers_data": []
+    }
 
     peers_data_finnhub = analyzer_instance.finnhub.get_company_peers(ticker)
-    time.sleep(1.5)
+    time.sleep(1)  # Reduced sleep
 
     if not peers_data_finnhub or not isinstance(peers_data_finnhub, list) or not peers_data_finnhub[0]:
         logger.warning(f"No direct peer data found from Finnhub for {ticker}.")
-        analyzer_instance._financial_data_cache['competitor_analysis'] = {
-            "summary": "No peer data found from primary source (Finnhub).", "peers_data": []}
-        return "No peer data found from primary source (Finnhub)."
+        analyzer_instance._financial_data_cache['competitor_analysis'] = {**default_error_summary,
+                                                                          "summary": "No peer data found from primary source (Finnhub)."}
+        return default_error_summary["summary"]  # For compatibility, return the summary string
 
-    # Finnhub might return a list containing a list of peers, or just a list of peers
+    # ... (peer fetching logic as before, unchanged, up to peer_details_list)
     if isinstance(peers_data_finnhub[0], list):
         peers_data_finnhub = peers_data_finnhub[0]
-
-    # Filter out the current ticker and limit number of peers
     peer_tickers = [p for p in peers_data_finnhub if p and p.upper() != ticker.upper()][:MAX_COMPETITORS_TO_ANALYZE]
 
     if not peer_tickers:
         logger.info(f"No distinct competitor tickers found after filtering for {ticker}.")
-        analyzer_instance._financial_data_cache['competitor_analysis'] = {
-            "summary": "No distinct competitor tickers identified.", "peers_data": []}
-        return "No distinct competitor tickers identified."
+        analyzer_instance._financial_data_cache['competitor_analysis'] = {**default_error_summary,
+                                                                          "summary": "No distinct competitor tickers identified."}
+        return default_error_summary["summary"]
 
     logger.info(f"Identified peers for {ticker}: {peer_tickers}. Fetching basic data for comparison.")
     peer_details_list = []
     for peer_ticker_symbol in peer_tickers:
         try:
             logger.debug(f"Fetching basic data for peer: {peer_ticker_symbol}")
-            # FMP Profile for name and market cap
-            peer_profile_fmp_list = analyzer_instance.fmp.get_company_profile(peer_ticker_symbol)
-            time.sleep(1.5)
+            peer_profile_fmp_list = analyzer_instance.fmp.get_company_profile(peer_ticker_symbol);
+            time.sleep(1)
             peer_profile_fmp = peer_profile_fmp_list[0] if peer_profile_fmp_list and isinstance(peer_profile_fmp_list,
                                                                                                 list) and \
                                                            peer_profile_fmp_list[0] else {}
 
-            # FMP Key Metrics for P/E, P/S
-            peer_metrics_fmp_list = analyzer_instance.fmp.get_key_metrics(peer_ticker_symbol, period="annual",
-                                                                          limit=1)  # TTM might be better if available
-            time.sleep(1.5)
+            peer_metrics_fmp_list = analyzer_instance.fmp.get_key_metrics(peer_ticker_symbol, period="annual", limit=1);
+            time.sleep(1)
             peer_metrics_fmp = peer_metrics_fmp_list[0] if peer_metrics_fmp_list and isinstance(peer_metrics_fmp_list,
                                                                                                 list) and \
                                                            peer_metrics_fmp_list[0] else {}
 
             peer_fh_basics = {}
-            # Fallback to Finnhub if FMP metrics are missing
             if not peer_metrics_fmp.get("peRatio") or not peer_metrics_fmp.get("priceSalesRatio"):
-                peer_fh_basics_data = analyzer_instance.finnhub.get_basic_financials(peer_ticker_symbol)
-                time.sleep(1.5)
+                peer_fh_basics_data = analyzer_instance.finnhub.get_basic_financials(peer_ticker_symbol);
+                time.sleep(1)
                 peer_fh_basics = peer_fh_basics_data.get("metric", {}) if peer_fh_basics_data else {}
 
             peer_name = peer_profile_fmp.get("companyName", peer_ticker_symbol)
@@ -3826,29 +3952,30 @@ def fetch_and_analyze_competitors(analyzer_instance):
 
             peer_info = {"ticker": peer_ticker_symbol, "name": peer_name, "market_cap": market_cap,
                          "pe_ratio": pe_ratio, "ps_ratio": ps_ratio}
-            if peer_name != peer_ticker_symbol or market_cap or pe_ratio or ps_ratio:  # Add if any meaningful data was found
+            if peer_name != peer_ticker_symbol or market_cap or pe_ratio or ps_ratio:
                 peer_details_list.append(peer_info)
         except Exception as e:
-            logger.warning(f"Error fetching data for peer {peer_ticker_symbol}: {e}", exc_info=True)
+            logger.warning(f"Error fetching data for peer {peer_ticker_symbol}: {e}",
+                           exc_info=False)  # exc_info False for brevity
         if len(peer_details_list) >= MAX_COMPETITORS_TO_ANALYZE:
             break
+    # ... end of unchanged peer fetching logic
 
     if not peer_details_list:
-        competitor_analysis_summary_text = "Could not fetch sufficient data for identified competitors."
-        analyzer_instance._financial_data_cache['competitor_analysis'] = {"summary": competitor_analysis_summary_text,
-                                                                          "peers_data": []}
-        return competitor_analysis_summary_text
+        analyzer_instance._financial_data_cache['competitor_analysis'] = {**default_error_summary,
+                                                                          "summary": "Could not fetch sufficient data for identified competitors."}
+        return default_error_summary["summary"]
 
-    # AI Synthesis of Competitor Data
     company_name_for_prompt = analyzer_instance.stock_db_entry.company_name or ticker
     k_summaries = analyzer_instance._financial_data_cache.get('10k_summaries', {})
-    biz_summary_10k = k_summaries.get('business_summary', 'N/A')
-    if biz_summary_10k.startswith("Section not found") or biz_summary_10k.startswith("AI summary error"):
-        biz_summary_10k = "Business summary from 10-K not available or failed."
+    biz_summary_10k_data = k_summaries.get('business_summary_data', {})
+    biz_summary_10k_text = biz_summary_10k_data.get('summary',
+                                                    "Business summary from 10-K not available or failed.") if isinstance(
+        biz_summary_10k_data, dict) else "N/A"
 
     prompt_context = (
         f"Company being analyzed: {company_name_for_prompt} ({ticker}).\n"
-        f"Its 10-K Business Summary: {biz_summary_10k}\n\n"
+        f"Its 10-K Business Summary extract: {biz_summary_10k_text[:1000]}...\n\n"  # Truncate for prompt
         f"Identified Competitors and their basic data:\n"
     )
     for peer in peer_details_list:
@@ -3857,29 +3984,48 @@ def fetch_and_analyze_competitors(analyzer_instance):
         ps_str = f"{peer['ps_ratio']:.2f}" if peer['ps_ratio'] is not None else "N/A"
         prompt_context += f"- {peer['name']} ({peer['ticker']}): Market Cap: {mc_str}, P/E: {pe_str}, P/S: {ps_str}\n"
 
+    competitor_json_structure = """
+    {
+      "landscapeOverview": "General overview of the competitive landscape...",
+      "companyPositioning": "Positioning of the analyzed company relative to competitors...",
+      "keyDifferentials": [
+        "Key difference 1 (e.g., scale, valuation, focus)...",
+        "Key difference 2..."
+      ],
+      "competitionIntensity": "High|Medium|Low",
+      "dataLimitations": "Optional: Note if competitor data was sparse or limited."
+    }
+    """
     comp_prompt = (
         f"{prompt_context}\n\n"
         f"Instruction: Based on the business summary of {company_name_for_prompt} and the list of its competitors with their financial metrics, "
-        f"provide a concise analysis of the competitive landscape. Discuss {company_name_for_prompt}'s market positioning relative to these competitors. "
-        f"Highlight any key differences in scale (market cap) or valuation (P/E, P/S) that stand out. Address the intensity of competition. "
-        f"Do not invent information not present. If competitor data is sparse, acknowledge that. This summary should complement, not merely repeat, the 10-K business description."
+        f"provide a concise analysis of the competitive landscape. Discuss {company_name_for_prompt}'s market positioning. "
+        f"Highlight key differences in scale or valuation. Address competition intensity. Do not invent information. "
+        f"{AI_JSON_OUTPUT_INSTRUCTION} Structure it as: {competitor_json_structure}"
     )
 
-    comp_summary_ai = analyzer_instance.gemini.generate_text(comp_prompt)
-    time.sleep(3)  # API call delay
+    comp_summary_json = analyzer_instance.gemini.generate_text(comp_prompt, output_format="json")
+    time.sleep(3)
 
-    if comp_summary_ai and not comp_summary_ai.startswith("Error:"):
-        competitor_analysis_summary_text = comp_summary_ai
+    final_competitor_analysis_data = {**default_error_summary, "peers_data": peer_details_list}  # Start with default
+
+    if isinstance(comp_summary_json, dict) and not comp_summary_json.get("error"):
+        # Update with AI generated fields if they exist
+        for key in ["landscapeOverview", "companyPositioning", "keyDifferentials", "competitionIntensity",
+                    "dataLimitations"]:
+            if key in comp_summary_json:
+                final_competitor_analysis_data[key] = comp_summary_json[key]
+        final_competitor_analysis_data["summary"] = comp_summary_json.get("landscapeOverview", default_error_summary[
+            "summary"])  # Main summary for email
     else:
-        competitor_analysis_summary_text = "AI synthesis of competitor data failed. Basic peer data might be available in snapshot."
+        logger.error(
+            f"AI synthesis of competitor data failed or returned non-JSON for {ticker}. Response: {comp_summary_json}")
+        final_competitor_analysis_data["summary"] = "AI synthesis of competitor data failed."
         analyzer_instance.data_quality_warnings.append("Competitor analysis AI synthesis failed.")
 
-    analyzer_instance._financial_data_cache['competitor_analysis'] = {
-        "summary": competitor_analysis_summary_text,
-        "peers_data": peer_details_list
-    }
-    logger.info(f"Competitor analysis summary generated for {ticker}.")
-    return competitor_analysis_summary_text
+    analyzer_instance._financial_data_cache['competitor_analysis'] = final_competitor_analysis_data
+    logger.info(f"Competitor analysis JSON summary generated for {ticker}.")
+    return final_competitor_analysis_data["summary"]  # Return string for compatibility
 ---------- END qualitative_analyzer.py ----------
 
 
@@ -3892,6 +4038,7 @@ import time
 import warnings
 from bs4 import XMLParsedAsHTMLWarning
 import json
+import sqlalchemy  # Added import for sqlalchemy
 
 warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
@@ -3903,7 +4050,6 @@ from database import SessionLocal, get_db_session, Stock, StockAnalysis
 from core.logging_setup import logger
 from sqlalchemy.exc import SQLAlchemyError
 
-# Import functions from submodules
 from .data_fetcher import fetch_financial_statements_data, fetch_key_metrics_and_profile_data
 from .metrics_calculator import calculate_all_derived_metrics
 from .dcf_analyzer import perform_dcf_analysis
@@ -3917,21 +4063,20 @@ class StockAnalyzer:
         self.finnhub = FinnhubClient()
         self.fmp = FinancialModelingPrepClient()
         self.alphavantage = AlphaVantageClient()
-        self.eodhd = EODHDClient()  # Currently unused but kept for potential future use
+        self.eodhd = EODHDClient()
         self.gemini = GeminiAPIClient()
         self.sec_edgar = SECEDGARClient()
 
         self.db_session = next(get_db_session())
         self.stock_db_entry = None
-        self._financial_data_cache = {}  # Holds all fetched and calculated data for the analysis run
-        self.data_quality_warnings = []  # Collects warnings during data processing
+        self._financial_data_cache = {}
+        self.data_quality_warnings = []
 
         try:
             self._get_or_create_stock_entry()
         except Exception as e:
             logger.error(f"CRITICAL: Failed during _get_or_create_stock_entry for {self.ticker}: {e}", exc_info=True)
-            self._close_session_if_active()  # Ensure session is closed on error
-            # Re-raise as a more specific error or allow main handler to catch
+            self._close_session_if_active()
             raise RuntimeError(
                 f"StockAnalyzer for {self.ticker} could not be initialized due to DB/API issues during stock entry setup.") from e
 
@@ -3944,62 +4089,60 @@ class StockAnalyzer:
                 logger.warning(f"Error closing session for {self.ticker}: {e_close}")
 
     def _get_or_create_stock_entry(self):
-        # Ensure session is active before starting
         if not self.db_session.is_active:
             logger.warning(f"Session for {self.ticker} inactive in _get_or_create. Re-establishing.")
-            self._close_session_if_active()  # Close old one just in case
+            self._close_session_if_active()
             self.db_session = next(get_db_session())
 
         self.stock_db_entry = self.db_session.query(Stock).filter_by(ticker=self.ticker).first()
 
         company_name, industry, sector, cik = None, None, None, None
+        profile_source_preference = ["fmp", "finnhub", "alphavantage"]
 
-        # Try FMP first for profile data
-        profile_fmp_list = self.fmp.get_company_profile(self.ticker)
-        time.sleep(1.5)  # API call delay
-        if profile_fmp_list and isinstance(profile_fmp_list, list) and len(profile_fmp_list) > 0 and profile_fmp_list[
-            0]:
-            data = profile_fmp_list[0]
-            self._financial_data_cache['profile_fmp'] = data  # Cache for later use
-            company_name = data.get('companyName')
-            industry = data.get('industry')
-            sector = data.get('sector')
-            cik_val = data.get('cik')
-            if cik_val: cik = str(cik_val).zfill(10)  # Pad CIK
-            logger.info(f"Fetched profile from FMP for {self.ticker}.")
-        else:
-            logger.warning(f"FMP profile failed or empty for {self.ticker}. Trying Finnhub.")
-            profile_fh = self.finnhub.get_company_profile2(self.ticker)
-            time.sleep(1.5)
-            if profile_fh:
-                self._financial_data_cache['profile_finnhub'] = profile_fh
-                company_name = profile_fh.get('name')
-                industry = profile_fh.get('finnhubIndustry')
-                # Finnhub doesn't typically provide sector or CIK directly in profile2
-                logger.info(f"Fetched profile from Finnhub for {self.ticker}.")
-            else:
-                logger.warning(f"Finnhub profile failed for {self.ticker}. Trying Alpha Vantage Overview.")
+        for source in profile_source_preference:
+            if source == "fmp":
+                profile_fmp_list = self.fmp.get_company_profile(self.ticker)
+                time.sleep(1)
+                if profile_fmp_list and isinstance(profile_fmp_list, list) and profile_fmp_list[0]:
+                    data = profile_fmp_list[0]
+                    self._financial_data_cache['profile_fmp'] = data
+                    company_name = data.get('companyName')
+                    industry = data.get('industry')
+                    sector = data.get('sector')
+                    cik_val = data.get('cik')
+                    if cik_val: cik = str(cik_val).zfill(10)
+                    logger.info(f"Fetched profile from FMP for {self.ticker}.")
+                    break
+            elif source == "finnhub" and not company_name:
+                profile_fh = self.finnhub.get_company_profile2(self.ticker)
+                time.sleep(1)
+                if profile_fh:
+                    self._financial_data_cache['profile_finnhub'] = profile_fh
+                    company_name = profile_fh.get('name')
+                    industry = profile_fh.get('finnhubIndustry') or industry
+                    logger.info(f"Fetched profile from Finnhub for {self.ticker}.")
+                    break
+            elif source == "alphavantage" and not company_name:
                 overview_av = self.alphavantage.get_company_overview(self.ticker)
-                time.sleep(2)  # AV can be slow/rate-limited
-                if overview_av and overview_av.get("Symbol") == self.ticker:  # Ensure it's the correct ticker
+
+                if overview_av and overview_av.get("Symbol") == self.ticker:
                     self._financial_data_cache['overview_alphavantage'] = overview_av
                     company_name = overview_av.get('Name')
-                    industry = overview_av.get('Industry')
-                    sector = overview_av.get('Sector')
+                    industry = overview_av.get('Industry') or industry
+                    sector = overview_av.get('Sector') or sector
                     cik_val = overview_av.get('CIK')
                     if cik_val: cik = str(cik_val).zfill(10)
                     logger.info(f"Fetched overview from Alpha Vantage for {self.ticker}.")
-                else:
-                    logger.warning(
-                        f"All primary profile fetches (FMP, Finnhub, AV) failed or incomplete for {self.ticker}.")
+                    break
 
-        if not company_name: company_name = self.ticker  # Fallback if no name found
+        if not company_name:
+            company_name = self.ticker
+            logger.warning(f"All primary profile fetches failed or incomplete for {self.ticker}. Using ticker as name.")
 
-        # If CIK is still missing, try SEC EDGAR map
         if not cik and self.ticker:
             logger.info(f"CIK not found from profiles for {self.ticker}. Querying SEC EDGAR CIK map.")
             cik_from_edgar = self.sec_edgar.get_cik_by_ticker(self.ticker)
-            time.sleep(0.5)
+            time.sleep(0.2)
             if cik_from_edgar:
                 cik = str(cik_from_edgar).zfill(10)
                 logger.info(f"Fetched CIK {cik} from SEC EDGAR CIK map for {self.ticker}.")
@@ -4022,9 +4165,8 @@ class StockAnalyzer:
             except SQLAlchemyError as e:
                 self.db_session.rollback()
                 logger.error(f"Error creating stock entry for {self.ticker}: {e}", exc_info=True)
-                raise  # Re-raise to indicate critical failure
+                raise
         else:
-            # Update existing entry if new data is available and different
             updated = False
             if company_name and self.stock_db_entry.company_name != company_name:
                 self.stock_db_entry.company_name = company_name;
@@ -4035,10 +4177,7 @@ class StockAnalyzer:
             if sector and self.stock_db_entry.sector != sector:
                 self.stock_db_entry.sector = sector;
                 updated = True
-            if cik and self.stock_db_entry.cik != cik:  # CIK found and is different
-                self.stock_db_entry.cik = cik;
-                updated = True
-            elif not self.stock_db_entry.cik and cik:  # CIK was missing, now found
+            if cik and (self.stock_db_entry.cik != cik or not self.stock_db_entry.cik):
                 self.stock_db_entry.cik = cik;
                 updated = True
 
@@ -4061,36 +4200,30 @@ class StockAnalyzer:
 
         if not self.db_session.is_active:
             logger.warning(f"DB Session for {self.ticker} was INACTIVE before operation. Re-establishing.")
-            self._close_session_if_active()  # Close old session
-            self.db_session = next(get_db_session())  # Get a new session
-
-            # Re-fetch the stock entry with the new session
+            self._close_session_if_active()
+            self.db_session = next(get_db_session())
             re_fetched_stock = self.db_session.query(Stock).filter(Stock.ticker == self.ticker).first()
             if not re_fetched_stock:
-                # This is a critical state, as the stock entry should exist
                 raise RuntimeError(
                     f"Failed to re-fetch stock {self.ticker} for new session after inactivity. Critical state.")
             self.stock_db_entry = re_fetched_stock
             logger.info(
                 f"Re-fetched and bound stock {self.ticker} (ID: {self.stock_db_entry.id}) to new active session.")
-            return  # Successfully re-bound
+            return
 
-        # Check if the current stock_db_entry is associated with the current db_session
         instance_state = sa_inspect(self.stock_db_entry)
         if not instance_state.session or instance_state.session is not self.db_session:
             obj_id_log = self.stock_db_entry.id if instance_state.has_identity else 'Transient/No ID'
             logger.warning(
                 f"Stock {self.ticker} (ID: {obj_id_log}) DETACHED or bound to DIFFERENT session. Attempting to merge.")
             try:
-                # Merge the detached instance into the current session
                 self.stock_db_entry = self.db_session.merge(self.stock_db_entry)
-                self.db_session.flush()  # Ensure it's actually in the session's identity map
+                self.db_session.flush()
                 logger.info(
                     f"Successfully merged stock {self.ticker} (ID: {self.stock_db_entry.id}) into current session.")
             except Exception as e_merge:
                 logger.error(f"Failed to merge stock {self.ticker} into session: {e_merge}. Re-fetching as a fallback.",
                              exc_info=True)
-                # Fallback: try to load it directly from the DB with the current session
                 re_fetched_from_db_after_merge_fail = self.db_session.query(Stock).filter(
                     Stock.ticker == self.ticker).first()
                 if re_fetched_from_db_after_merge_fail:
@@ -4098,7 +4231,6 @@ class StockAnalyzer:
                     logger.info(
                         f"Successfully re-fetched stock {self.ticker} (ID: {self.stock_db_entry.id}) after merge failure.")
                 else:
-                    # This is a critical failure if the stock cannot be associated with the session
                     raise RuntimeError(
                         f"Failed to bind stock {self.ticker} to session after merge failure and re-fetch attempt. Analysis cannot proceed.")
 
@@ -4110,76 +4242,112 @@ class StockAnalyzer:
                 logger.error(f"Stock DB entry for {self.ticker} not initialized properly. Aborting analysis.")
                 return None
 
-            self._ensure_stock_db_entry_is_bound()  # Ensure stock object is session-bound
+            self._ensure_stock_db_entry_is_bound()
 
-            # Step 1: Fetch all raw data
             fetch_financial_statements_data(self)
             fetch_key_metrics_and_profile_data(self)
 
-            # Step 2: Calculate quantitative metrics
             final_data_for_db.update(calculate_all_derived_metrics(self))
             final_data_for_db.update(perform_dcf_analysis(self))
 
-            # Step 3: Perform qualitative analysis (10-K, Competitors)
-            qual_summaries = fetch_and_summarize_10k_data(self)
-            final_data_for_db.update(qual_summaries)  # This includes business_summary, risk_factors_summary etc.
+            qual_summaries_data = fetch_and_summarize_10k_data(self)
 
-            # fetch_and_analyze_competitors returns the summary string directly
+            final_data_for_db["business_summary"] = qual_summaries_data.get("business_summary_data", {}).get("summary",
+                                                                                                             "N/A")
+            final_data_for_db["risk_factors_summary"] = qual_summaries_data.get("risk_factors_summary_data", {}).get(
+                "summary", "N/A")
+            final_data_for_db["management_assessment_summary"] = qual_summaries_data.get(
+                "management_assessment_summary_data", {}).get("summary", "N/A")
+            final_data_for_db["economic_moat_summary"] = qual_summaries_data.get("economic_moat_summary_data", {}).get(
+                "overallAssessment", "N/A")
+            final_data_for_db["industry_trends_summary"] = qual_summaries_data.get("industry_trends_summary_data",
+                                                                                   {}).get("overallOutlook", "N/A")
+
+            final_data_for_db["qualitative_sources_summary"] = qual_summaries_data.get("qualitative_sources_summary",
+                                                                                       {})
+            if "key_metrics_snapshot" not in final_data_for_db: final_data_for_db["key_metrics_snapshot"] = {}
+            final_data_for_db["key_metrics_snapshot"]["10k_business_summary_data"] = qual_summaries_data.get(
+                "business_summary_data")
+            final_data_for_db["key_metrics_snapshot"]["10k_risk_factors_data"] = qual_summaries_data.get(
+                "risk_factors_summary_data")
+            final_data_for_db["key_metrics_snapshot"]["10k_mda_data"] = qual_summaries_data.get(
+                "management_assessment_summary_data")
+            final_data_for_db["key_metrics_snapshot"]["10k_economic_moat_data"] = qual_summaries_data.get(
+                "economic_moat_summary_data")
+            final_data_for_db["key_metrics_snapshot"]["10k_industry_trends_data"] = qual_summaries_data.get(
+                "industry_trends_summary_data")
+
             final_data_for_db["competitive_landscape_summary"] = fetch_and_analyze_competitors(self)
+            competitor_data_cache = self._financial_data_cache.get('competitor_analysis', {})
+            if "key_metrics_snapshot" not in final_data_for_db: final_data_for_db["key_metrics_snapshot"] = {}
+            final_data_for_db["key_metrics_snapshot"]["competitor_analysis_data"] = competitor_data_cache
 
-            # Step 4: AI Synthesis for Investment Thesis
             final_data_for_db.update(synthesize_investment_thesis(self))
 
-            # Step 5: Save to Database
             analysis_entry = StockAnalysis(stock_id=self.stock_db_entry.id, analysis_date=datetime.now(timezone.utc))
-
             model_fields = [c.key for c in StockAnalysis.__table__.columns if
                             c.key not in ['id', 'stock_id', 'analysis_date']]
 
             for field_name in model_fields:
                 if field_name in final_data_for_db:
                     value_to_set = final_data_for_db[field_name]
-                    target_column_type = getattr(StockAnalysis, field_name).type.python_type
+                    target_column = getattr(StockAnalysis, field_name)
+                    target_column_type = target_column.type.python_type if hasattr(target_column.type,
+                                                                                   'python_type') else type(None)
 
-                    # Type checking and conversion for float
                     if target_column_type == float:
                         if isinstance(value_to_set, str):
                             try:
                                 value_to_set = float(value_to_set)
                             except ValueError:
-                                value_to_set = None  # Cannot convert string to float
+                                value_to_set = None
                         if isinstance(value_to_set, float) and (math.isnan(value_to_set) or math.isinf(value_to_set)):
-                            value_to_set = None  # SQLAlchemy typically handles None for nullable float fields
-                    elif target_column_type == dict and not isinstance(value_to_set, dict):
-                        # If it's supposed to be JSON/dict but isn't, set to None or handle as error
-                        logger.warning(f"Field {field_name} expected dict, got {type(value_to_set)}. Setting to None.")
-                        value_to_set = None
-                    elif target_column_type == str and not isinstance(value_to_set, str):
-                        value_to_set = str(value_to_set) if value_to_set is not None else None
+                            value_to_set = None
+                    elif target_column_type == dict or isinstance(target_column.type, (
+                    sqlalchemy.dialects.postgresql.JSONB, sqlalchemy.dialects.postgresql.JSON,
+                    sqlalchemy.types.JSON)):  # Check for JSON types
+                        if not isinstance(value_to_set, dict) and value_to_set is not None:
+                            try:
+                                parsed_json = json.loads(value_to_set) if isinstance(value_to_set, str) else None
+                                if isinstance(parsed_json, dict):
+                                    value_to_set = parsed_json
+                                else:
+                                    logger.warning(
+                                        f"Field {field_name} expected dict/JSON, got {type(value_to_set)}. Value: '{str(value_to_set)[:100]}...'. Setting to error dict.")
+                                    value_to_set = {"error": "Invalid data type received",
+                                                    "original_value": str(value_to_set)[
+                                                                      :200]} if value_to_set is not None else None
+                            except json.JSONDecodeError:
+                                logger.warning(
+                                    f"Field {field_name} expected dict/JSON but failed to parse string: '{str(value_to_set)[:100]}...'. Setting to error dict.")
+                                value_to_set = {"error": "Failed to parse JSON string",
+                                                "original_value": str(value_to_set)[
+                                                                  :200]} if value_to_set is not None else None
+                    elif target_column_type == str and not isinstance(value_to_set, str) and value_to_set is not None:
+                        value_to_set = str(value_to_set)
 
                     setattr(analysis_entry, field_name, value_to_set)
 
             self.db_session.add(analysis_entry)
-            self.stock_db_entry.last_analysis_date = analysis_entry.analysis_date  # Update parent stock
+            self.stock_db_entry.last_analysis_date = analysis_entry.analysis_date
             self.db_session.commit()
             logger.info(f"Successfully analyzed and saved stock data: {self.ticker} (Analysis ID: {analysis_entry.id})")
             return analysis_entry
 
-        except RuntimeError as rt_err:  # Catch specific init error or binding error
+        except RuntimeError as rt_err:
             logger.critical(f"Runtime error during full analysis for {self.ticker}: {rt_err}", exc_info=True)
-            # Session might already be closed by the raiser or needs to be handled by caller
             return None
         except Exception as e:
             logger.error(f"CRITICAL error in full analysis pipeline for {self.ticker}: {e}", exc_info=True)
             if self.db_session and self.db_session.is_active:
                 try:
-                    self.db_session.rollback()
-                    logger.info(f"Rolled back DB transaction for {self.ticker} due to error.")
+                    self.db_session.rollback(); logger.info(
+                        f"Rolled back DB transaction for {self.ticker} due to error.")
                 except Exception as e_rb:
                     logger.error(f"Rollback error for {self.ticker}: {e_rb}")
             return None
         finally:
-            self._close_session_if_active()  # Ensure session is closed at the end of analysis
+            self._close_session_if_active()
 ---------- END stock_analyzer.py ----------
 
 
@@ -4493,286 +4661,17 @@ venv
 
 
 ---------- app_analysis.log ----------
-2025-05-26 10:43:56,558 - root - INFO - main:113 - ===================================================================
-2025-05-26 10:43:56,559 - root - INFO - main:114 - Starting Financial Analysis Script at 2025-05-26 07:43:56 UTC
-2025-05-26 10:43:56,559 - root - INFO - main:115 - ===================================================================
-2025-05-26 10:43:56,561 - root - INFO - main:89 - Initializing database as per command line argument...
-2025-05-26 10:43:56,562 - root - INFO - connection:19 - Initializing database and creating tables...
-2025-05-26 10:44:00,488 - root - INFO - connection:23 - Database tables created successfully (if they didn't exist).
-2025-05-26 10:44:00,491 - root - INFO - main:90 - Database initialization complete.
-2025-05-26 10:44:00,493 - root - INFO - main:108 - --- Main script execution finished. ---
-2025-05-26 10:44:00,494 - root - INFO - main:118 - Financial Analysis Script finished at 2025-05-26 07:44:00 UTC
-2025-05-26 10:44:00,495 - root - INFO - main:119 - Total execution time: 0:00:03.935530
-2025-05-26 10:44:00,496 - root - INFO - main:120 - ===================================================================
-2025-05-26 10:44:05,237 - root - INFO - main:113 - ===================================================================
-2025-05-26 10:44:05,238 - root - INFO - main:114 - Starting Financial Analysis Script at 2025-05-26 07:44:05 UTC
-2025-05-26 10:44:05,238 - root - INFO - main:115 - ===================================================================
-2025-05-26 10:44:05,240 - root - INFO - main:16 - --- Starting Individual Stock Analysis for: ['NKE'] ---
-2025-05-26 10:44:07,603 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
-2025-05-26 10:44:09,104 - root - INFO - stock_analyzer:83 - Fetched profile from FMP for NKE.
-2025-05-26 10:44:09,105 - root - INFO - stock_analyzer:124 - Stock NKE not found in DB, creating new entry.
-2025-05-26 10:44:09,578 - root - INFO - stock_analyzer:168 - Stock entry for NKE (ID: 1, CIK: 0000320187) ready.
-2025-05-26 10:44:09,578 - root - INFO - stock_analyzer:220 - Full analysis pipeline started for NKE...
-2025-05-26 10:44:09,579 - root - INFO - data_fetcher:9 - Fetching financial statements for NKE...
-2025-05-26 10:44:10,661 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/income-statement/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91TVzf...
-2025-05-26 10:44:13,380 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/NKE?apikey=62ERGmJoqQgGD0nSGxRZ...
-2025-05-26 10:44:16,086 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91T...
-2025-05-26 10:44:17,588 - root - INFO - data_fetcher:26 - FMP Annuals for NKE: Income(5), Balance(5), Cashflow(5).
-2025-05-26 10:44:18,462 - root - WARNING - base_client:139 - HTTP error on attempt 1/3 for GET https://financialmodelingprep.com/api/v3/income-statement/NKE (Params: {'apikey': '62ER******61uB', 'period': 'quarter', 'limit': 8}, Headers: {}): 403 - {
-  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
-2025-05-26 10:44:18,464 - root - ERROR - base_client:158 - Client error 403 (Unauthorized/Forbidden) for https://financialmodelingprep.com/api/v3/income-statement/NKE. API key may be invalid or permissions lacking. No retry. Params: {'apikey': '62ER******61uB', 'period': 'quarter', 'limit': 8}
-2025-05-26 10:44:19,968 - root - INFO - data_fetcher:31 - FMP Quarterly Income for NKE: 0 records.
-2025-05-26 10:44:21,708 - root - INFO - base_client:65 - Cached response for: GET:https://finnhub.io/api/v1/stock/financials-reported?count=8&freq=quarterly&symbol=NKE&token=d0o7...
-2025-05-26 10:44:23,211 - root - INFO - data_fetcher:38 - Fetched 45 quarterly reports from Finnhub for NKE.
-2025-05-26 10:44:24,664 - root - INFO - base_client:65 - Cached response for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=INCOME_STATEMENT&symbol=NKE...
-2025-05-26 10:44:39,666 - root - INFO - data_fetcher:47 - Fetched 81 quarterly income reports from Alpha Vantage for NKE.
-2025-05-26 10:44:41,188 - root - INFO - base_client:65 - Cached response for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=BALANCE_SHEET&symbol=NKE...
-2025-05-26 10:44:56,190 - root - INFO - data_fetcher:55 - Fetched 81 quarterly balance reports from Alpha Vantage for NKE.
-2025-05-26 10:44:57,604 - root - INFO - base_client:65 - Cached response for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=CASH_FLOW&symbol=NKE...
-2025-05-26 10:45:12,606 - root - INFO - data_fetcher:63 - Fetched 81 quarterly cash flow reports from Alpha Vantage for NKE.
-2025-05-26 10:45:12,606 - root - INFO - data_fetcher:76 - Fetching key metrics and profile for NKE.
-2025-05-26 10:45:13,949 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
-2025-05-26 10:45:16,324 - root - WARNING - base_client:139 - HTTP error on attempt 1/3 for GET https://financialmodelingprep.com/api/v3/key-metrics/NKE (Params: {'apikey': '62ER******61uB', 'period': 'quarterly', 'limit': 8}, Headers: {}): 403 - {
-  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
-2025-05-26 10:45:16,325 - root - ERROR - base_client:158 - Client error 403 (Unauthorized/Forbidden) for https://financialmodelingprep.com/api/v3/key-metrics/NKE. API key may be invalid or permissions lacking. No retry. Params: {'apikey': '62ER******61uB', 'period': 'quarterly', 'limit': 8}
-2025-05-26 10:45:18,952 - root - INFO - base_client:65 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=NKE&token=d0o7hphr01qqr9alj38gd0o7hphr0...
-2025-05-26 10:45:20,454 - root - INFO - data_fetcher:95 - FMP KM Annual for NKE: 5. FMP KM Quarterly for NKE: 0. Finnhub Basic Financials for NKE: OK.
-2025-05-26 10:45:20,454 - root - INFO - metrics_calculator:437 - Calculating derived metrics for NKE...
-2025-05-26 10:45:20,455 - root - WARNING - metrics_calculator:454 - AlphaVantage overview data not found in cache for NKE. Fetching now.
-2025-05-26 10:45:21,577 - root - INFO - base_client:65 - Cached response for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=OVERVIEW&symbol=NKE...
-2025-05-26 10:45:21,578 - root - INFO - metrics_calculator:279 - Using latest quarterly revenue: 35,212,000,000 (Source: Finnhub) for NKE.
-2025-05-26 10:45:21,579 - root - INFO - metrics_calculator:492 - Calculated metrics for NKE: {
-  "pe_ratio": 25.306645614035087,
-  "pb_ratio": 9.996388080388082,
-  "ps_ratio": 1.8526,
-  "ev_to_sales": 1.884,
-  "ev_to_ebitda": 15.69,
-  "dividend_yield": 0.015036616136056905,
-  "eps": 3.76,
-  "net_profit_margin": 0.0943,
-  "gross_profit_margin": 0.43824503066815973,
-  "operating_profit_margin": 0.1302519372,
-  "interest_coverage_ratio": null,
-  "roe": 0.39501039501039503,
-  "roa": 0.14956704277092628,
-  "roic": 0.3444796354747266,
-  "debt_to_equity": 0.8282744282744283,
-  "current_ratio": 2.3961106391012934,
-  "quick_ratio": 1.5112810346455205,
-  "debt_to_ebitda": 1.6704402515723271,
-  "revenue_growth_yoy": 0.0028310912392369722,
-  "eps_growth_yoy": 0.14984709480122316,
-  "revenue_growth_cagr_3yr": 0.04861491256483208,
-  "eps_growth_cagr_3yr": -0.009180522194930263,
-  "revenue_growth_cagr_5yr": 0.08251487385466705,
-  "eps_growth_cagr_5yr": 0.23239537592729897,
-  "revenue_growth_qoq": 0.47065948293864596,
-  "free_cash_flow_per_share": 5.6166709107885575,
-  "free_cash_flow_yield": 0.07456847629026464,
-  "free_cash_flow_trend": "Growing",
-  "retained_earnings_trend": "Declining"
-}
-2025-05-26 10:45:21,586 - root - INFO - metrics_calculator:495 - Key metrics snapshot for NKE: {
-  "q_revenue_source": "Finnhub",
-  "latest_q_revenue": 35212000000.0,
-  "avg_historical_q_revenue_for_check": 25153750000.0
-}
-2025-05-26 10:45:21,587 - root - INFO - dcf_analyzer:55 - Performing simplified DCF analysis for NKE...
-2025-05-26 10:45:21,588 - root - INFO - dcf_analyzer:181 - DCF for NKE: Base IV/Share: 72.57, Upside: 20.92%
-2025-05-26 10:45:21,588 - root - INFO - qualitative_analyzer:88 - Fetching and attempting to summarize latest 10-K for NKE
-2025-05-26 10:45:22,878 - root - INFO - base_client:65 - Cached response for: GET:https://data.sec.gov/submissions/CIK0000320187.json?...
-2025-05-26 10:45:23,382 - root - INFO - sec_edgar_client:127 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/320187/000032018724000044/nke-20240531.htm
-2025-05-26 10:45:24,697 - root - INFO - base_client:65 - Cached response for: GET:https://www.sec.gov/Archives/edgar/data/320187/000032018724000044/nke-20240531.htm?...
-2025-05-26 10:45:24,699 - root - INFO - qualitative_analyzer:114 - Fetched 10-K text (length: 2651098) for NKE. Extracting and summarizing sections.
-2025-05-26 10:45:26,033 - root - INFO - qualitative_analyzer:20 - Summarizing 'Business (Item 1)' for NIKE, Inc. (NKE), original length: 10577 chars.
-2025-05-26 10:45:26,033 - root - INFO - qualitative_analyzer:23 - Section length 10577 is within single-pass limit (100000). Summarizing directly.
-2025-05-26 10:45:38,111 - root - INFO - qualitative_analyzer:141 - Summary for 'Business (Item 1)' (source length 10577): NIKE, Inc.'s core business operation is the design, development, and worldwide marketing and selling of athletic footwear, apparel, equipment, accesso...
-2025-05-26 10:45:38,112 - root - INFO - qualitative_analyzer:20 - Summarizing 'Risk Factors (Item 1A)' for NIKE, Inc. (NKE), original length: 310235 chars.
-2025-05-26 10:45:38,113 - root - INFO - qualitative_analyzer:35 - Section length 310235 exceeds single-pass limit. Applying chunked summarization (Chunk size: 80000, Overlap: 5000).
-2025-05-26 10:45:38,115 - root - INFO - qualitative_analyzer:49 - Summarizing chunk 1/5 for 'Risk Factors (Item 1A)' of NIKE, Inc. (NKE) (length: 80000 chars).
-2025-05-26 10:45:56,624 - root - INFO - qualitative_analyzer:49 - Summarizing chunk 2/5 for 'Risk Factors (Item 1A)' of NIKE, Inc. (NKE) (length: 80000 chars).
-2025-05-26 10:46:09,976 - root - INFO - qualitative_analyzer:49 - Summarizing chunk 3/5 for 'Risk Factors (Item 1A)' of NIKE, Inc. (NKE) (length: 80000 chars).
-2025-05-26 10:46:43,487 - root - INFO - qualitative_analyzer:49 - Summarizing chunk 4/5 for 'Risk Factors (Item 1A)' of NIKE, Inc. (NKE) (length: 80000 chars).
-2025-05-26 10:47:08,181 - root - INFO - qualitative_analyzer:49 - Summarizing chunk 5/5 for 'Risk Factors (Item 1A)' of NIKE, Inc. (NKE) (length: 10235 chars).
-2025-05-26 10:47:20,421 - root - INFO - qualitative_analyzer:64 - Concatenated chunk summaries length for 'Risk Factors (Item 1A)': 10147 chars.
-2025-05-26 10:47:20,423 - root - INFO - qualitative_analyzer:141 - Summary for 'Risk Factors (Item 1A)' (source length 310235): NIKE, Inc. faces several significant operational and strategic risk factors:  1.  **Changing Consumer Preferences and Design Trends:** Demand for prod...
-2025-05-26 10:47:20,424 - root - INFO - qualitative_analyzer:20 - Summarizing 'Management's Discussion and Analysis (Item 7)' for NIKE, Inc. (NKE), original length: 11209 chars.
-2025-05-26 10:47:20,425 - root - INFO - qualitative_analyzer:23 - Section length 11209 is within single-pass limit (100000). Summarizing directly.
-2025-05-26 10:47:33,934 - root - INFO - qualitative_analyzer:141 - Summary for 'Management's Discussion and Analysis (Item 7)' (source length 11209): NIKE, Inc. reported a slight increase in fiscal 2024 revenues to $51.4 billion, up from $51.2 billion in fiscal 2023. This growth was supported by a 1...
-2025-05-26 10:48:17,633 - root - INFO - qualitative_analyzer:199 - 10-K qualitative summaries and AI interpretations generated for NKE.
-2025-05-26 10:48:17,636 - root - INFO - qualitative_analyzer:206 - Fetching and analyzing competitor data for NKE...
-2025-05-26 10:48:18,622 - root - INFO - base_client:65 - Cached response for: GET:https://finnhub.io/api/v1/stock/peers?symbol=NKE&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390...
-2025-05-26 10:48:20,125 - root - INFO - qualitative_analyzer:231 - Identified peers for NKE: ['DECK', 'SKX', 'CROX', 'SHOO', 'WWW']. Fetching basic data for comparison.
-2025-05-26 10:48:21,389 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/DECK?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
-2025-05-26 10:48:24,099 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/DECK?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61u...
-2025-05-26 10:48:27,016 - root - INFO - base_client:65 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=DECK&token=d0o7hphr01qqr9alj38gd0o7hphr...
-2025-05-26 10:48:29,728 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/SKX?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
-2025-05-26 10:48:32,428 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/SKX?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
-2025-05-26 10:48:35,131 - root - INFO - base_client:65 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=SKX&token=d0o7hphr01qqr9alj38gd0o7hphr0...
-2025-05-26 10:48:37,838 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/CROX?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
-2025-05-26 10:48:40,575 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/CROX?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61u...
-2025-05-26 10:48:43,252 - root - INFO - base_client:65 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=CROX&token=d0o7hphr01qqr9alj38gd0o7hphr...
-2025-05-26 10:48:45,966 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/SHOO?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
-2025-05-26 10:48:48,658 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/SHOO?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61u...
-2025-05-26 10:48:51,349 - root - INFO - base_client:65 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=SHOO&token=d0o7hphr01qqr9alj38gd0o7hphr...
-2025-05-26 10:48:54,091 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/WWW?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
-2025-05-26 10:48:56,837 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/WWW?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
-2025-05-26 10:48:59,759 - root - INFO - base_client:65 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=WWW&token=d0o7hphr01qqr9alj38gd0o7hphr0...
-2025-05-26 10:49:18,288 - root - INFO - qualitative_analyzer:317 - Competitor analysis summary generated for NKE.
-2025-05-26 10:49:18,289 - root - INFO - ai_synthesis:80 - Synthesizing investment thesis for NKE...
-2025-05-26 10:49:42,433 - root - INFO - ai_synthesis:204 - Generated thesis for NKE. Decision: Hold, Strategy: GARP (Growth At a Reasonable Price), Confidence: Medium
-2025-05-26 10:49:43,008 - root - INFO - stock_analyzer:279 - Successfully analyzed and saved stock data: NKE (Analysis ID: 1)
-2025-05-26 10:49:48,075 - root - INFO - main:108 - --- Main script execution finished. ---
-2025-05-26 10:49:48,075 - root - INFO - main:118 - Financial Analysis Script finished at 2025-05-26 07:49:48 UTC
-2025-05-26 10:49:48,076 - root - INFO - main:119 - Total execution time: 0:05:42.838082
-2025-05-26 10:49:48,076 - root - INFO - main:120 - ===================================================================
-2025-05-26 10:49:53,167 - root - INFO - main:113 - ===================================================================
-2025-05-26 10:49:53,168 - root - INFO - main:114 - Starting Financial Analysis Script at 2025-05-26 07:49:53 UTC
-2025-05-26 10:49:53,168 - root - INFO - main:115 - ===================================================================
-2025-05-26 10:49:53,170 - root - INFO - main:54 - --- Generating Today's Email Summary ---
-2025-05-26 10:49:54,668 - root - INFO - main:61 - Found 1 stock analyses, 0 IPO analyses, 0 news analyses since 2025-05-26 00:00:00 UTC for email.
-2025-05-26 10:49:56,710 - root - INFO - email_service:250 - Email sent successfully to daniprav@gmail.com
-2025-05-26 10:49:56,778 - root - INFO - main:108 - --- Main script execution finished. ---
-2025-05-26 10:49:56,778 - root - INFO - main:118 - Financial Analysis Script finished at 2025-05-26 07:49:56 UTC
-2025-05-26 10:49:56,779 - root - INFO - main:119 - Total execution time: 0:00:03.611321
-2025-05-26 10:49:56,779 - root - INFO - main:120 - ===================================================================
-2025-05-26 10:51:20,195 - root - INFO - main:113 - ===================================================================
-2025-05-26 10:51:20,196 - root - INFO - main:114 - Starting Financial Analysis Script at 2025-05-26 07:51:20 UTC
-2025-05-26 10:51:20,196 - root - INFO - main:115 - ===================================================================
-2025-05-26 10:51:20,199 - root - INFO - main:89 - Initializing database as per command line argument...
-2025-05-26 10:51:20,200 - root - INFO - connection:19 - Initializing database and creating tables...
-2025-05-26 10:51:23,772 - root - INFO - connection:23 - Database tables created successfully (if they didn't exist).
-2025-05-26 10:51:23,773 - root - INFO - main:90 - Database initialization complete.
-2025-05-26 10:51:23,774 - root - INFO - main:108 - --- Main script execution finished. ---
-2025-05-26 10:51:23,775 - root - INFO - main:118 - Financial Analysis Script finished at 2025-05-26 07:51:23 UTC
-2025-05-26 10:51:23,777 - root - INFO - main:119 - Total execution time: 0:00:03.580024
-2025-05-26 10:51:23,777 - root - INFO - main:120 - ===================================================================
-2025-05-26 10:51:27,227 - root - INFO - main:113 - ===================================================================
-2025-05-26 10:51:27,227 - root - INFO - main:114 - Starting Financial Analysis Script at 2025-05-26 07:51:27 UTC
-2025-05-26 10:51:27,228 - root - INFO - main:115 - ===================================================================
-2025-05-26 10:51:27,229 - root - INFO - main:16 - --- Starting Individual Stock Analysis for: ['NKE'] ---
-2025-05-26 10:51:30,095 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
-2025-05-26 10:51:31,596 - root - INFO - stock_analyzer:83 - Fetched profile from FMP for NKE.
-2025-05-26 10:51:31,596 - root - INFO - stock_analyzer:124 - Stock NKE not found in DB, creating new entry.
-2025-05-26 10:51:32,049 - root - INFO - stock_analyzer:168 - Stock entry for NKE (ID: 1, CIK: 0000320187) ready.
-2025-05-26 10:51:32,049 - root - INFO - stock_analyzer:220 - Full analysis pipeline started for NKE...
-2025-05-26 10:51:32,050 - root - INFO - data_fetcher:9 - Fetching financial statements for NKE...
-2025-05-26 10:51:33,150 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/income-statement/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91TVzf...
-2025-05-26 10:51:35,828 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/balance-sheet-statement/NKE?apikey=62ERGmJoqQgGD0nSGxRZ...
-2025-05-26 10:51:38,509 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/cash-flow-statement/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91T...
-2025-05-26 10:51:40,010 - root - INFO - data_fetcher:26 - FMP Annuals for NKE: Income(5), Balance(5), Cashflow(5).
-2025-05-26 10:51:40,875 - root - WARNING - base_client:139 - HTTP error on attempt 1/3 for GET https://financialmodelingprep.com/api/v3/income-statement/NKE (Params: {'apikey': '62ER******61uB', 'period': 'quarter', 'limit': 8}, Headers: {}): 403 - {
-  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
-2025-05-26 10:51:40,878 - root - ERROR - base_client:158 - Client error 403 (Unauthorized/Forbidden) for https://financialmodelingprep.com/api/v3/income-statement/NKE. API key may be invalid or permissions lacking. No retry. Params: {'apikey': '62ER******61uB', 'period': 'quarter', 'limit': 8}
-2025-05-26 10:51:42,380 - root - INFO - data_fetcher:31 - FMP Quarterly Income for NKE: 0 records.
-2025-05-26 10:51:43,911 - root - INFO - base_client:65 - Cached response for: GET:https://finnhub.io/api/v1/stock/financials-reported?count=8&freq=quarterly&symbol=NKE&token=d0o7...
-2025-05-26 10:51:45,412 - root - INFO - data_fetcher:38 - Fetched 45 quarterly reports from Finnhub for NKE.
-2025-05-26 10:51:46,801 - root - INFO - base_client:65 - Cached response for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=INCOME_STATEMENT&symbol=NKE...
-2025-05-26 10:52:01,802 - root - INFO - data_fetcher:47 - Fetched 81 quarterly income reports from Alpha Vantage for NKE.
-2025-05-26 10:52:03,214 - root - INFO - base_client:65 - Cached response for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=BALANCE_SHEET&symbol=NKE...
-2025-05-26 10:52:18,215 - root - INFO - data_fetcher:55 - Fetched 81 quarterly balance reports from Alpha Vantage for NKE.
-2025-05-26 10:52:19,592 - root - INFO - base_client:65 - Cached response for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=CASH_FLOW&symbol=NKE...
-2025-05-26 10:52:34,593 - root - INFO - data_fetcher:63 - Fetched 81 quarterly cash flow reports from Alpha Vantage for NKE.
-2025-05-26 10:52:34,594 - root - INFO - data_fetcher:76 - Fetching key metrics and profile for NKE.
-2025-05-26 10:52:35,830 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/NKE?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
-2025-05-26 10:52:38,186 - root - WARNING - base_client:139 - HTTP error on attempt 1/3 for GET https://financialmodelingprep.com/api/v3/key-metrics/NKE (Params: {'apikey': '62ER******61uB', 'period': 'quarterly', 'limit': 8}, Headers: {}): 403 - {
-  "Error Message": "Exclusive Endpoint : This endpoint is not available under your current subscription agreement, please visit our subscription page to upgrade your plan or contact us at https://si...
-2025-05-26 10:52:38,188 - root - ERROR - base_client:158 - Client error 403 (Unauthorized/Forbidden) for https://financialmodelingprep.com/api/v3/key-metrics/NKE. API key may be invalid or permissions lacking. No retry. Params: {'apikey': '62ER******61uB', 'period': 'quarterly', 'limit': 8}
-2025-05-26 10:52:40,731 - root - INFO - base_client:65 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=NKE&token=d0o7hphr01qqr9alj38gd0o7hphr0...
-2025-05-26 10:52:42,232 - root - INFO - data_fetcher:95 - FMP KM Annual for NKE: 5. FMP KM Quarterly for NKE: 0. Finnhub Basic Financials for NKE: OK.
-2025-05-26 10:52:42,234 - root - INFO - metrics_calculator:437 - Calculating derived metrics for NKE...
-2025-05-26 10:52:42,235 - root - WARNING - metrics_calculator:454 - AlphaVantage overview data not found in cache for NKE. Fetching now.
-2025-05-26 10:52:43,118 - root - INFO - base_client:65 - Cached response for: GET:https://www.alphavantage.co/query?apikey=HB6N4X55UTFGN2FP&function=OVERVIEW&symbol=NKE...
-2025-05-26 10:52:43,120 - root - INFO - metrics_calculator:279 - Using latest quarterly revenue: 35,212,000,000 (Source: Finnhub) for NKE.
-2025-05-26 10:52:43,120 - root - INFO - metrics_calculator:492 - Calculated metrics for NKE: {
-  "pe_ratio": 25.306645614035087,
-  "pb_ratio": 9.996388080388082,
-  "ps_ratio": 1.8526,
-  "ev_to_sales": 1.884,
-  "ev_to_ebitda": 15.69,
-  "dividend_yield": 0.015036616136056905,
-  "eps": 3.76,
-  "net_profit_margin": 0.0943,
-  "gross_profit_margin": 0.43824503066815973,
-  "operating_profit_margin": 0.1302519372,
-  "interest_coverage_ratio": null,
-  "roe": 0.39501039501039503,
-  "roa": 0.14956704277092628,
-  "roic": 0.3444796354747266,
-  "debt_to_equity": 0.8282744282744283,
-  "current_ratio": 2.3961106391012934,
-  "quick_ratio": 1.5112810346455205,
-  "debt_to_ebitda": 1.6704402515723271,
-  "revenue_growth_yoy": 0.0028310912392369722,
-  "eps_growth_yoy": 0.14984709480122316,
-  "revenue_growth_cagr_3yr": 0.04861491256483208,
-  "eps_growth_cagr_3yr": -0.009180522194930263,
-  "revenue_growth_cagr_5yr": 0.08251487385466705,
-  "eps_growth_cagr_5yr": 0.23239537592729897,
-  "revenue_growth_qoq": 0.47065948293864596,
-  "free_cash_flow_per_share": 5.6166709107885575,
-  "free_cash_flow_yield": 0.07456847629026464,
-  "free_cash_flow_trend": "Growing",
-  "retained_earnings_trend": "Declining"
-}
-2025-05-26 10:52:43,125 - root - INFO - metrics_calculator:495 - Key metrics snapshot for NKE: {
-  "q_revenue_source": "Finnhub",
-  "latest_q_revenue": 35212000000.0,
-  "avg_historical_q_revenue_for_check": 25153750000.0
-}
-2025-05-26 10:52:43,126 - root - INFO - dcf_analyzer:55 - Performing simplified DCF analysis for NKE...
-2025-05-26 10:52:43,127 - root - INFO - dcf_analyzer:181 - DCF for NKE: Base IV/Share: 72.57, Upside: 20.92%
-2025-05-26 10:52:43,127 - root - INFO - qualitative_analyzer:88 - Fetching and attempting to summarize latest 10-K for NKE
-2025-05-26 10:52:44,292 - root - INFO - base_client:65 - Cached response for: GET:https://data.sec.gov/submissions/CIK0000320187.json?...
-2025-05-26 10:52:44,802 - root - INFO - sec_edgar_client:127 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/320187/000032018724000044/nke-20240531.htm
-2025-05-26 10:52:46,040 - root - INFO - base_client:65 - Cached response for: GET:https://www.sec.gov/Archives/edgar/data/320187/000032018724000044/nke-20240531.htm?...
-2025-05-26 10:52:46,042 - root - INFO - qualitative_analyzer:114 - Fetched 10-K text (length: 2651098) for NKE. Extracting and summarizing sections.
-2025-05-26 10:52:47,477 - root - INFO - qualitative_analyzer:20 - Summarizing 'Business (Item 1)' for NIKE, Inc. (NKE), original length: 10577 chars.
-2025-05-26 10:52:47,477 - root - INFO - qualitative_analyzer:23 - Section length 10577 is within single-pass limit (500000). Summarizing directly.
-2025-05-26 10:52:58,279 - root - INFO - qualitative_analyzer:141 - Summary for 'Business (Item 1)' (source length 10577): NIKE, Inc.'s core business is the design, development, and worldwide marketing and selling of athletic footwear, apparel, equipment, accessories, and ...
-2025-05-26 10:52:58,280 - root - INFO - qualitative_analyzer:20 - Summarizing 'Risk Factors (Item 1A)' for NIKE, Inc. (NKE), original length: 310235 chars.
-2025-05-26 10:52:58,281 - root - INFO - qualitative_analyzer:23 - Section length 310235 is within single-pass limit (500000). Summarizing directly.
-2025-05-26 10:53:31,946 - root - INFO - qualitative_analyzer:141 - Summary for 'Risk Factors (Item 1A)' (source length 310235): Here are 3-5 of the most significant and company-specific risk factors for NIKE, Inc., focusing on operational and strategic aspects:  1.  **Inability...
-2025-05-26 10:53:31,947 - root - INFO - qualitative_analyzer:20 - Summarizing 'Management's Discussion and Analysis (Item 7)' for NIKE, Inc. (NKE), original length: 11209 chars.
-2025-05-26 10:53:31,948 - root - INFO - qualitative_analyzer:23 - Section length 11209 is within single-pass limit (500000). Summarizing directly.
-2025-05-26 10:53:46,980 - root - INFO - qualitative_analyzer:141 - Summary for 'Management's Discussion and Analysis (Item 7)' (source length 11209): NIKE, Inc.'s fiscal 2024 revenues increased slightly to $51.4 billion from $51.2 billion in fiscal 2023. This growth was driven by a 1% increase in NI...
-2025-05-26 10:54:30,501 - root - INFO - qualitative_analyzer:199 - 10-K qualitative summaries and AI interpretations generated for NKE.
-2025-05-26 10:54:30,505 - root - INFO - qualitative_analyzer:206 - Fetching and analyzing competitor data for NKE...
-2025-05-26 10:54:31,491 - root - INFO - base_client:65 - Cached response for: GET:https://finnhub.io/api/v1/stock/peers?symbol=NKE&token=d0o7hphr01qqr9alj38gd0o7hphr01qqr9alj390...
-2025-05-26 10:54:32,992 - root - INFO - qualitative_analyzer:231 - Identified peers for NKE: ['DECK', 'SKX', 'CROX', 'SHOO', 'WWW']. Fetching basic data for comparison.
-2025-05-26 10:54:34,215 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/DECK?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
-2025-05-26 10:54:36,933 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/DECK?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61u...
-2025-05-26 10:54:39,582 - root - INFO - base_client:65 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=DECK&token=d0o7hphr01qqr9alj38gd0o7hphr...
-2025-05-26 10:54:42,287 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/SKX?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
-2025-05-26 10:54:44,961 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/SKX?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
-2025-05-26 10:54:47,744 - root - INFO - base_client:65 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=SKX&token=d0o7hphr01qqr9alj38gd0o7hphr0...
-2025-05-26 10:54:50,415 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/CROX?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
-2025-05-26 10:54:53,090 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/CROX?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61u...
-2025-05-26 10:54:55,671 - root - INFO - base_client:65 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=CROX&token=d0o7hphr01qqr9alj38gd0o7hphr...
-2025-05-26 10:54:58,386 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/SHOO?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
-2025-05-26 10:55:01,083 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/SHOO?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61u...
-2025-05-26 10:55:04,008 - root - INFO - base_client:65 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=SHOO&token=d0o7hphr01qqr9alj38gd0o7hphr...
-2025-05-26 10:55:06,718 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/profile/WWW?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
-2025-05-26 10:55:09,367 - root - INFO - base_client:65 - Cached response for: GET:https://financialmodelingprep.com/api/v3/key-metrics/WWW?apikey=62ERGmJoqQgGD0nSGxRZS91TVzfz61uB...
-2025-05-26 10:55:11,943 - root - INFO - base_client:65 - Cached response for: GET:https://finnhub.io/api/v1/stock/metric?metric=all&symbol=WWW&token=d0o7hphr01qqr9alj38gd0o7hphr0...
-2025-05-26 10:55:26,368 - root - INFO - qualitative_analyzer:317 - Competitor analysis summary generated for NKE.
-2025-05-26 10:55:26,369 - root - INFO - ai_synthesis:80 - Synthesizing investment thesis for NKE...
-2025-05-26 10:55:41,848 - root - INFO - ai_synthesis:204 - Generated thesis for NKE. Decision: Buy, Strategy: GARP (Growth At a Reasonable Price), Confidence: High
-2025-05-26 10:55:42,383 - root - INFO - stock_analyzer:279 - Successfully analyzed and saved stock data: NKE (Analysis ID: 1)
-2025-05-26 10:55:47,450 - root - INFO - main:108 - --- Main script execution finished. ---
-2025-05-26 10:55:47,451 - root - INFO - main:118 - Financial Analysis Script finished at 2025-05-26 07:55:47 UTC
-2025-05-26 10:55:47,452 - root - INFO - main:119 - Total execution time: 0:04:20.223658
-2025-05-26 10:55:47,452 - root - INFO - main:120 - ===================================================================
-2025-05-26 10:55:56,723 - root - INFO - main:113 - ===================================================================
-2025-05-26 10:55:56,723 - root - INFO - main:114 - Starting Financial Analysis Script at 2025-05-26 07:55:56 UTC
-2025-05-26 10:55:56,724 - root - INFO - main:115 - ===================================================================
-2025-05-26 10:55:56,726 - root - INFO - main:54 - --- Generating Today's Email Summary ---
-2025-05-26 10:55:58,303 - root - INFO - main:61 - Found 1 stock analyses, 0 IPO analyses, 0 news analyses since 2025-05-26 00:00:00 UTC for email.
-2025-05-26 10:56:00,488 - root - INFO - email_service:250 - Email sent successfully to daniprav@gmail.com
-2025-05-26 10:56:00,555 - root - INFO - main:108 - --- Main script execution finished. ---
-2025-05-26 10:56:00,555 - root - INFO - main:118 - Financial Analysis Script finished at 2025-05-26 07:56:00 UTC
-2025-05-26 10:56:00,556 - root - INFO - main:119 - Total execution time: 0:00:03.831823
-2025-05-26 10:56:00,556 - root - INFO - main:120 - ===================================================================
+2025-05-26 13:39:54,864 - root - INFO - main:149 - ===================================================================
+2025-05-26 13:39:54,865 - root - INFO - main:150 - Starting Financial Analysis Script at 2025-05-26 10:39:54 UTC
+2025-05-26 13:39:54,865 - root - INFO - main:151 - ===================================================================
+2025-05-26 13:39:54,867 - root - INFO - main:111 - Initializing database as per command line argument...
+2025-05-26 13:39:54,868 - root - INFO - connection:19 - Initializing database and creating tables...
+2025-05-26 13:39:56,479 - root - INFO - connection:23 - Database tables created successfully (if they didn't exist).
+2025-05-26 13:39:56,481 - root - INFO - main:114 - Database initialization complete.
+2025-05-26 13:39:56,482 - root - INFO - main:143 - --- Main script execution finished. ---
+2025-05-26 13:39:56,482 - root - INFO - main:156 - Financial Analysis Script finished at 2025-05-26 10:39:56 UTC
+2025-05-26 13:39:56,482 - root - INFO - main:157 - Total execution time: 0:00:01.617590
+2025-05-26 13:39:56,483 - root - INFO - main:158 - ===================================================================
 
 ---------- END app_analysis.log ----------
 
@@ -4782,14 +4681,14 @@ venv
 import argparse
 from datetime import datetime, timezone
 from sqlalchemy.orm import joinedload
-import time
-import sys # For sys.excepthook if enabled
+# import time # No longer needed for arbitrary sleeps
+import sys
 
 from database.connection import init_db, SessionLocal
-from core.logging_setup import logger, handle_global_exception # Import global handler
+from core.logging_setup import logger, handle_global_exception
 from services import StockAnalyzer, IPOAnalyzer, NewsAnalyzer, EmailService
 from database.models import StockAnalysis, IPOAnalysis, NewsEventAnalysis
-from core.config import MAX_NEWS_TO_ANALYZE_PER_RUN
+from core.config import MAX_NEWS_TO_ANALYZE_PER_RUN, DEFAULT_STOCKS_FOR_ALL_MODE
 
 
 def run_stock_analysis(tickers):
@@ -4803,12 +4702,13 @@ def run_stock_analysis(tickers):
                 results.append(analysis_result)
             else:
                 logger.warning(f"Stock analysis for {ticker} did not return a result object.")
-        except RuntimeError as rt_err:
+        except RuntimeError as rt_err:  # Catch specific init error
             logger.error(f"Could not run stock analysis for {ticker} due to critical init error: {rt_err}")
         except Exception as e:
             logger.error(f"Error analyzing stock {ticker}: {e}", exc_info=True)
-        time.sleep(5)
+        # Removed time.sleep(5) - API client's base_client handles delays/retries
     return results
+
 
 def run_ipo_analysis():
     logger.info("--- Starting IPO Analysis Pipeline ---")
@@ -4820,6 +4720,7 @@ def run_ipo_analysis():
         logger.error(f"Error during IPO analysis pipeline: {e}", exc_info=True)
         return []
 
+
 def run_news_analysis(category="general", count_to_analyze=MAX_NEWS_TO_ANALYZE_PER_RUN):
     logger.info(f"--- Starting News Analysis Pipeline (Category: {category}, Max to Analyze: {count_to_analyze}) ---")
     try:
@@ -4830,20 +4731,33 @@ def run_news_analysis(category="general", count_to_analyze=MAX_NEWS_TO_ANALYZE_P
         logger.error(f"Error during news analysis pipeline: {e}", exc_info=True)
         return []
 
+
 def generate_and_send_todays_email_summary():
     logger.info("--- Generating Today's Email Summary ---")
     db_session = SessionLocal()
     today_start_utc = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
     try:
-        recent_stock_analyses = db_session.query(StockAnalysis).filter(StockAnalysis.analysis_date >= today_start_utc).options(joinedload(StockAnalysis.stock)).all()
-        recent_ipo_analyses = db_session.query(IPOAnalysis).filter(IPOAnalysis.analysis_date >= today_start_utc).options(joinedload(IPOAnalysis.ipo)).all()
-        recent_news_analyses = db_session.query(NewsEventAnalysis).filter(NewsEventAnalysis.analysis_date >= today_start_utc).options(joinedload(NewsEventAnalysis.news_event)).all()
-        logger.info(f"Found {len(recent_stock_analyses)} stock analyses, {len(recent_ipo_analyses)} IPO analyses, {len(recent_news_analyses)} news analyses since {today_start_utc.strftime('%Y-%m-%d %H:%M:%S %Z')} for email.")
+        # Eager load related objects to prevent N+1 queries in email formatting
+        recent_stock_analyses = db_session.query(StockAnalysis).options(joinedload(StockAnalysis.stock)).filter(
+            StockAnalysis.analysis_date >= today_start_utc).all()
+        recent_ipo_analyses = db_session.query(IPOAnalysis).options(joinedload(IPOAnalysis.ipo)).filter(
+            IPOAnalysis.analysis_date >= today_start_utc).all()
+        recent_news_analyses = db_session.query(NewsEventAnalysis).options(
+            joinedload(NewsEventAnalysis.news_event)).filter(NewsEventAnalysis.analysis_date >= today_start_utc).all()
+
+        logger.info(
+            f"Found {len(recent_stock_analyses)} stock analyses, {len(recent_ipo_analyses)} IPO analyses, {len(recent_news_analyses)} news analyses since {today_start_utc.strftime('%Y-%m-%d %H:%M:%S %Z')} for email.")
+
         if not any([recent_stock_analyses, recent_ipo_analyses, recent_news_analyses]):
             logger.info("No new analyses performed recently to include in the email summary.")
             return
+
         email_svc = EmailService()
-        email_message = email_svc.create_summary_email(stock_analyses=recent_stock_analyses, ipo_analyses=recent_ipo_analyses, news_analyses=recent_news_analyses)
+        email_message = email_svc.create_summary_email(
+            stock_analyses=recent_stock_analyses,
+            ipo_analyses=recent_ipo_analyses,
+            news_analyses=recent_news_analyses
+        )
         if email_message:
             email_svc.send_email(email_message)
         else:
@@ -4851,41 +4765,62 @@ def generate_and_send_todays_email_summary():
     except Exception as e:
         logger.error(f"Error generating or sending email summary: {e}", exc_info=True)
     finally:
-        SessionLocal.remove() # Ensure session is closed/removed
+        SessionLocal.remove()
+
 
 def main():
     parser = argparse.ArgumentParser(description="Financial Analysis and Reporting Tool")
-    parser.add_argument("--analyze-stocks", nargs="+", metavar="TICKER", help="List of stock tickers to analyze (e.g., AAPL MSFT)")
+    parser.add_argument("--analyze-stocks", nargs="+", metavar="TICKER",
+                        help="List of stock tickers to analyze (e.g., AAPL MSFT)")
     parser.add_argument("--analyze-ipos", action="store_true", help="Run IPO analysis pipeline.")
     parser.add_argument("--analyze-news", action="store_true", help="Run news analysis pipeline.")
-    parser.add_argument("--news-category", default="general", help="Category for news analysis (e.g., general, forex, crypto, merger).")
-    parser.add_argument("--news-count-analyze", type=int, default=MAX_NEWS_TO_ANALYZE_PER_RUN, help=f"Max number of new news items to analyze in this run (default from config: {MAX_NEWS_TO_ANALYZE_PER_RUN}).")
-    parser.add_argument("--send-email", action="store_true", help="Generate and send email summary of today's/recent analyses.")
+    parser.add_argument("--news-category", default="general",
+                        help="Category for news analysis (e.g., general, forex, crypto, merger).")
+    parser.add_argument("--news-count-analyze", type=int, default=MAX_NEWS_TO_ANALYZE_PER_RUN,
+                        help=f"Max number of new news items to analyze in this run (default from config: {MAX_NEWS_TO_ANALYZE_PER_RUN}).")
+    parser.add_argument("--send-email", action="store_true",
+                        help="Generate and send email summary of today's/recent analyses.")
     parser.add_argument("--init-db", action="store_true", help="Initialize the database (create tables).")
-    parser.add_argument("--all", action="store_true", help="Run all analyses (stocks from a predefined list, IPOs, News) and send email.")
+    parser.add_argument("--all", action="store_true",
+                        help="Run all analyses (stocks from a predefined list, IPOs, News) and send email.")
+
     args = parser.parse_args()
 
     if args.init_db:
         logger.info("Initializing database as per command line argument...")
-        try: init_db(); logger.info("Database initialization complete.")
-        except Exception as e: logger.critical(f"Database initialization failed: {e}", exc_info=True); return
+        try:
+            init_db()
+            logger.info("Database initialization complete.")
+        except Exception as e:
+            logger.critical(f"Database initialization failed: {e}", exc_info=True)
+            return  # Exit if DB init fails
 
     if args.all:
-        default_stocks_for_all = ["AAPL", "MSFT", "GOOGL", "NVDA", "JPM"]
-        logger.info(f"Running all analyses for default stocks: {default_stocks_for_all}, IPOs, and News (max {args.news_count_analyze} items).")
-        if default_stocks_for_all: run_stock_analysis(default_stocks_for_all)
-        time.sleep(5); run_ipo_analysis(); time.sleep(5)
+        logger.info(
+            f"Running all analyses for default stocks: {DEFAULT_STOCKS_FOR_ALL_MODE}, IPOs, and News (max {args.news_count_analyze} items).")
+        if DEFAULT_STOCKS_FOR_ALL_MODE:
+            run_stock_analysis(DEFAULT_STOCKS_FOR_ALL_MODE)
+        run_ipo_analysis()
         run_news_analysis(category=args.news_category, count_to_analyze=args.news_count_analyze)
-        time.sleep(5); generate_and_send_todays_email_summary()
-        logger.info("--- '--all' tasks finished. ---"); return
+        generate_and_send_todays_email_summary()
+        logger.info("--- '--all' tasks finished. ---")
+        return
 
-    if args.analyze_stocks: run_stock_analysis(args.analyze_stocks)
-    if args.analyze_ipos: run_ipo_analysis()
-    if args.analyze_news: run_news_analysis(category=args.news_category, count_to_analyze=args.news_count_analyze)
-    if args.send_email: generate_and_send_todays_email_summary()
-    if not (args.analyze_stocks or args.analyze_ipos or args.analyze_news or args.send_email or args.init_db or args.all):
-        logger.info("No action specified. Use --help for options."); parser.print_help()
+    if args.analyze_stocks:
+        run_stock_analysis(args.analyze_stocks)
+    if args.analyze_ipos:
+        run_ipo_analysis()
+    if args.analyze_news:
+        run_news_analysis(category=args.news_category, count_to_analyze=args.news_count_analyze)
+    if args.send_email:
+        generate_and_send_todays_email_summary()
+
+    if not any([args.analyze_stocks, args.analyze_ipos, args.analyze_news, args.send_email, args.init_db, args.all]):
+        logger.info("No action specified. Use --help for options.")
+        parser.print_help()
+
     logger.info("--- Main script execution finished. ---")
+
 
 if __name__ == "__main__":
     # sys.excepthook = handle_global_exception # Uncomment to enable global exception logging
@@ -4893,7 +4828,9 @@ if __name__ == "__main__":
     logger.info("===================================================================")
     logger.info(f"Starting Financial Analysis Script at {script_start_time.strftime('%Y-%m-%d %H:%M:%S %Z')}")
     logger.info("===================================================================")
+
     main()
+
     script_end_time = datetime.now(timezone.utc)
     logger.info(f"Financial Analysis Script finished at {script_end_time.strftime('%Y-%m-%d %H:%M:%S %Z')}")
     logger.info(f"Total execution time: {script_end_time - script_start_time}")
