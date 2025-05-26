@@ -1,91 +1,78 @@
 # services/stock_analyzer/ai_synthesis.py
 import re
+import json  # For parsing potential JSON responses
 from core.logging_setup import logger
 from .helpers import safe_get_float
+from core.config import AI_JSON_OUTPUT_INSTRUCTION
 
 
-def _parse_ai_investment_thesis_response(ticker_for_log, ai_response_text):
+def _parse_ai_investment_thesis_json_response(ticker_for_log, ai_response_data):
     parsed_data = {
-        "investment_thesis_full": "AI response not fully processed or 'Investment Thesis:' section missing.",
+        "investment_thesis_full": "AI response not fully processed or expected JSON fields missing.",
         "investment_decision": "Review AI Output",
         "strategy_type": "Not Specified by AI",
         "confidence_level": "Not Specified by AI",
-        "reasoning": "AI response not fully processed or 'Key Reasoning Points:' section missing."
+        "reasoning": "AI response not fully processed or expected JSON fields missing."
     }
 
-    if not ai_response_text or ai_response_text.startswith("Error:"):
-        error_message = ai_response_text if ai_response_text else "Error: Empty response from AI for thesis."
-        parsed_data["investment_thesis_full"] = error_message
-        parsed_data["reasoning"] = error_message
+    if not isinstance(ai_response_data, dict):
+        error_message = f"Error: AI response for thesis was not a valid dictionary. Response: {str(ai_response_data)[:500]}"
+        parsed_data = {key: error_message for key in parsed_data}
         parsed_data["investment_decision"] = "AI Error"
         parsed_data["strategy_type"] = "AI Error"
         parsed_data["confidence_level"] = "AI Error"
+        logger.error(f"AI thesis response for {ticker_for_log} is not a dict: {ai_response_data}")
         return parsed_data
 
-    text_content = ai_response_text.replace('\r\n', '\n').strip()
+    if ai_response_data.get("error"):
+        error_message = f"AI Error: {ai_response_data.get('error_details', str(ai_response_data))}"
+        parsed_data = {key: error_message for key in parsed_data}
+        parsed_data["investment_decision"] = "AI Error"
+        parsed_data["strategy_type"] = "AI Error"
+        parsed_data["confidence_level"] = "AI Error"
+        logger.error(f"AI thesis generation for {ticker_for_log} returned an error: {ai_response_data.get('error')}")
+        return parsed_data
 
-    # Define patterns for each section
-    # Using re.DOTALL to make '.' match newlines, and re.MULTILINE for '^'
-    # Lookahead assertions ensure non-greedy matching up to the next known header or end of string
-    patterns = {
-        "investment_thesis_full": re.compile(
-            r"^\s*Investment Thesis:\s*\n?(.*?)(?=\n\s*(?:Investment Decision:|Strategy Type:|Confidence Level:|Key Reasoning Points:)|^\s*$|\Z)",
-            re.IGNORECASE | re.MULTILINE | re.DOTALL
-        ),
-        "investment_decision": re.compile(
-            r"^\s*Investment Decision:\s*\n?(.*?)(?=\n\s*(?:Investment Thesis:|Strategy Type:|Confidence Level:|Key Reasoning Points:)|^\s*$|\Z)",
-            re.IGNORECASE | re.MULTILINE | re.DOTALL
-        ),
-        "strategy_type": re.compile(
-            r"^\s*Strategy Type:\s*\n?(.*?)(?=\n\s*(?:Investment Thesis:|Investment Decision:|Confidence Level:|Key Reasoning Points:)|^\s*$|\Z)",
-            re.IGNORECASE | re.MULTILINE | re.DOTALL
-        ),
-        "confidence_level": re.compile(
-            r"^\s*Confidence Level:\s*\n?(.*?)(?=\n\s*(?:Investment Thesis:|Investment Decision:|Strategy Type:|Key Reasoning Points:)|^\s*$|\Z)",
-            re.IGNORECASE | re.MULTILINE | re.DOTALL
-        ),
-        "reasoning": re.compile(
-            r"^\s*Key Reasoning Points:\s*\n?(.*?)(?=\n\s*(?:Investment Thesis:|Investment Decision:|Strategy Type:|Confidence Level:)|^\s*$|\Z)",
-            re.IGNORECASE | re.MULTILINE | re.DOTALL
-        )
-    }
+    # Expected JSON structure:
+    # {
+    #   "investmentThesis": "...",
+    #   "investmentDecision": "Buy|Hold|Sell|Monitor|etc.",
+    #   "strategyType": "GARP|Value|Growth|etc.",
+    #   "confidenceLevel": "High|Medium|Low",
+    #   "keyReasoningPoints": ["Point 1...", "Point 2..."],
+    #   "dataQualityAcknowledgement": "..." (optional)
+    # }
 
-    found_any_section = False
-    for key, pattern in patterns.items():
-        match = pattern.search(text_content)
-        if match:
-            content = match.group(1).strip()
-            if content:
-                # For single-line answers, take the first line after stripping
-                if key in ["investment_decision", "strategy_type", "confidence_level"]:
-                    parsed_data[key] = content.split('\n')[0].strip()
-                else:  # For multi-line answers like thesis and reasoning
-                    parsed_data[key] = content
-                found_any_section = True
-            else:  # Header found but content is empty
-                parsed_data[key] = f"'{key.replace('_', ' ').title()}:' section found but content empty."
+    parsed_data["investment_thesis_full"] = ai_response_data.get("investmentThesis",
+                                                                 parsed_data["investment_thesis_full"])
+    parsed_data["investment_decision"] = ai_response_data.get("investmentDecision", parsed_data["investment_decision"])
+    parsed_data["strategy_type"] = ai_response_data.get("strategyType", parsed_data["strategy_type"])
+    parsed_data["confidence_level"] = ai_response_data.get("confidenceLevel", parsed_data["confidence_level"])
 
-    if not found_any_section and not ai_response_text.startswith("Error:"):
-        # If no sections are parsed but there is AI text, put all of it in the thesis.
-        logger.warning(f"Could not parse distinct sections from AI thesis response for {ticker_for_log}. "
-                       f"Full response will be in 'investment_thesis_full'.")
-        parsed_data["investment_thesis_full"] = text_content
-        # Other fields remain as "Review AI Output" or "Not Specified by AI"
+    reasoning_points = ai_response_data.get("keyReasoningPoints")
+    if isinstance(reasoning_points, list) and reasoning_points:
+        parsed_data["reasoning"] = "\n".join([f"- {point}" for point in reasoning_points])
+    elif isinstance(reasoning_points, str):  # Handle if AI gives a single string
+        parsed_data["reasoning"] = reasoning_points
+    else:
+        parsed_data["reasoning"] = "Key reasoning points not provided in expected format by AI."
+
+    data_quality_ack = ai_response_data.get("dataQualityAcknowledgement")
+    if data_quality_ack:
+        parsed_data["reasoning"] += f"\n\nAI Data Quality Acknowledgement: {data_quality_ack}"
 
     return parsed_data
 
 
 def synthesize_investment_thesis(analyzer_instance):
     ticker = analyzer_instance.ticker
-    logger.info(f"Synthesizing investment thesis for {ticker}...")
+    logger.info(f"Synthesizing investment thesis for {ticker} using JSON format...")
 
-    # Retrieve all necessary data from the analyzer instance's cache
     metrics = analyzer_instance._financial_data_cache.get('calculated_metrics', {})
     qual_summaries = analyzer_instance._financial_data_cache.get('10k_summaries', {})
     dcf_results = analyzer_instance._financial_data_cache.get('dcf_results', {})
     profile = analyzer_instance._financial_data_cache.get('profile_fmp', {})
-    competitor_analysis_summary = analyzer_instance._financial_data_cache.get('competitor_analysis', {}).get("summary",
-                                                                                                             "N/A")
+    competitor_analysis_summary_data = analyzer_instance._financial_data_cache.get('competitor_analysis', {})
 
     company_name = analyzer_instance.stock_db_entry.company_name or ticker
     industry = analyzer_instance.stock_db_entry.industry or "N/A"
@@ -93,7 +80,7 @@ def synthesize_investment_thesis(analyzer_instance):
 
     prompt = f"Company: {company_name} ({ticker})\nIndustry: {industry}, Sector: {sector}\n\n"
     prompt += "Key Financial Metrics & Data:\n"
-
+    # ... (metrics formatting as before, unchanged)
     metrics_for_prompt = {
         "P/E Ratio": metrics.get("pe_ratio"), "P/B Ratio": metrics.get("pb_ratio"),
         "P/S Ratio": metrics.get("ps_ratio"), "Dividend Yield": metrics.get("dividend_yield"),
@@ -137,69 +124,106 @@ def synthesize_investment_thesis(analyzer_instance):
     if dcf_results.get("dcf_assumptions", {}).get("sensitivity_analysis"):
         prompt += "- DCF Sensitivity Highlights:\n"
         for s_idx, s_data in enumerate(dcf_results["dcf_assumptions"]["sensitivity_analysis"]):
-            if s_idx < 2:  # Limit to a few examples for brevity
+            if s_idx < 2:
                 upside_str = f"{s_data['upside']:.2%}" if s_data['upside'] is not None else "N/A"
                 prompt += f"  - {s_data['scenario']}: IV {s_data['intrinsic_value']:.2f} (Upside: {upside_str})\n"
+    prompt += "\n"
 
-    prompt += "\nQualitative Summaries (from 10-K & AI analysis):\n"
+    prompt += "Qualitative Summaries (from 10-K & AI analysis):\n"
+
+    # Helper to get AI summary text or fallback
+    def get_summary_text(summary_data, key, fallback="N/A"):
+        if isinstance(summary_data, dict) and summary_data.get(key):
+            content = summary_data[key]
+            if isinstance(content, dict) and "summary" in content:  # If it's a JSON summary object
+                return content["summary"]
+            elif isinstance(content, str):  # If it's already a string summary
+                return content
+        return fallback
+
     qual_for_prompt = {
-        "Business Model": qual_summaries.get("business_summary"),
-        "Economic Moat": qual_summaries.get("economic_moat_summary"),
-        "Industry Trends & Positioning": qual_summaries.get("industry_trends_summary"),
-        "Competitive Landscape": competitor_analysis_summary,  # Use the summary string
-        "Management Discussion Highlights (MD&A)": qual_summaries.get("management_assessment_summary"),
-        # Renamed from mda_summary
-        "Key Risk Factors (from 10-K)": qual_summaries.get("risk_factors_summary"),
+        "Business Model": get_summary_text(qual_summaries.get("business_summary_data"), "summary"),
+        "Economic Moat": get_summary_text(qual_summaries.get("economic_moat_summary_data"), "overallAssessment"),
+        "Industry Trends & Positioning": get_summary_text(qual_summaries.get("industry_trends_summary_data"),
+                                                          "companyPositioning"),
+        "Competitive Landscape": get_summary_text(competitor_analysis_summary_data,
+                                                  "landscapeOverview") or competitor_analysis_summary_data.get(
+            "summary", "N/A"),
+        "Management Discussion Highlights (MD&A)": get_summary_text(
+            qual_summaries.get("management_assessment_summary_data"), "summary"),
+        "Key Risk Factors (from 10-K)": get_summary_text(qual_summaries.get("risk_factors_summary_data"), "summary"),
     }
+
     for name, text_val in qual_for_prompt.items():
-        if text_val and isinstance(text_val, str) and not text_val.startswith(
-                ("AI analysis", "Section not found", "Insufficient input")):
-            prompt += f"- {name}:\n{text_val[:500].replace('...', '').strip()}...\n\n"  # Truncate for prompt
-        elif text_val:  # Catch-all for other cases, like "N/A" or short error messages
+        if text_val and text_val != "N/A" and not text_val.startswith(
+                ("AI analysis error", "Section not found", "Insufficient input")):
+            prompt += f"- {name}:\n{text_val[:500].replace('...', '').strip()}...\n\n"
+        elif text_val:
             prompt += f"- {name}: {text_val}\n\n"
 
     if analyzer_instance.data_quality_warnings:
         prompt += "IMPORTANT DATA QUALITY CONSIDERATIONS:\n"
         for i, warn_msg in enumerate(analyzer_instance.data_quality_warnings):
             prompt += f"- WARNING {i + 1}: {warn_msg}\n"
-        prompt += "Acknowledge these warnings in your risk assessment or confidence level.\n\n"
+        prompt += "Acknowledge these warnings in your 'dataQualityAcknowledgement' field if they are significant.\n\n"
 
     prompt += (
         "Instructions for AI: Based on ALL the above information (quantitative, qualitative, DCF, competitor data, and data quality warnings), "
         "provide a detailed financial analysis and investment thesis. "
-        "Structure your response *EXACTLY* as follows, using these specific headings on separate lines:\n\n"
-        "Investment Thesis:\n"
-        "[Comprehensive thesis (2-4 paragraphs) synthesizing all data. Discuss positives, negatives, outlook. "
-        "If revenue growth is stagnant/negative but EPS growth is positive, explain the drivers (e.g., buybacks, margin expansion) and sustainability. "
-        "Address any points on margin pressures (e.g., in DTC if mentioned in MD&A) or changes in segment profitability.]\n\n"
-        "Investment Decision:\n"
-        "[Choose ONE: Strong Buy, Buy, Hold, Monitor, Reduce, Sell, Avoid. Base this on the overall analysis.]\n\n"
-        "Strategy Type:\n"
-        "[Choose ONE that best fits: Value, GARP (Growth At a Reasonable Price), Growth, Income, Speculative, Special Situation, Turnaround.]\n\n"
-        "Confidence Level:\n"
-        "[Choose ONE: High, Medium, Low. This reflects confidence in YOUR analysis and decision, considering data quality and completeness.]\n\n"
-        "Key Reasoning Points:\n"
-        "[3-7 bullet points. Each point should be a concise summary of a key factor supporting your decision. "
-        "Cover: Valuation (DCF, comparables if any), Financial Health & Profitability, Growth Prospects (Revenue & EPS), "
-        "Economic Moat, Competitive Position, Key Risks (including data quality issues if significant), Management & Strategy (if inferable).]\n"
+        f"Your entire response MUST be a single, valid JSON object. Do not include any text outside of this JSON structure. "
+        "Use the following exact structure and field names:\n"
+        "{\n"
+        "  \"investmentThesis\": \"Comprehensive thesis (2-4 paragraphs) synthesizing all data. Discuss positives, negatives, outlook. If revenue growth is stagnant/negative but EPS growth is positive, explain drivers and sustainability. Address margin pressures or segment profitability changes.\",\n"
+        "  \"investmentDecision\": \"Strong Buy|Buy|Hold|Monitor|Reduce|Sell|Avoid\",\n"
+        "  \"strategyType\": \"Value|GARP|Growth|Income|Speculative|Special Situation|Turnaround\",\n"
+        "  \"confidenceLevel\": \"High|Medium|Low (Reflect confidence in YOUR analysis, considering data quality and completeness)\",\n"
+        "  \"keyReasoningPoints\": [\n"
+        "    \"Bullet point 1: Valuation (DCF, comparables if any)\",\n"
+        "    \"Bullet point 2: Financial Health & Profitability\",\n"
+        "    \"Bullet point 3: Growth Prospects (Revenue & EPS)\",\n"
+        "    \"Bullet point 4: Economic Moat & Competitive Position\",\n"
+        "    \"Bullet point 5: Key Risks (including data quality issues if significant)\",\n"
+        "    \"Bullet point 6: Management & Strategy (if inferable)\"\n"
+        "  ],\n"
+        "  \"dataQualityAcknowledgement\": \"Optional: Briefly state if data quality warnings significantly impacted your analysis or confidence.\"\n"
+        "}\n"
     )
 
-    ai_response_text = analyzer_instance.gemini.generate_text(prompt)
-    parsed_thesis_data = _parse_ai_investment_thesis_response(ticker, ai_response_text)
+    ai_response_data = analyzer_instance.gemini.generate_text(prompt, output_format="json")
+    parsed_thesis_data = _parse_ai_investment_thesis_json_response(ticker, ai_response_data)
 
-    # Adjust confidence based on data quality warnings
-    if any("CRITICAL:" in warn for warn in analyzer_instance.data_quality_warnings) or \
-            any("DATA QUALITY WARNING:" in warn for warn in analyzer_instance.data_quality_warnings if
-                "revenue" in warn.lower()):
-        current_confidence = parsed_thesis_data.get("confidence_level", "").lower()
+    # Consolidate data quality warnings and adjust confidence
+    # If there are CRITICAL warnings, or multiple warnings, confidence should be lowered.
+    critical_warnings = [w for w in analyzer_instance.data_quality_warnings if "CRITICAL:" in w.upper()]
+    significant_revenue_warnings = [w for w in analyzer_instance.data_quality_warnings if
+                                    "REVENUE" in w.upper() and "DEVIATES" in w.upper()]
+
+    current_confidence = parsed_thesis_data.get("confidence_level", "Not Specified by AI").lower()
+    new_confidence = current_confidence
+    confidence_adjustment_reason = ""
+
+    if critical_warnings:
+        new_confidence = "Low"
+        confidence_adjustment_reason = f"Critical data quality warnings ({len(critical_warnings)}) present."
+    elif significant_revenue_warnings or len(analyzer_instance.data_quality_warnings) >= 2:
         if current_confidence == "high":
-            logger.warning(
-                f"Downgrading AI confidence from High to Medium for {ticker} due to critical data quality warnings.")
-            parsed_thesis_data["confidence_level"] = "Medium"
+            new_confidence = "Medium"
+            confidence_adjustment_reason = "Significant data warnings or multiple issues."
         elif current_confidence == "medium":
-            logger.warning(
-                f"Downgrading AI confidence from Medium to Low for {ticker} due to critical data quality warnings.")
-            parsed_thesis_data["confidence_level"] = "Low"
+            new_confidence = "Low"
+            confidence_adjustment_reason = "Significant data warnings or multiple issues, and AI was already Medium."
+
+    if new_confidence != current_confidence and current_confidence not in ["low", "ai error", "not specified by ai"]:
+        logger.warning(
+            f"Adjusting AI confidence for {ticker} from '{current_confidence.capitalize()}' to '{new_confidence.capitalize()}' due to: {confidence_adjustment_reason}")
+        parsed_thesis_data["confidence_level"] = new_confidence.capitalize()
+        # Add a note to reasoning if not already covered by AI's dataQualityAcknowledgement
+        reasoning_update = f"\nSystem Note: Confidence adjusted to {new_confidence.capitalize()} due to data quality concerns ({confidence_adjustment_reason})."
+        if "reasoning" in parsed_thesis_data and isinstance(parsed_thesis_data["reasoning"], str):
+            if reasoning_update not in parsed_thesis_data["reasoning"]:
+                parsed_thesis_data["reasoning"] += reasoning_update
+        else:
+            parsed_thesis_data["reasoning"] = reasoning_update
 
     logger.info(f"Generated thesis for {ticker}. Decision: {parsed_thesis_data.get('investment_decision')}, "
                 f"Strategy: {parsed_thesis_data.get('strategy_type')}, Confidence: {parsed_thesis_data.get('confidence_level')}")

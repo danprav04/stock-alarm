@@ -38,12 +38,13 @@ API_RETRY_ATTEMPTS = 3
 API_RETRY_DELAY = 10  # seconds
 
 # Gemini API Configuration
-GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE = 400000
+GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE = 400000 # Max input characters
+GEMINI_MAX_OUTPUT_TOKENS = 8192 # Max output tokens
 
 # Chunking for Summarization
-SUMMARIZATION_CHUNK_SIZE_CHARS = 500000
+SUMMARIZATION_CHUNK_SIZE_CHARS = 150000 # Reduced for better JSON handling within token limits
 SUMMARIZATION_CHUNK_OVERLAP_CHARS = 5000
-SUMMARIZATION_MAX_CONCAT_SUMMARIES_CHARS = 500000
+SUMMARIZATION_MAX_CONCAT_SUMMARIES_CHARS = 300000 # Reduced
 
 # Analysis Settings
 MAX_NEWS_ARTICLES_PER_QUERY = 10
@@ -61,7 +62,7 @@ DEFAULT_PERPETUAL_GROWTH_RATE = 0.025
 DEFAULT_FCF_PROJECTION_YEARS = 5
 
 # News Analysis
-NEWS_ARTICLE_MAX_LENGTH_FOR_GEMINI_SUMMARIZATION = GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE - 10000
+NEWS_ARTICLE_MAX_LENGTH_FOR_GEMINI_SUMMARIZATION = GEMINI_PROMPT_MAX_CHARS_HARD_TRUNCATE - 20000 # Larger buffer for JSON structure
 
 # IPO/10-K Sections
 S1_KEY_SECTIONS = {
@@ -74,5 +75,17 @@ TEN_K_KEY_SECTIONS = S1_KEY_SECTIONS
 
 # Stock Analyzer specific settings
 MAX_COMPETITORS_TO_ANALYZE = 5
-Q_REVENUE_SANITY_CHECK_DEVIATION_THRESHOLD = 0.75
+Q_REVENUE_SANITY_CHECK_DEVIATION_THRESHOLD = 0.30 # Lowered from 0.75
 PRIORITY_REVENUE_SOURCES = ["fmp_quarterly", "finnhub_quarterly", "alphavantage_quarterly"]
+
+# Default stock list for --all command in main.py
+DEFAULT_STOCKS_FOR_ALL_MODE = ["AAPL", "MSFT", "GOOGL", "NVDA", "JPM", "NKE"]
+
+# Gemini Model configuration
+GEMINI_MODEL_NAME = "gemini-2.5-flash-preview-05-20" # Updated model
+
+# System-wide AI response behavior
+AI_JSON_OUTPUT_INSTRUCTION = (
+    "IMPORTANT: Your entire response MUST be a single, valid JSON object. Do not include any text outside of this JSON structure. "
+    "Ensure all strings within the JSON are properly escaped. Use the exact field names and structure specified in the prompt."
+)

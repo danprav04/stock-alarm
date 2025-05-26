@@ -1,6 +1,7 @@
+# api_clients/alphavantage_client.py
 from .base_client import APIClient
 from core.config import ALPHA_VANTAGE_API_KEY
-
+# Removed time module as hardcoded sleep is removed
 
 class AlphaVantageClient(APIClient):
     def __init__(self):
@@ -8,13 +9,14 @@ class AlphaVantageClient(APIClient):
 
     def get_company_overview(self, ticker):
         params = {"function": "OVERVIEW", "symbol": ticker}
+        # Base client handles retries and delays, including for rate limits (429)
         return self.request("GET", "/query", params=params, api_source_name="alphavantage_overview")
 
     def get_income_statement_quarterly(self, ticker):
         params = {"function": "INCOME_STATEMENT", "symbol": ticker}
         data = self.request("GET", "/query", params=params, api_source_name="alphavantage_income_quarterly")
         if data and isinstance(data.get("quarterlyReports"), list):
-            data["quarterlyReports"].reverse()
+            data["quarterlyReports"].reverse() # Keep this logic if it's desired
         return data
 
     def get_balance_sheet_quarterly(self, ticker):
