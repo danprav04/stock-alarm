@@ -2,10 +2,11 @@
 from sqlalchemy import inspect as sa_inspect
 from datetime import datetime, timezone
 import math
-import time  # Keep for API delays if base_client doesn't fully cover specific API needs
+import time
 import warnings
-from bs4 import XMLParsedAsHTMLWarning  # Keep if bs4 is used elsewhere, though not directly here
+from bs4 import XMLParsedAsHTMLWarning
 import json
+import sqlalchemy  # Added import for sqlalchemy
 
 warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
@@ -64,12 +65,12 @@ class StockAnalyzer:
         self.stock_db_entry = self.db_session.query(Stock).filter_by(ticker=self.ticker).first()
 
         company_name, industry, sector, cik = None, None, None, None
-        profile_source_preference = ["fmp", "finnhub", "alphavantage"]  # Define preference
+        profile_source_preference = ["fmp", "finnhub", "alphavantage"]
 
         for source in profile_source_preference:
             if source == "fmp":
                 profile_fmp_list = self.fmp.get_company_profile(self.ticker)
-                time.sleep(1)  # Adjusted sleep
+                time.sleep(1)
                 if profile_fmp_list and isinstance(profile_fmp_list, list) and profile_fmp_list[0]:
                     data = profile_fmp_list[0]
                     self._financial_data_cache['profile_fmp'] = data
@@ -80,18 +81,18 @@ class StockAnalyzer:
                     if cik_val: cik = str(cik_val).zfill(10)
                     logger.info(f"Fetched profile from FMP for {self.ticker}.")
                     break
-            elif source == "finnhub" and not company_name:  # Try if FMP failed for name
+            elif source == "finnhub" and not company_name:
                 profile_fh = self.finnhub.get_company_profile2(self.ticker)
-                time.sleep(1)  # Adjusted sleep
+                time.sleep(1)
                 if profile_fh:
                     self._financial_data_cache['profile_finnhub'] = profile_fh
                     company_name = profile_fh.get('name')
-                    industry = profile_fh.get('finnhubIndustry') or industry  # Keep FMP if FH is None
+                    industry = profile_fh.get('finnhubIndustry') or industry
                     logger.info(f"Fetched profile from Finnhub for {self.ticker}.")
                     break
-            elif source == "alphavantage" and not company_name:  # Try if FMP/Finnhub failed for name
+            elif source == "alphavantage" and not company_name:
                 overview_av = self.alphavantage.get_company_overview(self.ticker)
-                # AV sleeps are handled by base_client now
+
                 if overview_av and overview_av.get("Symbol") == self.ticker:
                     self._financial_data_cache['overview_alphavantage'] = overview_av
                     company_name = overview_av.get('Name')
@@ -109,14 +110,13 @@ class StockAnalyzer:
         if not cik and self.ticker:
             logger.info(f"CIK not found from profiles for {self.ticker}. Querying SEC EDGAR CIK map.")
             cik_from_edgar = self.sec_edgar.get_cik_by_ticker(self.ticker)
-            time.sleep(0.2)  # Shorter sleep, EDGAR CIK map is local/fast after first load
+            time.sleep(0.2)
             if cik_from_edgar:
                 cik = str(cik_from_edgar).zfill(10)
                 logger.info(f"Fetched CIK {cik} from SEC EDGAR CIK map for {self.ticker}.")
             else:
                 logger.warning(f"Could not fetch CIK from SEC EDGAR CIK map for {self.ticker}.")
 
-        # ... (rest of _get_or_create_stock_entry as before, unchanged)
         if not self.stock_db_entry:
             logger.info(f"Stock {self.ticker} not found in DB, creating new entry.")
             self.stock_db_entry = Stock(
@@ -161,7 +161,7 @@ class StockAnalyzer:
         logger.info(
             f"Stock entry for {self.ticker} (ID: {self.stock_db_entry.id if self.stock_db_entry else 'N/A'}, CIK: {self.stock_db_entry.cik if self.stock_db_entry and self.stock_db_entry.cik else 'N/A'}) ready.")
 
-    def _ensure_stock_db_entry_is_bound(self):  # Unchanged from before
+    def _ensure_stock_db_entry_is_bound(self):
         if not self.stock_db_entry:
             raise RuntimeError(
                 f"Stock entry for {self.ticker} is None during binding check. Prior initialization failure.")
@@ -218,11 +218,8 @@ class StockAnalyzer:
             final_data_for_db.update(calculate_all_derived_metrics(self))
             final_data_for_db.update(perform_dcf_analysis(self))
 
-            # Qualitative analysis now returns dicts with JSON data
             qual_summaries_data = fetch_and_summarize_10k_data(self)
 
-            # Store the structured JSON data directly if the DB field can handle it (assumes JSON type in DB)
-            # Or extract specific text summaries if DB expects strings
             final_data_for_db["business_summary"] = qual_summaries_data.get("business_summary_data", {}).get("summary",
                                                                                                              "N/A")
             final_data_for_db["risk_factors_summary"] = qual_summaries_data.get("risk_factors_summary_data", {}).get(
@@ -232,13 +229,10 @@ class StockAnalyzer:
             final_data_for_db["economic_moat_summary"] = qual_summaries_data.get("economic_moat_summary_data", {}).get(
                 "overallAssessment", "N/A")
             final_data_for_db["industry_trends_summary"] = qual_summaries_data.get("industry_trends_summary_data",
-                                                                                   {}).get("overallOutlook",
-                                                                                           "N/A")  # Or a more comprehensive string
+                                                                                   {}).get("overallOutlook", "N/A")
 
-            # Storing the full JSON objects for more detailed review if needed (requires DB model to support JSON type)
             final_data_for_db["qualitative_sources_summary"] = qual_summaries_data.get("qualitative_sources_summary",
                                                                                        {})
-            # Add the actual JSON structures to the snapshot if db field key_metrics_snapshot can store it (or another JSON field)
             if "key_metrics_snapshot" not in final_data_for_db: final_data_for_db["key_metrics_snapshot"] = {}
             final_data_for_db["key_metrics_snapshot"]["10k_business_summary_data"] = qual_summaries_data.get(
                 "business_summary_data")
@@ -251,7 +245,6 @@ class StockAnalyzer:
             final_data_for_db["key_metrics_snapshot"]["10k_industry_trends_data"] = qual_summaries_data.get(
                 "industry_trends_summary_data")
 
-            # Competitor analysis returns a summary string, but full data is in _financial_data_cache
             final_data_for_db["competitive_landscape_summary"] = fetch_and_analyze_competitors(self)
             competitor_data_cache = self._financial_data_cache.get('competitor_analysis', {})
             if "key_metrics_snapshot" not in final_data_for_db: final_data_for_db["key_metrics_snapshot"] = {}
@@ -279,21 +272,22 @@ class StockAnalyzer:
                         if isinstance(value_to_set, float) and (math.isnan(value_to_set) or math.isinf(value_to_set)):
                             value_to_set = None
                     elif target_column_type == dict or isinstance(target_column.type, (
-                    sqlalchemy.dialects.postgresql.JSON, sqlalchemy.types.JSON)):  # Check for JSON type
+                    sqlalchemy.dialects.postgresql.JSONB, sqlalchemy.dialects.postgresql.JSON,
+                    sqlalchemy.types.JSON)):  # Check for JSON types
                         if not isinstance(value_to_set, dict) and value_to_set is not None:
-                            try:  # Attempt to parse if it's a JSON string by mistake
+                            try:
                                 parsed_json = json.loads(value_to_set) if isinstance(value_to_set, str) else None
                                 if isinstance(parsed_json, dict):
                                     value_to_set = parsed_json
                                 else:
                                     logger.warning(
-                                        f"Field {field_name} expected dict/JSON, got {type(value_to_set)}. Value: '{str(value_to_set)[:100]}...'. Setting to None or simple string representation.")
+                                        f"Field {field_name} expected dict/JSON, got {type(value_to_set)}. Value: '{str(value_to_set)[:100]}...'. Setting to error dict.")
                                     value_to_set = {"error": "Invalid data type received",
                                                     "original_value": str(value_to_set)[
                                                                       :200]} if value_to_set is not None else None
                             except json.JSONDecodeError:
                                 logger.warning(
-                                    f"Field {field_name} expected dict/JSON but failed to parse string: '{str(value_to_set)[:100]}...'. Setting to None or simple string representation.")
+                                    f"Field {field_name} expected dict/JSON but failed to parse string: '{str(value_to_set)[:100]}...'. Setting to error dict.")
                                 value_to_set = {"error": "Failed to parse JSON string",
                                                 "original_value": str(value_to_set)[
                                                                   :200]} if value_to_set is not None else None
