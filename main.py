@@ -1,18 +1,16 @@
 # main.py
 import argparse
-from datetime import datetime
-from database import init_db, get_db_session
-from error_handler import logger  # , setup_logging, handle_exception # uncomment if sys.excepthook is used here
-# import sys # uncomment if sys.excepthook is used here
+from datetime import datetime, timezone
+from sqlalchemy.orm import joinedload
+# import time # No longer needed for arbitrary sleeps
+import sys
 
-from stock_analyzer import StockAnalyzer
-from ipo_analyzer import IPOAnalyzer
-from news_analyzer import NewsAnalyzer
-from email_generator import EmailGenerator
-from models import StockAnalysis, IPOAnalysis, NewsEventAnalysis  # For querying results
+from database.connection import init_db, SessionLocal
+from core.logging_setup import logger, handle_global_exception
+from services import StockAnalyzer, IPOAnalyzer, NewsAnalyzer, EmailService
+from database.models import StockAnalysis, IPOAnalysis, NewsEventAnalysis
+from core.config import MAX_NEWS_TO_ANALYZE_PER_RUN, DEFAULT_STOCKS_FOR_ALL_MODE
 
-
-# sys.excepthook = handle_exception # Optional: for top-level unhandled exception logging
 
 def run_stock_analysis(tickers):
     logger.info(f"--- Starting Individual Stock Analysis for: {tickers} ---")
@@ -23,27 +21,32 @@ def run_stock_analysis(tickers):
             analysis_result = analyzer.analyze()
             if analysis_result:
                 results.append(analysis_result)
+            else:
+                logger.warning(f"Stock analysis for {ticker} did not return a result object.")
+        except RuntimeError as rt_err:  # Catch specific init error
+            logger.error(f"Could not run stock analysis for {ticker} due to critical init error: {rt_err}")
         except Exception as e:
             logger.error(f"Error analyzing stock {ticker}: {e}", exc_info=True)
+        # Removed time.sleep(5) - API client's base_client handles delays/retries
     return results
 
 
-def run_ipo_analysis():
-    logger.info("--- Starting IPO Analysis Pipeline ---")
+def run_ipo_analysis(upcoming_only=False, max_to_analyze=None):
+    logger.info(f"--- Starting IPO Analysis Pipeline (Upcoming only: {upcoming_only}, Max to analyze: {max_to_analyze or 'All relevant'}) ---")
     try:
         analyzer = IPOAnalyzer()
-        results = analyzer.run_ipo_analysis_pipeline()
+        results = analyzer.run_ipo_analysis_pipeline(upcoming_only=upcoming_only, max_to_analyze=max_to_analyze)
         return results
     except Exception as e:
         logger.error(f"Error during IPO analysis pipeline: {e}", exc_info=True)
         return []
 
 
-def run_news_analysis(category="general", count=5):
-    logger.info(f"--- Starting News Analysis Pipeline (Category: {category}, Count: {count}) ---")
+def run_news_analysis(category="general", count_to_analyze=MAX_NEWS_TO_ANALYZE_PER_RUN):
+    logger.info(f"--- Starting News Analysis Pipeline (Category: {category}, Max to Analyze: {count_to_analyze}) ---")
     try:
         analyzer = NewsAnalyzer()
-        results = analyzer.run_news_analysis_pipeline(category=category, count=count)
+        results = analyzer.run_news_analysis_pipeline(category=category, count_to_analyze_this_run=count_to_analyze)
         return results
     except Exception as e:
         logger.error(f"Error during news analysis pipeline: {e}", exc_info=True)
@@ -52,51 +55,38 @@ def run_news_analysis(category="general", count=5):
 
 def generate_and_send_todays_email_summary():
     logger.info("--- Generating Today's Email Summary ---")
-    db_session = next(get_db_session())
-    today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-
+    db_session = SessionLocal()
+    today_start_utc = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
     try:
-        # Fetch analyses performed today (or recent ones)
-        # This assumes analyses are being run and stored before this function is called.
-        # If analyses are run *by* this function, then pass results directly.
-
-        # For this example, let's assume we want to send an email for analyses
-        # that were just run in the current script execution.
-        # If we want to fetch from DB based on date:
-        recent_stock_analyses = db_session.query(StockAnalysis).filter(StockAnalysis.analysis_date >= today_start).all()
-        recent_ipo_analyses = db_session.query(IPOAnalysis).filter(IPOAnalysis.analysis_date >= today_start).all()
-        recent_news_analyses = db_session.query(NewsEventAnalysis).filter(
-            NewsEventAnalysis.analysis_date >= today_start).all()
+        # Eager load related objects to prevent N+1 queries in email formatting
+        recent_stock_analyses = db_session.query(StockAnalysis).options(joinedload(StockAnalysis.stock)).filter(
+            StockAnalysis.analysis_date >= today_start_utc).all()
+        recent_ipo_analyses = db_session.query(IPOAnalysis).options(joinedload(IPOAnalysis.ipo)).filter(
+            IPOAnalysis.analysis_date >= today_start_utc).all()
+        recent_news_analyses = db_session.query(NewsEventAnalysis).options(
+            joinedload(NewsEventAnalysis.news_event)).filter(NewsEventAnalysis.analysis_date >= today_start_utc).all()
 
         logger.info(
-            f"Found {len(recent_stock_analyses)} stock analyses, {len(recent_ipo_analyses)} IPO analyses, {len(recent_news_analyses)} news analyses for today's email.")
+            f"Found {len(recent_stock_analyses)} stock analyses, {len(recent_ipo_analyses)} IPO analyses, {len(recent_news_analyses)} news analyses since {today_start_utc.strftime('%Y-%m-%d %H:%M:%S %Z')} for email.")
 
         if not any([recent_stock_analyses, recent_ipo_analyses, recent_news_analyses]):
-            logger.info("No new analyses performed today to include in the email summary.")
+            logger.info("No new analyses performed recently to include in the email summary.")
             return
 
-        email_gen = EmailGenerator()
-        email_message = email_gen.create_summary_email(
+        email_svc = EmailService()
+        email_message = email_svc.create_summary_email(
             stock_analyses=recent_stock_analyses,
             ipo_analyses=recent_ipo_analyses,
             news_analyses=recent_news_analyses
         )
-
         if email_message:
-            # In a real scenario, uncomment to send. Ensure SMTP settings in config.py are correct.
-            email_gen.send_email(email_message)
-            # logger.info("Email summary created. Sending is commented out in main.py for safety.")
-            # For testing, save to file:
-            # with open(f"daily_summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html", "w", encoding="utf-8") as f:
-            #     f.write(email_message.get_payload(0).get_payload(decode=True).decode())  # type: ignore
-            # logger.info("Email HTML saved to a file.")
+            email_svc.send_email(email_message)
         else:
-            logger.error("Failed to create the email message.")
-
+            logger.error("Failed to create the email message (returned None).")
     except Exception as e:
         logger.error(f"Error generating or sending email summary: {e}", exc_info=True)
     finally:
-        db_session.close()
+        SessionLocal.remove()
 
 
 def main():
@@ -104,15 +94,19 @@ def main():
     parser.add_argument("--analyze-stocks", nargs="+", metavar="TICKER",
                         help="List of stock tickers to analyze (e.g., AAPL MSFT)")
     parser.add_argument("--analyze-ipos", action="store_true", help="Run IPO analysis pipeline.")
+    parser.add_argument("--upcoming-ipos-only", action="store_true", help="When analyzing IPOs, process only those with future dates and relevant statuses.")
+    parser.add_argument("--max-ipos-to-analyze", type=int, default=None, metavar="N",
+                        help="Maximum number of IPOs to analyze in a run (applies after filtering, e.g., for upcoming). Default: all relevant.")
     parser.add_argument("--analyze-news", action="store_true", help="Run news analysis pipeline.")
     parser.add_argument("--news-category", default="general",
                         help="Category for news analysis (e.g., general, forex, crypto, merger).")
-    parser.add_argument("--news-count", type=int, default=3, help="Number of new news items to analyze.")
+    parser.add_argument("--news-count-analyze", type=int, default=MAX_NEWS_TO_ANALYZE_PER_RUN,
+                        help=f"Max number of new news items to analyze in this run (default from config: {MAX_NEWS_TO_ANALYZE_PER_RUN}).")
     parser.add_argument("--send-email", action="store_true",
-                        help="Generate and send email summary of today's analyses.")
+                        help="Generate and send email summary of today's/recent analyses.")
     parser.add_argument("--init-db", action="store_true", help="Initialize the database (create tables).")
     parser.add_argument("--all", action="store_true",
-                        help="Run all analyses (stocks from a predefined list, IPOs, News) and send email. Define stock list below.")
+                        help="Run all analyses (stocks from default list, IPOs with --upcoming-ipos-only and --max-ipos-to-analyze if specified, News) and send email.")
 
     args = parser.parse_args()
 
@@ -122,55 +116,46 @@ def main():
             init_db()
             logger.info("Database initialization complete.")
         except Exception as e:
-            logger.error(f"Database initialization failed: {e}", exc_info=True)
-            return  # Stop if DB init fails
-
-    # --- Execution Logic ---
-    stock_analysis_results = []
-    ipo_analysis_results = []
-    news_analysis_results = []
+            logger.critical(f"Database initialization failed: {e}", exc_info=True)
+            return  # Exit if DB init fails
 
     if args.all:
-        # Define a default list of stocks for '--all' flag
-        default_stocks_for_all = ["AAPL", "MSFT", "GOOGL"]  # Example list
-        logger.info(f"Running all analyses for default stocks: {default_stocks_for_all}, IPOs, and News.")
-        stock_analysis_results = run_stock_analysis(default_stocks_for_all)
-        ipo_analysis_results = run_ipo_analysis()
-        news_analysis_results = run_news_analysis(category=args.news_category, count=args.news_count)
-        # The generate_and_send_todays_email_summary will pick these up if run on the same day
-        # Or, you can pass these results directly if you modify generate_and_send_todays_email_summary
-        generate_and_send_todays_email_summary()  # This will fetch from DB based on today's date
+        logger.info(
+            f"Running all analyses for default stocks: {DEFAULT_STOCKS_FOR_ALL_MODE}, IPOs (Upcoming only: {args.upcoming_ipos_only}, Max: {args.max_ipos_to_analyze or 'All'}), and News (max {args.news_count_analyze} items).")
+        if DEFAULT_STOCKS_FOR_ALL_MODE:
+            run_stock_analysis(DEFAULT_STOCKS_FOR_ALL_MODE)
+        run_ipo_analysis(upcoming_only=args.upcoming_ipos_only, max_to_analyze=args.max_ipos_to_analyze)
+        run_news_analysis(category=args.news_category, count_to_analyze=args.news_count_analyze)
+        generate_and_send_todays_email_summary()
+        logger.info("--- '--all' tasks finished. ---")
         return
 
     if args.analyze_stocks:
-        stock_analysis_results = run_stock_analysis(args.analyze_stocks)
-        # If only analyzing stocks and not sending a full summary, perhaps print to console or save differently.
-        # For now, results are stored in DB.
-
+        run_stock_analysis(args.analyze_stocks)
     if args.analyze_ipos:
-        ipo_analysis_results = run_ipo_analysis()
-
+        run_ipo_analysis(upcoming_only=args.upcoming_ipos_only, max_to_analyze=args.max_ipos_to_analyze)
     if args.analyze_news:
-        news_analysis_results = run_news_analysis(category=args.news_category, count=args.news_count)
-
+        run_news_analysis(category=args.news_category, count_to_analyze=args.news_count_analyze)
     if args.send_email:
-        # This function currently fetches from DB based on today's date.
-        # So, it will include any analyses run prior in the same script execution if they were committed.
         generate_and_send_todays_email_summary()
 
-    if not (
-            args.analyze_stocks or args.analyze_ipos or args.analyze_news or args.send_email or args.init_db or args.all):
+    if not any([args.analyze_stocks, args.analyze_ipos, args.analyze_news, args.send_email, args.init_db, args.all]):
         logger.info("No action specified. Use --help for options.")
         parser.print_help()
 
-    logger.info("--- Script execution finished. ---")
+    logger.info("--- Main script execution finished. ---")
 
 
 if __name__ == "__main__":
-    # Setup logging (error_handler.py already does this when imported, but explicit call is fine too)
-    # logger = setup_logging() # Ensures logger is configured if not already
+    # sys.excepthook = handle_global_exception # Uncomment to enable global exception logging
+    script_start_time = datetime.now(timezone.utc)
+    logger.info("===================================================================")
+    logger.info(f"Starting Financial Analysis Script at {script_start_time.strftime('%Y-%m-%d %H:%M:%S %Z')}")
+    logger.info("===================================================================")
 
-    logger.info("===================================================================")
-    logger.info(f"Starting Financial Analysis Script at {datetime.now()}")
-    logger.info("===================================================================")
     main()
+
+    script_end_time = datetime.now(timezone.utc)
+    logger.info(f"Financial Analysis Script finished at {script_end_time.strftime('%Y-%m-%d %H:%M:%S %Z')}")
+    logger.info(f"Total execution time: {script_end_time - script_start_time}")
+    logger.info("===================================================================")
