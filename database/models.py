@@ -116,7 +116,7 @@ class IPOAnalysis(Base):
     industry_outlook_summary = Column(Text, nullable=True)
     management_team_assessment = Column(Text, nullable=True)
     use_of_proceeds_summary = Column(Text, nullable=True)
-    underwriter_quality_assessment = Column(String, nullable=True)
+    underwriter_quality_assessment = Column(Text, nullable=True) # Changed from String to Text
     business_model_summary = Column(Text, nullable=True)
     risk_factors_summary = Column(Text, nullable=True)
     pre_ipo_financials_summary = Column(Text, nullable=True)

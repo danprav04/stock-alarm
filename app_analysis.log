@@ -1,54 +1,194 @@
-2025-05-26 13:52:29,930 - root - INFO - main:152 - ===================================================================
-2025-05-26 13:52:29,931 - root - INFO - main:153 - Starting Financial Analysis Script at 2025-05-26 10:52:29 UTC
-2025-05-26 13:52:29,931 - root - INFO - main:154 - ===================================================================
-2025-05-26 13:52:29,934 - root - INFO - main:114 - Initializing database as per command line argument...
-2025-05-26 13:52:29,934 - root - INFO - connection:19 - Initializing database and creating tables...
-2025-05-26 13:52:33,559 - root - INFO - connection:23 - Database tables created successfully (if they didn't exist).
-2025-05-26 13:52:33,561 - root - INFO - main:117 - Database initialization complete.
-2025-05-26 13:52:33,561 - root - INFO - main:146 - --- Main script execution finished. ---
-2025-05-26 13:52:33,562 - root - INFO - main:159 - Financial Analysis Script finished at 2025-05-26 10:52:33 UTC
-2025-05-26 13:52:33,562 - root - INFO - main:160 - Total execution time: 0:00:03.632473
-2025-05-26 13:52:33,563 - root - INFO - main:161 - ===================================================================
-2025-05-26 13:52:34,938 - root - INFO - main:152 - ===================================================================
-2025-05-26 13:52:34,938 - root - INFO - main:153 - Starting Financial Analysis Script at 2025-05-26 10:52:34 UTC
-2025-05-26 13:52:34,939 - root - INFO - main:154 - ===================================================================
-2025-05-26 13:52:34,941 - root - INFO - main:35 - --- Starting IPO Analysis Pipeline (Upcoming only: True, Max to analyze: 1) ---
-2025-05-26 13:52:34,942 - root - INFO - data_fetcher:11 - Fetching upcoming IPOs using Finnhub...
-2025-05-26 13:52:37,058 - root - INFO - base_client:65 - Cached response for: GET:https://finnhub.io/api/v1/calendar/ipo?from=2025-03-27&to=2025-11-22&token=d0o7hphr01qqr9alj38gd...
-2025-05-26 13:52:37,068 - root - INFO - data_fetcher:71 - Successfully parsed 150 IPOs from Finnhub API response.
-2025-05-26 13:52:37,069 - root - INFO - data_fetcher:90 - Total unique IPOs fetched after deduplication: 150
-2025-05-26 13:52:37,069 - root - INFO - ipo_analyzer:149 - Filtered for upcoming IPOs only: 1 IPOs remain for potential analysis.
-2025-05-26 13:52:37,069 - root - INFO - ipo_analyzer:171 - Number of relevant IPOs (1) is within or equal to max_to_analyze (1). Analyzing all 1.
-2025-05-26 13:52:37,071 - root - INFO - ipo_analyzer:36 - Task: Starting analysis for IPO: Vantage Corp (Singapore) from source Finnhub
-2025-05-26 13:52:37,335 - root - INFO - sec_edgar_client:20 - Fetching CIK map from SEC...
-2025-05-26 13:52:38,457 - root - INFO - base_client:65 - Cached response for: GET:https://www.sec.gov/files/company_tickers.json...
-2025-05-26 13:52:38,459 - root - INFO - sec_edgar_client:35 - CIK map fetched and cached with 10046 entries.
-2025-05-26 13:52:38,963 - root - INFO - db_handler:35 - IPO 'Vantage Corp (Singapore)' not found in DB, creating new entry.
-2025-05-26 13:52:39,407 - root - INFO - db_handler:53 - Created IPO entry for 'Vantage Corp (Singapore)' (ID: 1, CIK: 0002027160)
-2025-05-26 13:52:39,481 - root - INFO - data_fetcher:120 - Attempting to fetch S-1/F-1 for Vantage Corp (Singapore) (CIK: 0002027160)
-2025-05-26 13:52:40,387 - root - INFO - base_client:65 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002027160.json?...
-2025-05-26 13:52:40,389 - root - INFO - sec_edgar_client:115 - No 'S-1' filings found for CIK 0002027160 matching criteria.
-2025-05-26 13:52:41,336 - root - INFO - base_client:39 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002027160.json?...
-2025-05-26 13:52:41,399 - root - INFO - sec_edgar_client:115 - No 'S-1/A' filings found for CIK 0002027160 matching criteria.
-2025-05-26 13:52:42,089 - root - INFO - base_client:39 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002027160.json?...
-2025-05-26 13:52:42,658 - root - INFO - data_fetcher:127 - Found F-1 URL for Vantage Corp (Singapore): https://www.sec.gov/Archives/edgar/data/2027160/000149315224040628/formf-1.htm
-2025-05-26 13:52:42,658 - root - INFO - sec_edgar_client:127 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2027160/000149315224040628/formf-1.htm
-2025-05-26 13:52:44,056 - root - INFO - base_client:65 - Cached response for: GET:https://www.sec.gov/Archives/edgar/data/2027160/000149315224040628/formf-1.htm?...
-2025-05-26 13:52:44,059 - root - INFO - data_fetcher:142 - Fetched S-1/F-1 text (length: 2016965) for Vantage Corp (Singapore)
-2025-05-26 13:53:24,670 - root - INFO - ipo_analyzer:90 - Task: Creating new analysis for Vantage Corp (Singapore)
-2025-05-26 13:53:25,128 - root - INFO - ipo_analyzer:102 - Task: Saved IPO analysis for Vantage Corp (Singapore) (Analysis ID: 1)
-2025-05-26 13:53:25,189 - root - INFO - ipo_analyzer:193 - IPO analysis pipeline completed. Processed 1 IPOs that required new/updated analysis from the filtered set.
-2025-05-26 13:53:25,190 - root - INFO - main:146 - --- Main script execution finished. ---
-2025-05-26 13:53:25,191 - root - INFO - main:159 - Financial Analysis Script finished at 2025-05-26 10:53:25 UTC
-2025-05-26 13:53:25,191 - root - INFO - main:160 - Total execution time: 0:00:50.253712
-2025-05-26 13:53:25,191 - root - INFO - main:161 - ===================================================================
-2025-05-26 13:53:39,798 - root - INFO - main:152 - ===================================================================
-2025-05-26 13:53:39,798 - root - INFO - main:153 - Starting Financial Analysis Script at 2025-05-26 10:53:39 UTC
-2025-05-26 13:53:39,799 - root - INFO - main:154 - ===================================================================
-2025-05-26 13:53:39,802 - root - INFO - main:57 - --- Generating Today's Email Summary ---
-2025-05-26 13:53:41,366 - root - INFO - main:69 - Found 0 stock analyses, 1 IPO analyses, 0 news analyses since 2025-05-26 00:00:00 UTC for email.
-2025-05-26 13:53:43,416 - root - INFO - email_service:250 - Email sent successfully to daniprav@gmail.com
-2025-05-26 13:53:43,482 - root - INFO - main:146 - --- Main script execution finished. ---
-2025-05-26 13:53:43,482 - root - INFO - main:159 - Financial Analysis Script finished at 2025-05-26 10:53:43 UTC
-2025-05-26 13:53:43,483 - root - INFO - main:160 - Total execution time: 0:00:03.684326
-2025-05-26 13:53:43,484 - root - INFO - main:161 - ===================================================================
+2025-05-28 15:05:21,035 - root - INFO - main:152 - ===================================================================
+2025-05-28 15:05:21,036 - root - INFO - main:153 - Starting Financial Analysis Script at 2025-05-28 12:05:21 UTC
+2025-05-28 15:05:21,037 - root - INFO - main:154 - ===================================================================
+2025-05-28 15:05:21,039 - root - INFO - main:35 - --- Starting IPO Analysis Pipeline (Upcoming only: True, Max to analyze: 1) ---
+2025-05-28 15:05:21,039 - root - INFO - data_fetcher:11 - Fetching upcoming IPOs using Finnhub...
+2025-05-28 15:05:23,260 - root - INFO - base_client:65 - Cached response for: GET:https://finnhub.io/api/v1/calendar/ipo?from=2025-03-29&to=2025-11-24&token=d0o7hphr01qqr9alj38gd...
+2025-05-28 15:05:23,266 - root - INFO - data_fetcher:71 - Successfully parsed 148 IPOs from Finnhub API response.
+2025-05-28 15:05:23,267 - root - INFO - data_fetcher:90 - Total unique IPOs fetched after deduplication: 148
+2025-05-28 15:05:23,268 - root - INFO - ipo_analyzer:149 - Filtered for upcoming IPOs only: 2 IPOs remain for potential analysis.
+2025-05-28 15:05:23,268 - root - INFO - ipo_analyzer:167 - Limiting IPOs to analyze to the earliest 1 from 2 relevant IPOs.
+2025-05-28 15:05:23,271 - root - INFO - ipo_analyzer:36 - Task: Starting analysis for IPO: Wintergreen Acquisition Corp. from source Finnhub
+2025-05-28 15:05:23,523 - root - INFO - sec_edgar_client:20 - Fetching CIK map from SEC...
+2025-05-28 15:05:24,656 - root - INFO - base_client:65 - Cached response for: GET:https://www.sec.gov/files/company_tickers.json...
+2025-05-28 15:05:24,657 - root - INFO - sec_edgar_client:35 - CIK map fetched and cached with 10046 entries.
+2025-05-28 15:05:25,158 - root - INFO - db_handler:35 - IPO 'Wintergreen Acquisition Corp.' not found in DB, creating new entry.
+2025-05-28 15:05:25,593 - root - INFO - db_handler:53 - Created IPO entry for 'Wintergreen Acquisition Corp.' (ID: 2, CIK: None)
+2025-05-28 15:05:26,164 - root - WARNING - data_fetcher:114 - No CIK found via symbol WTGUU for IPO 'Wintergreen Acquisition Corp.'.
+2025-05-28 15:05:55,179 - root - INFO - ipo_analyzer:90 - Task: Creating new analysis for Wintergreen Acquisition Corp.
+2025-05-28 15:05:55,587 - root - INFO - ipo_analyzer:102 - Task: Saved IPO analysis for Wintergreen Acquisition Corp. (Analysis ID: 2)
+2025-05-28 15:05:55,648 - root - INFO - ipo_analyzer:193 - IPO analysis pipeline completed. Processed 1 IPOs that required new/updated analysis from the filtered set.
+2025-05-28 15:05:55,650 - root - INFO - main:146 - --- Main script execution finished. ---
+2025-05-28 15:05:55,650 - root - INFO - main:159 - Financial Analysis Script finished at 2025-05-28 12:05:55 UTC
+2025-05-28 15:05:55,651 - root - INFO - main:160 - Total execution time: 0:00:34.615045
+2025-05-28 15:05:55,651 - root - INFO - main:161 - ===================================================================
+2025-05-28 15:06:08,887 - root - INFO - main:152 - ===================================================================
+2025-05-28 15:06:08,888 - root - INFO - main:153 - Starting Financial Analysis Script at 2025-05-28 12:06:08 UTC
+2025-05-28 15:06:08,888 - root - INFO - main:154 - ===================================================================
+2025-05-28 15:06:08,891 - root - INFO - main:57 - --- Generating Today's Email Summary ---
+2025-05-28 15:06:10,305 - root - INFO - main:69 - Found 0 stock analyses, 1 IPO analyses, 0 news analyses since 2025-05-28 00:00:00 UTC for email.
+2025-05-28 15:06:12,244 - root - INFO - email_service:250 - Email sent successfully to daniprav@gmail.com
+2025-05-28 15:06:12,310 - root - INFO - main:146 - --- Main script execution finished. ---
+2025-05-28 15:06:12,310 - root - INFO - main:159 - Financial Analysis Script finished at 2025-05-28 12:06:12 UTC
+2025-05-28 15:06:12,310 - root - INFO - main:160 - Total execution time: 0:00:03.423380
+2025-05-28 15:06:12,311 - root - INFO - main:161 - ===================================================================
+2025-05-28 15:13:57,947 - root - INFO - main:152 - ===================================================================
+2025-05-28 15:13:57,947 - root - INFO - main:153 - Starting Financial Analysis Script at 2025-05-28 12:13:57 UTC
+2025-05-28 15:13:57,948 - root - INFO - main:154 - ===================================================================
+2025-05-28 15:13:57,950 - root - INFO - main:114 - Initializing database as per command line argument...
+2025-05-28 15:13:57,950 - root - INFO - connection:19 - Initializing database and creating tables...
+2025-05-28 15:14:01,723 - root - INFO - connection:23 - Database tables created successfully (if they didn't exist).
+2025-05-28 15:14:01,724 - root - INFO - main:117 - Database initialization complete.
+2025-05-28 15:14:01,725 - root - INFO - main:146 - --- Main script execution finished. ---
+2025-05-28 15:14:01,726 - root - INFO - main:159 - Financial Analysis Script finished at 2025-05-28 12:14:01 UTC
+2025-05-28 15:14:01,726 - root - INFO - main:160 - Total execution time: 0:00:03.778993
+2025-05-28 15:14:01,727 - root - INFO - main:161 - ===================================================================
+2025-05-28 15:14:06,291 - root - INFO - main:152 - ===================================================================
+2025-05-28 15:14:06,292 - root - INFO - main:153 - Starting Financial Analysis Script at 2025-05-28 12:14:06 UTC
+2025-05-28 15:14:06,292 - root - INFO - main:154 - ===================================================================
+2025-05-28 15:14:06,294 - root - INFO - main:35 - --- Starting IPO Analysis Pipeline (Upcoming only: True, Max to analyze: 1) ---
+2025-05-28 15:14:06,295 - root - INFO - data_fetcher:11 - Fetching upcoming IPOs using Finnhub...
+2025-05-28 15:14:08,755 - root - INFO - base_client:65 - Cached response for: GET:https://finnhub.io/api/v1/calendar/ipo?from=2025-03-29&to=2025-11-24&token=d0o7hphr01qqr9alj38gd...
+2025-05-28 15:14:08,774 - root - INFO - data_fetcher:71 - Successfully parsed 148 IPOs from Finnhub API response.
+2025-05-28 15:14:08,775 - root - INFO - data_fetcher:90 - Total unique IPOs fetched after deduplication: 148
+2025-05-28 15:14:08,776 - root - INFO - ipo_analyzer:149 - Filtered for upcoming IPOs only: 2 IPOs remain for potential analysis.
+2025-05-28 15:14:08,776 - root - INFO - ipo_analyzer:167 - Limiting IPOs to analyze to the earliest 1 from 2 relevant IPOs.
+2025-05-28 15:14:08,779 - root - INFO - ipo_analyzer:36 - Task: Starting analysis for IPO: Wintergreen Acquisition Corp. from source Finnhub
+2025-05-28 15:14:09,046 - root - INFO - sec_edgar_client:20 - Fetching CIK map from SEC...
+2025-05-28 15:14:10,143 - root - INFO - base_client:65 - Cached response for: GET:https://www.sec.gov/files/company_tickers.json...
+2025-05-28 15:14:10,144 - root - INFO - sec_edgar_client:35 - CIK map fetched and cached with 10046 entries.
+2025-05-28 15:14:10,648 - root - INFO - db_handler:35 - IPO 'Wintergreen Acquisition Corp.' not found in DB, creating new entry.
+2025-05-28 15:14:11,104 - root - INFO - db_handler:53 - Created IPO entry for 'Wintergreen Acquisition Corp.' (ID: 1, CIK: None)
+2025-05-28 15:14:11,682 - root - WARNING - data_fetcher:114 - No CIK found via symbol WTGUU for IPO 'Wintergreen Acquisition Corp.'.
+2025-05-28 15:14:11,682 - root - WARNING - ai_analyzer:100 - For Wintergreen Acquisition Corp.: No S-1 filing URL was found for this IPO. Analysis will be based on general knowledge and IPO data only.
+2025-05-28 15:14:53,754 - root - INFO - ipo_analyzer:90 - Task: Creating new analysis for Wintergreen Acquisition Corp.
+2025-05-28 15:14:54,223 - root - INFO - ipo_analyzer:102 - Task: Saved IPO analysis for Wintergreen Acquisition Corp. (Analysis ID: 1)
+2025-05-28 15:14:54,288 - root - INFO - ipo_analyzer:193 - IPO analysis pipeline completed. Processed 1 IPOs that required new/updated analysis from the filtered set.
+2025-05-28 15:14:54,291 - root - INFO - main:146 - --- Main script execution finished. ---
+2025-05-28 15:14:54,292 - root - INFO - main:159 - Financial Analysis Script finished at 2025-05-28 12:14:54 UTC
+2025-05-28 15:14:54,293 - root - INFO - main:160 - Total execution time: 0:00:47.999560
+2025-05-28 15:14:54,293 - root - INFO - main:161 - ===================================================================
+2025-05-28 15:15:21,797 - root - INFO - main:152 - ===================================================================
+2025-05-28 15:15:21,798 - root - INFO - main:153 - Starting Financial Analysis Script at 2025-05-28 12:15:21 UTC
+2025-05-28 15:15:21,798 - root - INFO - main:154 - ===================================================================
+2025-05-28 15:15:21,801 - root - INFO - main:57 - --- Generating Today's Email Summary ---
+2025-05-28 15:15:23,299 - root - INFO - main:69 - Found 0 stock analyses, 1 IPO analyses, 0 news analyses since 2025-05-28 00:00:00 UTC for email.
+2025-05-28 15:15:25,174 - root - INFO - email_service:294 - Email sent successfully to daniprav@gmail.com
+2025-05-28 15:15:25,240 - root - INFO - main:146 - --- Main script execution finished. ---
+2025-05-28 15:15:25,242 - root - INFO - main:159 - Financial Analysis Script finished at 2025-05-28 12:15:25 UTC
+2025-05-28 15:15:25,243 - root - INFO - main:160 - Total execution time: 0:00:03.444654
+2025-05-28 15:15:25,244 - root - INFO - main:161 - ===================================================================
+2025-05-28 15:17:17,540 - root - INFO - main:152 - ===================================================================
+2025-05-28 15:17:17,541 - root - INFO - main:153 - Starting Financial Analysis Script at 2025-05-28 12:17:17 UTC
+2025-05-28 15:17:17,541 - root - INFO - main:154 - ===================================================================
+2025-05-28 15:17:17,544 - root - INFO - main:35 - --- Starting IPO Analysis Pipeline (Upcoming only: True, Max to analyze: 2) ---
+2025-05-28 15:17:17,544 - root - INFO - data_fetcher:11 - Fetching upcoming IPOs using Finnhub...
+2025-05-28 15:17:18,834 - root - INFO - base_client:39 - Cache hit for: GET:https://finnhub.io/api/v1/calendar/ipo?from=2025-03-29&to=2025-11-24&token=d0o7hphr01qqr9alj38gd...
+2025-05-28 15:17:18,909 - root - INFO - data_fetcher:71 - Successfully parsed 148 IPOs from Finnhub API response.
+2025-05-28 15:17:18,910 - root - INFO - data_fetcher:90 - Total unique IPOs fetched after deduplication: 148
+2025-05-28 15:17:18,911 - root - INFO - ipo_analyzer:149 - Filtered for upcoming IPOs only: 2 IPOs remain for potential analysis.
+2025-05-28 15:17:18,911 - root - INFO - ipo_analyzer:171 - Number of relevant IPOs (2) is within or equal to max_to_analyze (2). Analyzing all 2.
+2025-05-28 15:17:18,914 - root - INFO - ipo_analyzer:36 - Task: Starting analysis for IPO: Wintergreen Acquisition Corp. from source Finnhub
+2025-05-28 15:17:19,112 - root - INFO - sec_edgar_client:20 - Fetching CIK map from SEC...
+2025-05-28 15:17:19,324 - root - INFO - base_client:39 - Cache hit for: GET:https://www.sec.gov/files/company_tickers.json...
+2025-05-28 15:17:19,388 - root - INFO - sec_edgar_client:25 - CIK map loaded from cache with 10046 entries.
+2025-05-28 15:17:20,092 - root - INFO - ipo_analyzer:68 - Task: Significant data change detected for Wintergreen Acquisition Corp.. Re-analyzing.
+2025-05-28 15:17:20,595 - root - WARNING - data_fetcher:114 - No CIK found via symbol WTGUU for IPO 'Wintergreen Acquisition Corp.'.
+2025-05-28 15:17:20,596 - root - WARNING - ai_analyzer:100 - For Wintergreen Acquisition Corp.: No S-1 filing URL was found for this IPO. Analysis will be based on general knowledge and IPO data only.
+2025-05-28 15:18:01,185 - root - INFO - ipo_analyzer:84 - Task: Updating existing analysis for Wintergreen Acquisition Corp. (ID: 1)
+2025-05-28 15:18:01,586 - root - INFO - ipo_analyzer:102 - Task: Saved IPO analysis for Wintergreen Acquisition Corp. (Analysis ID: 1)
+2025-05-28 15:18:01,651 - root - INFO - ipo_analyzer:36 - Task: Starting analysis for IPO: Vantage Corp (Singapore) from source Finnhub
+2025-05-28 15:18:02,409 - root - INFO - db_handler:35 - IPO 'Vantage Corp (Singapore)' not found in DB, creating new entry.
+2025-05-28 15:18:02,734 - root - INFO - db_handler:53 - Created IPO entry for 'Vantage Corp (Singapore)' (ID: 2, CIK: 0002027160)
+2025-05-28 15:18:02,800 - root - INFO - data_fetcher:120 - Attempting to fetch S-1/F-1 for Vantage Corp (Singapore) (CIK: 0002027160)
+2025-05-28 15:18:03,706 - root - INFO - base_client:65 - Cached response for: GET:https://data.sec.gov/submissions/CIK0002027160.json?...
+2025-05-28 15:18:03,707 - root - INFO - sec_edgar_client:115 - No 'S-1' filings found for CIK 0002027160 matching criteria.
+2025-05-28 15:18:04,402 - root - INFO - base_client:39 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002027160.json?...
+2025-05-28 15:18:04,466 - root - INFO - sec_edgar_client:115 - No 'S-1/A' filings found for CIK 0002027160 matching criteria.
+2025-05-28 15:18:05,161 - root - INFO - base_client:39 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002027160.json?...
+2025-05-28 15:18:05,731 - root - INFO - data_fetcher:127 - Found F-1 URL for Vantage Corp (Singapore): https://www.sec.gov/Archives/edgar/data/2027160/000149315224040628/formf-1.htm
+2025-05-28 15:18:05,731 - root - INFO - sec_edgar_client:127 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2027160/000149315224040628/formf-1.htm
+2025-05-28 15:18:07,362 - root - INFO - base_client:65 - Cached response for: GET:https://www.sec.gov/Archives/edgar/data/2027160/000149315224040628/formf-1.htm?...
+2025-05-28 15:18:07,364 - root - INFO - data_fetcher:142 - Fetched S-1/F-1 text (length: 2016965) for Vantage Corp (Singapore)
+2025-05-28 15:18:59,067 - root - INFO - ipo_analyzer:90 - Task: Creating new analysis for Vantage Corp (Singapore)
+2025-05-28 15:18:59,588 - root - INFO - ipo_analyzer:102 - Task: Saved IPO analysis for Vantage Corp (Singapore) (Analysis ID: 2)
+2025-05-28 15:18:59,652 - root - INFO - ipo_analyzer:193 - IPO analysis pipeline completed. Processed 2 IPOs that required new/updated analysis from the filtered set.
+2025-05-28 15:18:59,653 - root - INFO - main:146 - --- Main script execution finished. ---
+2025-05-28 15:18:59,653 - root - INFO - main:159 - Financial Analysis Script finished at 2025-05-28 12:18:59 UTC
+2025-05-28 15:18:59,654 - root - INFO - main:160 - Total execution time: 0:01:42.112842
+2025-05-28 15:18:59,654 - root - INFO - main:161 - ===================================================================
+2025-05-28 15:19:05,503 - root - INFO - main:152 - ===================================================================
+2025-05-28 15:19:05,504 - root - INFO - main:153 - Starting Financial Analysis Script at 2025-05-28 12:19:05 UTC
+2025-05-28 15:19:05,504 - root - INFO - main:154 - ===================================================================
+2025-05-28 15:19:05,506 - root - INFO - main:57 - --- Generating Today's Email Summary ---
+2025-05-28 15:19:06,931 - root - INFO - main:69 - Found 0 stock analyses, 2 IPO analyses, 0 news analyses since 2025-05-28 00:00:00 UTC for email.
+2025-05-28 15:19:08,970 - root - INFO - email_service:294 - Email sent successfully to daniprav@gmail.com
+2025-05-28 15:19:09,032 - root - INFO - main:146 - --- Main script execution finished. ---
+2025-05-28 15:19:09,034 - root - INFO - main:159 - Financial Analysis Script finished at 2025-05-28 12:19:09 UTC
+2025-05-28 15:19:09,035 - root - INFO - main:160 - Total execution time: 0:00:03.530913
+2025-05-28 15:19:09,036 - root - INFO - main:161 - ===================================================================
+2025-05-28 15:20:42,618 - root - INFO - main:152 - ===================================================================
+2025-05-28 15:20:42,619 - root - INFO - main:153 - Starting Financial Analysis Script at 2025-05-28 12:20:42 UTC
+2025-05-28 15:20:42,619 - root - INFO - main:154 - ===================================================================
+2025-05-28 15:20:42,622 - root - INFO - main:35 - --- Starting IPO Analysis Pipeline (Upcoming only: True, Max to analyze: 3) ---
+2025-05-28 15:20:42,622 - root - INFO - data_fetcher:11 - Fetching upcoming IPOs using Finnhub...
+2025-05-28 15:20:43,931 - root - INFO - base_client:39 - Cache hit for: GET:https://finnhub.io/api/v1/calendar/ipo?from=2025-03-29&to=2025-11-24&token=d0o7hphr01qqr9alj38gd...
+2025-05-28 15:20:44,000 - root - INFO - data_fetcher:71 - Successfully parsed 148 IPOs from Finnhub API response.
+2025-05-28 15:20:44,001 - root - INFO - data_fetcher:90 - Total unique IPOs fetched after deduplication: 148
+2025-05-28 15:20:44,001 - root - INFO - ipo_analyzer:149 - Filtered for upcoming IPOs only: 2 IPOs remain for potential analysis.
+2025-05-28 15:20:44,002 - root - INFO - ipo_analyzer:171 - Number of relevant IPOs (2) is within or equal to max_to_analyze (3). Analyzing all 2.
+2025-05-28 15:20:44,004 - root - INFO - ipo_analyzer:36 - Task: Starting analysis for IPO: Wintergreen Acquisition Corp. from source Finnhub
+2025-05-28 15:20:44,200 - root - INFO - sec_edgar_client:20 - Fetching CIK map from SEC...
+2025-05-28 15:20:44,405 - root - INFO - base_client:39 - Cache hit for: GET:https://www.sec.gov/files/company_tickers.json...
+2025-05-28 15:20:44,469 - root - INFO - sec_edgar_client:25 - CIK map loaded from cache with 10046 entries.
+2025-05-28 15:20:45,174 - root - INFO - ipo_analyzer:68 - Task: Significant data change detected for Wintergreen Acquisition Corp.. Re-analyzing.
+2025-05-28 15:20:45,676 - root - WARNING - data_fetcher:114 - No CIK found via symbol WTGUU for IPO 'Wintergreen Acquisition Corp.'.
+2025-05-28 15:20:45,677 - root - WARNING - ai_analyzer:100 - For Wintergreen Acquisition Corp.: No S-1 filing URL was found for this IPO. Analysis will be based on general knowledge and IPO data only.
+2025-05-28 15:21:32,167 - root - INFO - ipo_analyzer:84 - Task: Updating existing analysis for Wintergreen Acquisition Corp. (ID: 1)
+2025-05-28 15:21:32,511 - root - INFO - ipo_analyzer:102 - Task: Saved IPO analysis for Wintergreen Acquisition Corp. (Analysis ID: 1)
+2025-05-28 15:21:32,575 - root - INFO - ipo_analyzer:36 - Task: Starting analysis for IPO: Vantage Corp (Singapore) from source Finnhub
+2025-05-28 15:21:33,399 - root - INFO - ipo_analyzer:68 - Task: Significant data change detected for Vantage Corp (Singapore). Re-analyzing.
+2025-05-28 15:21:33,400 - root - INFO - data_fetcher:120 - Attempting to fetch S-1/F-1 for Vantage Corp (Singapore) (CIK: 0002027160)
+2025-05-28 15:21:33,466 - root - INFO - base_client:39 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002027160.json?...
+2025-05-28 15:21:33,529 - root - INFO - sec_edgar_client:115 - No 'S-1' filings found for CIK 0002027160 matching criteria.
+2025-05-28 15:21:34,223 - root - INFO - base_client:39 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002027160.json?...
+2025-05-28 15:21:34,288 - root - INFO - sec_edgar_client:115 - No 'S-1/A' filings found for CIK 0002027160 matching criteria.
+2025-05-28 15:21:34,984 - root - INFO - base_client:39 - Cache hit for: GET:https://data.sec.gov/submissions/CIK0002027160.json?...
+2025-05-28 15:21:35,552 - root - INFO - data_fetcher:127 - Found F-1 URL for Vantage Corp (Singapore): https://www.sec.gov/Archives/edgar/data/2027160/000149315224040628/formf-1.htm
+2025-05-28 15:21:35,553 - root - INFO - sec_edgar_client:127 - Fetching filing text from: https://www.sec.gov/Archives/edgar/data/2027160/000149315224040628/formf-1.htm
+2025-05-28 15:21:36,234 - root - INFO - base_client:39 - Cache hit for: GET:https://www.sec.gov/Archives/edgar/data/2027160/000149315224040628/formf-1.htm?...
+2025-05-28 15:21:36,298 - root - INFO - data_fetcher:142 - Fetched S-1/F-1 text (length: 2016965) for Vantage Corp (Singapore)
+2025-05-28 15:22:29,700 - root - INFO - ipo_analyzer:84 - Task: Updating existing analysis for Vantage Corp (Singapore) (ID: 2)
+2025-05-28 15:22:29,701 - root - INFO - ipo_analyzer:102 - Task: Saved IPO analysis for Vantage Corp (Singapore) (Analysis ID: 2)
+2025-05-28 15:22:29,702 - root - INFO - ipo_analyzer:193 - IPO analysis pipeline completed. Processed 2 IPOs that required new/updated analysis from the filtered set.
+2025-05-28 15:22:29,702 - root - INFO - main:146 - --- Main script execution finished. ---
+2025-05-28 15:22:29,703 - root - INFO - main:159 - Financial Analysis Script finished at 2025-05-28 12:22:29 UTC
+2025-05-28 15:22:29,703 - root - INFO - main:160 - Total execution time: 0:01:47.084707
+2025-05-28 15:22:29,704 - root - INFO - main:161 - ===================================================================
+2025-05-28 15:22:33,770 - root - INFO - main:152 - ===================================================================
+2025-05-28 15:22:33,770 - root - INFO - main:153 - Starting Financial Analysis Script at 2025-05-28 12:22:33 UTC
+2025-05-28 15:22:33,771 - root - INFO - main:154 - ===================================================================
+2025-05-28 15:22:33,772 - root - INFO - main:57 - --- Generating Today's Email Summary ---
+2025-05-28 15:22:35,185 - root - INFO - main:69 - Found 0 stock analyses, 2 IPO analyses, 0 news analyses since 2025-05-28 00:00:00 UTC for email.
+2025-05-28 15:22:37,261 - root - INFO - email_service:294 - Email sent successfully to daniprav@gmail.com
+2025-05-28 15:22:37,324 - root - INFO - main:146 - --- Main script execution finished. ---
+2025-05-28 15:22:37,325 - root - INFO - main:159 - Financial Analysis Script finished at 2025-05-28 12:22:37 UTC
+2025-05-28 15:22:37,325 - root - INFO - main:160 - Total execution time: 0:00:03.554350
+2025-05-28 15:22:37,325 - root - INFO - main:161 - ===================================================================
+2025-05-28 15:23:12,626 - root - INFO - main:152 - ===================================================================
+2025-05-28 15:23:12,627 - root - INFO - main:153 - Starting Financial Analysis Script at 2025-05-28 12:23:12 UTC
+2025-05-28 15:23:12,627 - root - INFO - main:154 - ===================================================================
+2025-05-28 15:23:12,630 - root - INFO - main:35 - --- Starting IPO Analysis Pipeline (Upcoming only: True, Max to analyze: All relevant) ---
+2025-05-28 15:23:12,630 - root - INFO - data_fetcher:11 - Fetching upcoming IPOs using Finnhub...
+2025-05-28 15:23:13,878 - root - INFO - base_client:39 - Cache hit for: GET:https://finnhub.io/api/v1/calendar/ipo?from=2025-03-29&to=2025-11-24&token=d0o7hphr01qqr9alj38gd...
+2025-05-28 15:23:13,946 - root - INFO - data_fetcher:71 - Successfully parsed 148 IPOs from Finnhub API response.
+2025-05-28 15:23:13,947 - root - INFO - data_fetcher:90 - Total unique IPOs fetched after deduplication: 148
+2025-05-28 15:23:13,947 - root - INFO - ipo_analyzer:149 - Filtered for upcoming IPOs only: 2 IPOs remain for potential analysis.
+2025-05-28 15:23:13,947 - root - INFO - ipo_analyzer:174 - No limit set for max_to_analyze, proceeding with 2 relevant IPOs.
+2025-05-28 15:23:13,949 - root - INFO - ipo_analyzer:36 - Task: Starting analysis for IPO: Wintergreen Acquisition Corp. from source Finnhub
+2025-05-28 15:23:14,137 - root - INFO - sec_edgar_client:20 - Fetching CIK map from SEC...
+2025-05-28 15:23:14,343 - root - INFO - base_client:39 - Cache hit for: GET:https://www.sec.gov/files/company_tickers.json...
+2025-05-28 15:23:14,405 - root - INFO - sec_edgar_client:25 - CIK map loaded from cache with 10046 entries.
+2025-05-28 15:23:15,099 - root - INFO - ipo_analyzer:68 - Task: Significant data change detected for Wintergreen Acquisition Corp.. Re-analyzing.
+2025-05-28 15:23:15,602 - root - WARNING - data_fetcher:114 - No CIK found via symbol WTGUU for IPO 'Wintergreen Acquisition Corp.'.
+2025-05-28 15:23:15,603 - root - WARNING - ai_analyzer:100 - For Wintergreen Acquisition Corp.: No S-1 filing URL was found for this IPO. Analysis will be based on general knowledge and IPO data only.
